@@ -1,0 +1,26 @@
+{
+  "name": "presenter",
+  "version": "0.1.0",
+  "description": "A JavaScript-based presentation library",
+  "main": "dist/presenter.js",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "build": "NODE_ENV=production webpack",
+    "watch": "NODE_ENV=development webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brianyu28/presenter.git"
+  },
+  "author": "Brian Yu <brian@brianyu.me>",
+  "bugs": {
+    "url": "https://github.com/brianyu28/presenter/issues"
+  },
+  "homepage": "https://github.com/brianyu28/presenter#readme",
+  "devDependencies": {
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.7.2",
+    "webpack": "^5.96.1",
+    "webpack-cli": "^5.1.4"
+  }
+}

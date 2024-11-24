@@ -1,0 +1,6 @@
+# Node
+node_modules/
+
+# Webpack
+**/dist/**
+!**/dist/index.html
