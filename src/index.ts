@@ -1,19 +1,8 @@
-export class Presentation {
+// Presentation
+export * from "./presentation/presentation";
+export * from "./presentation/slide";
+export * from "./presentation/theme";
+export * from "./presentation/object";
 
-  /**
-   * Title of the presentation.
-   */
-  title: string;
-
-  /**
-   *
-   * @param title Title of the presentation.
-   */
-  constructor(title: string) {
-    this.title = title;
-  }
-
-  present() {
-    document.title = this.title;
-  }
-}
+// Themes
+export * from "./themes/index";

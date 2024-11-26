@@ -10,6 +10,13 @@ module.exports = {
     libraryTarget: "umd",
     globalObject: "this",
   },
+  watchOptions: {
+    ignored: [
+      "**/node_modules",
+      path.resolve(__dirname, "dist"),
+      path.resolve(__dirname, "examples"),
+    ],
+  },
   resolve: {
     extensions: [".ts", ".js"],
   },
@@ -18,8 +25,8 @@ module.exports = {
       {
         test: /\.ts$/,
         use: "ts-loader",
-        exclude: /node_modules/
-      }
+        exclude: /node_modules/,
+      },
     ],
   },
 };

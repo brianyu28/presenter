@@ -6,7 +6,9 @@
   "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "NODE_ENV=production webpack",
-    "watch": "NODE_ENV=development webpack --watch"
+    "watch": "NODE_ENV=development webpack --watch",
+    "prettier": "prettier . --write --ignore-unknown",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -18,9 +20,15 @@
   },
   "homepage": "https://github.com/brianyu28/presenter#readme",
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.4.1",
     "ts-loader": "^9.5.1",
     "typescript": "^5.7.2",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }
