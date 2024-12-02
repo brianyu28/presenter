@@ -1,6 +1,12 @@
-import { Presentation } from "presenter";
+import { Presentation, Slide, Text } from "presenter";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const presentation = new Presentation("My Presentation", document.body);
+  const slides = [new Slide([new Text("Hello", {})])];
+  const presentation = new Presentation(
+    "My Presentation",
+    slides,
+    document.body,
+  );
+
   presentation.present();
 });

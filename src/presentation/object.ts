@@ -1,14 +1,18 @@
-interface ObjectProps {
+import { Theme } from "./theme";
+
+export interface ObjectProps {
   x: number;
   y: number;
 }
 
 export class SlideObject {
-  props: ObjectProps;
+  props: Partial<ObjectProps>;
 
-  constructor(props: ObjectProps) {
+  constructor(props: Partial<ObjectProps>) {
     this.props = props;
   }
 
-  render() {}
+  render(theme: Theme): SVGElement {
+    return null;
+  }
 }

@@ -1,4 +1,5 @@
 import DefaultTheme from "../themes/default";
+import { Slide } from "./slide";
 import { Theme } from "./theme";
 
 export interface PresentationOptions {
@@ -16,6 +17,10 @@ export interface PresentationOptions {
    * Presentation theme to use.
    */
   theme: Theme;
+}
+
+interface PresentationState {
+  currentSlide: number;
 }
 
 export class Presentation {
@@ -40,11 +45,22 @@ export class Presentation {
   options: PresentationOptions;
 
   /**
+   * Presentation slides.
+   */
+  slides: Slide[];
+
+  /**
+   * Presentation state.
+   */
+  presentationState: PresentationState;
+
+  /**
    *
    * @param title Title of the presentation.
    */
   constructor(
     title: string,
+    slides: Slide[],
     element: HTMLElement,
     options: Partial<PresentationOptions> = {},
   ) {
@@ -55,11 +71,15 @@ export class Presentation {
     this.title = title;
     this.element = element;
     this.svg = null;
+    this.slides = slides;
     this.options = {
       width: 3840,
       height: 2160,
       theme: DefaultTheme,
       ...options,
+    };
+    this.presentationState = {
+      currentSlide: 0,
     };
   }
 
@@ -100,6 +120,16 @@ export class Presentation {
     }
 
     this.element.appendChild(this.svg);
+
+    // Set up presentation state
+    this.presentationState.currentSlide = 0;
+
+    // Render slide
+    const currentSlide = this.slides[this.presentationState.currentSlide];
+    if (currentSlide === undefined) {
+      return;
+    }
+    currentSlide.render(this.svg, this.options.theme);
   }
 
   /**
