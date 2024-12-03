@@ -1,5 +1,5 @@
 import { SlideObject } from "./object";
-import { Theme } from "./theme";
+import { Presentation } from "./presentation";
 
 export interface SlideProps {}
 
@@ -10,14 +10,17 @@ export class Slide {
     this.objects = objects;
   }
 
-  render(svg: SVGSVGElement, theme: Theme) {
+  render(presentation: Presentation) {
     // Clear SVG element
-    svg.innerHTML = "";
+    presentation.svg.innerHTML = "";
 
     // Render objects
     this.objects.forEach((object) => {
-      const element = object.render(theme);
-      svg.appendChild(element);
+      object._element = object.generate(
+        presentation.options.theme,
+        presentation.boundingBox,
+      );
+      presentation.svg.appendChild(object.element());
     });
   }
 }

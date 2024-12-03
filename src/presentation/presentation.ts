@@ -1,4 +1,5 @@
 import DefaultTheme from "../themes/default";
+import { BoundingBox } from "../util/position";
 import { Slide } from "./slide";
 import { Theme } from "./theme";
 
@@ -45,6 +46,11 @@ export class Presentation {
   options: PresentationOptions;
 
   /**
+   * Bounds of presentation.
+   */
+  boundingBox: BoundingBox;
+
+  /**
    * Presentation slides.
    */
   slides: Slide[];
@@ -81,6 +87,11 @@ export class Presentation {
     this.presentationState = {
       currentSlide: 0,
     };
+    this.boundingBox = new BoundingBox(
+      { x: 0, y: 0 },
+      this.options.width,
+      this.options.height,
+    );
   }
 
   present() {
@@ -129,7 +140,7 @@ export class Presentation {
     if (currentSlide === undefined) {
       return;
     }
-    currentSlide.render(this.svg, this.options.theme);
+    currentSlide.render(this);
   }
 
   /**
