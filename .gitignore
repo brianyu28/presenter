@@ -4,3 +4,6 @@ node_modules/
 # Webpack
 **/dist/**
 !**/dist/index.html
+
+# Other
+.DS_Store

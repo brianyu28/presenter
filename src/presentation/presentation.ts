@@ -36,9 +36,19 @@ export class Presentation {
   element: HTMLElement;
 
   /**
+   * SVG container element.
+   */
+  container: HTMLElement;
+
+  /**
    * Parent SVG element of presentation.
    */
   svg: SVGSVGElement | null;
+
+  /**
+   * Shadow SVG element, not displayed and used for calculating sizes.
+   */
+  shadow: SVGSVGElement | null;
 
   /**
    * Presentation settings.
@@ -76,7 +86,6 @@ export class Presentation {
 
     this.title = title;
     this.element = element;
-    this.svg = null;
     this.slides = slides;
     this.options = {
       width: 3840,
@@ -92,17 +101,43 @@ export class Presentation {
       this.options.width,
       this.options.height,
     );
+
+    this.container = null;
+    this.svg = null;
+    this.shadow = null;
   }
 
   present() {
+    // Create container element.
+    this.container = document.createElement("div");
+    this.container.style.width = "100%";
+    this.container.style.aspectRatio = `${this.options.width} / ${this.options.height}`;
+
+    // Set container to be vertically centered.
+    this.container.style.position = "relative";
+    this.container.style.top = "50%";
+    this.container.style.transform = "translateY(-50%)";
+
+    // Set container to be horizontally centered.
+    this.container.style.marginLeft = "auto";
+    this.container.style.marginRight = "auto";
+
     // Create SVG element.
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    this.svg.setAttribute("width", "100%");
-    this.svg.setAttribute(
-      "viewBox",
-      `0 0 ${this.options.width} ${this.options.height}`,
-    );
     this.svg.style.backgroundColor = this.options.theme.backgroundColor;
+
+    // Create shadow element that's hidden from view.
+    this.shadow = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    this.shadow.style.visibility = "hidden";
+
+    [this.svg, this.shadow].forEach((svg) => {
+      svg.setAttribute("width", "100%");
+      svg.setAttribute(
+        "viewBox",
+        `0 0 ${this.options.width} ${this.options.height}`,
+      );
+      svg.style.position = "absolute";
+    });
 
     if (this.isFullBodyPresentation()) {
       // Set document title.
@@ -116,21 +151,20 @@ export class Presentation {
       document.body.style.width = "100%";
       document.body.style.margin = "0";
       document.body.style.backgroundColor = "black";
-      document.body.style.display = "flex";
-      document.body.style.justifyContent = "center";
-      document.body.style.alignItems = "center";
 
       // Update SVG size when aspect ratio changes.
       window
         .matchMedia(
           `(min-aspect-ratio: ${this.options.width} / ${this.options.height})`,
         )
-        .addEventListener("change", this.updateSVGParentSize.bind(this));
+        .addEventListener("change", this.updateSVGContainerSize.bind(this));
 
-      this.updateSVGParentSize();
+      this.updateSVGContainerSize();
     }
 
-    this.element.appendChild(this.svg);
+    this.container.appendChild(this.shadow);
+    this.container.appendChild(this.svg);
+    this.element.appendChild(this.container);
 
     // Set up presentation state
     this.presentationState.currentSlide = 0;
@@ -148,16 +182,16 @@ export class Presentation {
    *
    * The size of the parent SVG element needs to be updated.
    */
-  updateSVGParentSize() {
+  updateSVGContainerSize() {
     if (
       window.innerHeight / window.innerWidth >
       this.options.height / this.options.width
     ) {
-      this.svg.style.width = "100%";
-      this.svg.style.height = "auto";
+      this.container.style.width = "100%";
+      this.container.style.height = "auto";
     } else {
-      this.svg.style.width = "auto";
-      this.svg.style.height = "100%";
+      this.container.style.width = "auto";
+      this.container.style.height = "100%";
     }
   }
 
