@@ -16,10 +16,7 @@ export class Slide {
 
     // Render objects
     this.objects.forEach((object) => {
-      object._element = object.generate(
-        presentation.options.theme,
-        presentation.boundingBox,
-      );
+      object._element = object.generate(presentation);
       presentation.svg.appendChild(object.element());
     });
   }

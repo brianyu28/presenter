@@ -202,4 +202,25 @@ export class Presentation {
   isFullBodyPresentation(): boolean {
     return this.element === document.body;
   }
+
+  theme(): Theme {
+    return this.options.theme;
+  }
+
+  /**
+   * Computes the current size of an element in the DOM.
+   * @returns BoundingBox
+   */
+  computeRenderedBoundingBox(element: SVGGraphicsElement): BoundingBox {
+    // If element is in the presentation, we can get the bounding box.
+    if (this.svg.contains(element)) {
+      return BoundingBox.fromElement(element);
+    }
+
+    // If element isn't in the presentation, we need to add it to the shadow element.
+    this.shadow.appendChild(element);
+    const boundingBox = BoundingBox.fromElement(element);
+    this.shadow.removeChild(element);
+    return boundingBox;
+  }
 }

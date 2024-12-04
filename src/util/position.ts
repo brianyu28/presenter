@@ -14,9 +14,8 @@ export class BoundingBox {
     this.height = height;
   }
 
-  static fromElement(element: SVGElement): BoundingBox {
-    // Untested. TODO: Investigate getBoundingClientRect() vs. getBBox()
-    const rect = element.getBoundingClientRect();
+  static fromElement(element: SVGGraphicsElement): BoundingBox {
+    const rect = element.getBBox();
     return new BoundingBox({ x: rect.x, y: rect.y }, rect.width, rect.height);
   }
 }

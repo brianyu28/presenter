@@ -1,6 +1,5 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
-import { Theme } from "../presentation/theme";
-import { BoundingBox } from "../util/position";
+import { Presentation } from "../presentation/presentation";
 
 interface TextProps extends ObjectProps {
   content: string;
@@ -22,15 +21,18 @@ export class Text extends SlideObject {
     });
   }
 
-  generate(theme: Theme, bounds: BoundingBox): SVGElement {
+  generate(presentation: Presentation): SVGElement {
     const element = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "text",
     );
     element.innerHTML = this.props.content;
-    element.setAttribute("x", this.props.position.x.toString());
-    element.setAttribute("y", this.props.position.y.toString());
     element.style.font = `${this.props.fontStyle} ${this.props.fontSize}px ${this.props.fontFamily}`;
+
+    // Position the element. Text coordinates specify the lower-left corner of text baseline.
+    const bbox = this.computeRenderedBoundingBox(element, presentation);
+    element.setAttribute("x", bbox.origin.x.toString());
+    element.setAttribute("y", (bbox.origin.y + bbox.height).toString());
     return element;
   }
 }
