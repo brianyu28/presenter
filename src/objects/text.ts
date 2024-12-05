@@ -6,6 +6,7 @@ interface TextProps extends ObjectProps {
   fontStyle: string; // "normal" | "italic" | "bold"
   fontSize: number;
   fontFamily: string;
+  color: string;
 }
 
 export class Text extends SlideObject {
@@ -13,6 +14,7 @@ export class Text extends SlideObject {
 
   constructor(props: Partial<TextProps> = {}) {
     super({
+      color: "black",
       content: "",
       fontSize: 40,
       fontStyle: "normal",
@@ -28,6 +30,7 @@ export class Text extends SlideObject {
     );
     element.innerHTML = this.props.content;
     element.style.font = `${this.props.fontStyle} ${this.props.fontSize}px ${this.props.fontFamily}`;
+    element.style.fill = this.props.color;
 
     // Position the element. Text coordinates specify the lower-left corner of text baseline.
     const bbox = this.computeRenderedBoundingBox(element, presentation);

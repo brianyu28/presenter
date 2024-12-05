@@ -1,18 +1,20 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
 import { Presentation } from "../presentation/presentation";
 
-interface RectangleProps extends ObjectProps {
-  color: string;
+interface ImageProps extends ObjectProps {
+  href: string;
   width: number;
   height: number;
 }
 
-export class Rectangle extends SlideObject {
-  props: RectangleProps;
+export class Image extends SlideObject {
+  props: ImageProps;
 
-  constructor(props: Partial<RectangleProps> = {}) {
+  constructor(props: Partial<ImageProps> = {}) {
+    if (!props.href) {
+      throw new Error("Image requires a href");
+    }
     super({
-      color: "black",
       width: 100,
       height: 100,
       ...props,
@@ -20,14 +22,14 @@ export class Rectangle extends SlideObject {
   }
 
   generate(presentation: Presentation): SVGElement {
-    const { width, height, color } = this.props;
+    const { width, height, href } = this.props;
     const element = document.createElementNS(
       "http://www.w3.org/2000/svg",
-      "rect",
+      "image",
     );
 
     // Set attributes
-    element.setAttribute("fill", color);
+    element.setAttribute("href", href);
     element.setAttribute("width", width.toString());
     element.setAttribute("height", height.toString());
 

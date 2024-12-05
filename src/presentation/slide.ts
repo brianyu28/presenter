@@ -11,7 +11,7 @@ export class Slide {
   animationIndex: number;
 
   constructor(objects: SlideObject[], animations: (() => void)[] = []) {
-    this.objects = objects;
+    this.objects = objects.filter((object) => object !== null);
     this.animations = animations;
     this.animationIndex = 0;
   }
@@ -38,5 +38,12 @@ export class Slide {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Sleep for a specified number of milliseconds in an animation.
+   */
+  async sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
