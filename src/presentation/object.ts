@@ -1,3 +1,5 @@
+import anime from "animejs/lib/anime.es.js";
+
 import { BoundingBox, Position } from "../util/position";
 import { Presentation } from "./presentation";
 import { Theme } from "./theme";
@@ -38,49 +40,59 @@ export class SlideObject {
   /**
    * Performs an animation on the object's element.
    */
-  animate(
-    keyframe: Keyframe | Keyframe[],
-    options: number | KeyframeAnimationOptions = {},
-  ) {
-    const keyframes = keyframe instanceof Array ? keyframe : [keyframe];
-    const animationOptions = {
-      duration: 1000,
-      fill: "forwards",
-      ...(typeof options === "number" ? { duration: options } : options),
+  animate(params: anime.AnimeParams, presentation: Presentation | null = null) {
+    const { bbox, ...remainingParams } = params;
+
+    const processedParams = {
+      ...remainingParams,
+      // Position
+      ...(bbox !== undefined
+        ? this.computePositionAttributes(presentation, bbox)
+        : {}),
+      // Default cubic bezier easing
+      ...(params.easing === "cubic"
+        ? { easing: "cubicBezier(0.42, 0, 0.58, 1)" }
+        : {}),
     };
-    this.element().animate(
-      keyframes,
-      animationOptions as KeyframeAnimationOptions,
-    );
+
+    anime({
+      targets: this.element(),
+      duration: 500,
+      easing: "linear",
+      ...processedParams,
+    });
   }
 
   /**
    * Returns an animation callback function that performs the animation.
    */
-  animation(
-    keyframe: Keyframe | Keyframe[],
-    options: number | KeyframeAnimationOptions = {},
-  ): () => void {
-    return () => this.animate(keyframe, options);
+  animation(params: anime.AnimeParams): () => void {
+    return () => this.animate(params);
   }
 
-  positionInPresentation(presentation: Presentation): Position {
-    const position = this.props.position;
-    if (position === null) {
-      throw new Error("Object has no position");
-    }
+  /**
+   * Performs a movement animation.
+   * Meant to be overriden for object-specific movement.
+   */
+  animateMove(
+    position: Position,
+    params: anime.AnimeParams,
+    presentation: Presentation,
+  ) {
+    this.animate({ x: position.x, y: position.y, ...params }, presentation);
+  }
 
-    // Allow for x and y values to be interpreted as percentages of total width/height.
-    const x =
-      position.x <= 1
-        ? position.x * presentation.boundingBox.width
-        : position.x;
-    const y =
-      position.y <= 1
-        ? position.y * presentation.boundingBox.height
-        : position.y;
-
-    return { x, y };
+  /**
+   * Allow for x and y values to be interpreted as percentages of total width/height.
+   */
+  positionInPresentation(
+    presentation: Presentation,
+    x: number,
+    y: number,
+  ): Position {
+    const adjustedX = x <= 1 ? x * presentation.boundingBox.width : x;
+    const adjustedY = y <= 1 ? y * presentation.boundingBox.height : y;
+    return { x: adjustedX, y: adjustedY };
   }
 
   /**
@@ -123,39 +135,56 @@ export class SlideObject {
   computeRenderedBoundingBox(
     element: SVGGraphicsElement,
     presentation: Presentation,
+    adjustY: boolean = false,
   ): BoundingBox {
-    let { x: initialX, y: initialY } =
-      this.positionInPresentation(presentation);
     const renderedBoundingBox =
       presentation.computeRenderedBoundingBox(element);
 
-    // Allow adjusting the initialY value if the bounding box height
-    if (renderedBoundingBox.origin.y !== 0) {
-      initialY -= renderedBoundingBox.height + renderedBoundingBox.origin.y;
-    }
-
-    return this.anchorBoundingBox(
-      new BoundingBox(
-        { x: initialX, y: initialY },
-        renderedBoundingBox.width,
-        renderedBoundingBox.height,
-      ),
+    const box = new BoundingBox(
+      {
+        x: this.props.position.x,
+        y: this.props.position.y,
+      },
+      renderedBoundingBox.width,
+      renderedBoundingBox.height,
     );
+
+    return box;
   }
 
   /**
-   * Computes a bounding box for a given element given its width and height.
-   * Unlike `computeRenderedBoundingBox`, uses width and height inputs rather than computing a rendered size.
-   * @param presentation
-   * @param width
-   * @param height
+   * Given a particular initial bounding box, returns the DOM attributes that should be set for the element.
+   * Can be overriden by other elements.
    */
-  computeBoundingBox(
+  computePositionAttributes(
     presentation: Presentation,
-    width: number,
-    height: number,
-  ): BoundingBox {
-    const { x, y } = this.positionInPresentation(presentation);
-    return this.anchorBoundingBox(new BoundingBox({ x, y }, width, height));
+    bbox: BoundingBox,
+  ): any {
+    if (presentation === null) {
+      throw new Error(
+        "Cannot compute object position attributes without presentation",
+      );
+    }
+    const { x, y } = this.positionInPresentation(
+      presentation,
+      bbox.origin.x,
+      bbox.origin.y,
+    );
+    const anchoredBox = this.anchorBoundingBox(
+      new BoundingBox({ x, y }, bbox.width, bbox.height),
+    );
+    return { x: anchoredBox.origin.x, y: anchoredBox.origin.y };
+  }
+
+  setPositionAttributes(
+    presentation: Presentation,
+    bbox: BoundingBox,
+    element: SVGElement,
+  ) {
+    for (const [attribute, value] of Object.entries(
+      this.computePositionAttributes(presentation, bbox),
+    )) {
+      element.setAttribute(attribute, value.toString());
+    }
   }
 }

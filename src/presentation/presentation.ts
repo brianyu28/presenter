@@ -168,7 +168,7 @@ export class Presentation {
       document.body.style.height = "100%";
       document.body.style.width = "100%";
       document.body.style.margin = "0";
-      document.body.style.backgroundColor = "black";
+      document.body.style.backgroundColor = "#000000";
 
       // Update SVG size when aspect ratio changes.
       window
@@ -224,7 +224,7 @@ export class Presentation {
       return;
     }
 
-    if (!currentSlide.nextAnimation()) {
+    if (!currentSlide.nextAnimation(this)) {
       this.presentationState.currentSlide++;
       const nextSlide = this.slides[this.presentationState.currentSlide];
       if (nextSlide === undefined) {

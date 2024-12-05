@@ -11,3 +11,6 @@ export * from "./objects/rectangle";
 
 // Themes
 export * from "./themes/index";
+
+// Util
+export * from "./util/position";

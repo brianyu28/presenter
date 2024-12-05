@@ -6,11 +6,14 @@ export interface SlideProps {}
 export class Slide {
   objects: SlideObject[];
 
-  animations: (() => void)[];
+  animations: ((presentation: Presentation) => void)[];
 
   animationIndex: number;
 
-  constructor(objects: SlideObject[], animations: (() => void)[] = []) {
+  constructor(
+    objects: SlideObject[],
+    animations: ((presentation: Presentation) => void)[] = [],
+  ) {
     this.objects = objects.filter((object) => object !== null);
     this.animations = animations;
     this.animationIndex = 0;
@@ -30,10 +33,10 @@ export class Slide {
 
   // Runs next animation and returns true.
   // If no more animations left to run, returns false.
-  nextAnimation(): boolean {
+  nextAnimation(presentation: Presentation): boolean {
     const animation = this.animations[this.animationIndex];
     if (animation) {
-      animation();
+      animation(presentation);
       this.animationIndex++;
       return true;
     }

@@ -1,5 +1,6 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
 import { Presentation } from "../presentation/presentation";
+import { BoundingBox, Position } from "../util/position";
 
 interface ImageProps extends ObjectProps {
   href: string;
@@ -34,9 +35,21 @@ export class Image extends SlideObject {
     element.setAttribute("height", height.toString());
 
     // Position the element.
-    const bbox = this.computeBoundingBox(presentation, width, height);
-    element.setAttribute("x", bbox.origin.x.toString());
-    element.setAttribute("y", bbox.origin.y.toString());
+    this.setPositionAttributes(
+      presentation,
+      new BoundingBox(this.props.position, width, height),
+      element,
+    );
+
     return element;
+  }
+
+  animateMove(
+    position: Position,
+    params: anime.AnimeParams,
+    presentation: Presentation,
+  ) {
+    const bbox = new BoundingBox(position, this.props.width, this.props.height);
+    this.animate({ bbox, ...params }, presentation);
   }
 }
