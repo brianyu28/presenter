@@ -1,7 +1,7 @@
 import { Theme } from "../presentation/theme";
 
 const DefaultTheme: Theme = {
-  backgroundColor: "white",
+  backgroundColor: "#ffffff",
 };
 
 export default DefaultTheme;

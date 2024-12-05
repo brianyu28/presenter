@@ -288,15 +288,12 @@ export class Presentation {
    * @returns BoundingBox
    */
   computeRenderedBoundingBox(element: SVGGraphicsElement): BoundingBox {
-    // If element is in the presentation, we can get the bounding box.
-    if (this.svg.contains(element)) {
-      return BoundingBox.fromElement(element);
-    }
+    const clone = element.cloneNode(true) as SVGGraphicsElement;
 
-    // If element isn't in the presentation, we need to add it to the shadow element.
-    this.shadow.appendChild(element);
-    const boundingBox = BoundingBox.fromElement(element);
-    this.shadow.removeChild(element);
+    this.shadow.appendChild(clone);
+    const boundingBox = BoundingBox.fromElement(clone);
+    this.shadow.removeChild(clone);
+
     return boundingBox;
   }
 }
