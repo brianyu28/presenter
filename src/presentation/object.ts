@@ -35,6 +35,35 @@ export class SlideObject {
     return this._element;
   }
 
+  /**
+   * Performs an animation on the object's element.
+   */
+  animate(
+    keyframe: Keyframe | Keyframe[],
+    options: number | KeyframeAnimationOptions = {},
+  ) {
+    const keyframes = keyframe instanceof Array ? keyframe : [keyframe];
+    const animationOptions = {
+      duration: 1000,
+      fill: "forwards",
+      ...(typeof options === "number" ? { duration: options } : options),
+    };
+    this.element().animate(
+      keyframes,
+      animationOptions as KeyframeAnimationOptions,
+    );
+  }
+
+  /**
+   * Returns an animation callback function that performs the animation.
+   */
+  animation(
+    keyframe: Keyframe | Keyframe[],
+    options: number | KeyframeAnimationOptions = {},
+  ): () => void {
+    return () => this.animate(keyframe, options);
+  }
+
   positionInPresentation(presentation: Presentation): Position {
     const position = this.props.position;
     if (position === null) {

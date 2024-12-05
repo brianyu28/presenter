@@ -125,6 +125,24 @@ export class Presentation {
     // Create SVG element.
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     this.svg.style.backgroundColor = this.options.theme.backgroundColor;
+    this.svg.style.cursor = "none";
+
+    // Set up keyboard commands.
+    const eventTarget = this.isFullBodyPresentation()
+      ? document.body
+      : this.svg;
+    (eventTarget as HTMLElement).addEventListener("keyup", (event) => {
+      if (event.key === "ArrowRight" || event.key === " ") {
+        this.next();
+      } else if (event.key === "ArrowLeft") {
+        this.previous();
+      }
+    });
+
+    // Show cursor when the cursor moves.
+    eventTarget.addEventListener("mousemove", (event) => {
+      this.svg.style.cursor = "auto";
+    });
 
     // Create shadow element that's hidden from view.
     this.shadow = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -193,6 +211,64 @@ export class Presentation {
       this.container.style.width = "auto";
       this.container.style.height = "100%";
     }
+  }
+
+  /**
+   * Advances to next animation in slide, or next slide if there is no next animation.
+   * Returns true if we were able to successfully advance.
+   */
+  next(): boolean {
+    this.svg.style.cursor = "none";
+    const currentSlide = this.slides[this.presentationState.currentSlide];
+    if (currentSlide === undefined) {
+      return;
+    }
+
+    if (!currentSlide.nextAnimation()) {
+      this.presentationState.currentSlide++;
+      const nextSlide = this.slides[this.presentationState.currentSlide];
+      if (nextSlide === undefined) {
+        return;
+      }
+      nextSlide.render(this);
+    }
+  }
+
+  /**
+   * Goes back to the previous slide.
+   */
+  previous(): boolean {
+    this.svg.style.cursor = "none";
+
+    // If we're past the end of the presentation, go to the last slide.
+    const currentSlide = this.slides[this.presentationState.currentSlide];
+    if (currentSlide === undefined) {
+      this.presentationState.currentSlide = this.slides.length - 1;
+      const lastSlide = this.slides[this.presentationState.currentSlide];
+      if (lastSlide === undefined) {
+        return;
+      }
+      lastSlide.render(this);
+      return;
+    }
+
+    // If we're in the middle of a build, go back to the start of the build.
+    if (currentSlide.animationIndex > 0) {
+      currentSlide.animationIndex = 0;
+      currentSlide.render(this);
+      return;
+    }
+
+    // Otherwise, go back to the previous slide.
+    if (this.presentationState.currentSlide === 0) {
+      return;
+    }
+    this.presentationState.currentSlide--;
+    const previousSlide = this.slides[this.presentationState.currentSlide];
+    if (previousSlide === undefined) {
+      return;
+    }
+    previousSlide.render(this);
   }
 
   /**
