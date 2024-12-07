@@ -5,9 +5,11 @@ export * from "./presentation/theme";
 export * from "./presentation/object";
 
 // Objects
+export * from "./objects/group";
 export * from "./objects/image";
 export * from "./objects/text";
 export * from "./objects/rectangle";
+export * from "./objects/vectorGraphic";
 
 // Themes
 export * from "./themes/index";

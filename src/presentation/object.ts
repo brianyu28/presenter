@@ -8,6 +8,9 @@ export interface ObjectProps {
   position: Position | null;
   verticalAnchor: "center" | "top" | "bottom";
   horizontalAnchor: "center" | "start" | "end";
+
+  /** Property that overrides verticalAnchor and horizontalAnchor to center object. */
+  center?: boolean;
 }
 
 export class SlideObject {
@@ -17,10 +20,13 @@ export class SlideObject {
 
   constructor(props: Partial<ObjectProps>) {
     this.props = {
-      position: null,
+      position: { x: 0, y: 0 },
       verticalAnchor: "top",
       horizontalAnchor: "start",
       ...props,
+      ...(props.center
+        ? { verticalAnchor: "center", horizontalAnchor: "center" }
+        : {}),
     };
     this._element = null;
   }

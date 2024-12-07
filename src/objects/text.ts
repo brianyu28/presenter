@@ -8,6 +8,7 @@ interface TextProps extends ObjectProps {
   fontSize: number;
   fontFamily: string;
   color: string;
+  dominantBaseline: string;
 }
 
 export class Text extends SlideObject {
@@ -17,20 +18,23 @@ export class Text extends SlideObject {
     super({
       color: "#000000",
       content: "",
-      fontSize: 40,
+      fontSize: 150,
       fontStyle: "normal",
-      fontFamily: "Arial",
+      fontFamily: "primary",
+      dominantBaseline: "ideographic",
       ...props,
     });
   }
 
   generate(presentation: Presentation): SVGElement {
+    const fontFamily = this.getFont(this.props.fontFamily, presentation);
+
     const element = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "text",
     );
     element.innerHTML = this.props.content;
-    element.style.font = `${this.props.fontStyle} ${this.props.fontSize}px ${this.props.fontFamily}`;
+    element.style.font = `${this.props.fontStyle} ${this.props.fontSize}px ${fontFamily}`;
     element.style.fill = this.props.color;
 
     // Position the element. Text coordinates specify the lower-left corner of text baseline.
@@ -55,7 +59,11 @@ export class Text extends SlideObject {
     const anchoredBox = this.anchorBoundingBox(
       new BoundingBox({ x, y }, bbox.width, bbox.height),
     );
-    return { x: anchoredBox.origin.x, y: anchoredBox.origin.y + bbox.height };
+    return {
+      x: anchoredBox.origin.x,
+      y: anchoredBox.origin.y + bbox.height,
+      "dominant-baseline": this.props.dominantBaseline,
+    };
   }
 
   animateMove(
@@ -73,7 +81,17 @@ export class Text extends SlideObject {
       renderedBBox.width,
       renderedBBox.height,
     );
-    console.log(bbox);
     this.animate({ bbox, ...params }, presentation);
+  }
+
+  /**
+   * If the font is defined in the theme, return the font name from the theme.
+   * Otherwise, return the font name as is.
+   */
+  getFont(name: string, presentation: Presentation) {
+    if (presentation.options.theme.text.fonts[name]) {
+      return presentation.options.theme.text.fonts[name];
+    }
+    return name;
   }
 }

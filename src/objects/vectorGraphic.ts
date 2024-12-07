@@ -2,38 +2,36 @@ import { ObjectProps, SlideObject } from "../presentation/object";
 import { Presentation } from "../presentation/presentation";
 import { BoundingBox, Position } from "../util/position";
 
-interface RectangleProps extends ObjectProps {
-  color: string;
+interface VectorGraphicProps extends ObjectProps {
+  svg: string;
   width: number;
   height: number;
-  rounding: number;
 }
 
-export class Rectangle extends SlideObject {
-  props: RectangleProps;
+// TODO: Complete this class.
+export class VectorGraphic extends SlideObject {
+  props: VectorGraphicProps;
 
-  constructor(props: Partial<RectangleProps> = {}) {
+  constructor(svg: string, props: Partial<VectorGraphicProps> = {}) {
     super({
-      color: "#000000",
+      svg,
       width: 100,
       height: 100,
-      rounding: 0,
       ...props,
     });
   }
 
   generate(presentation: Presentation): SVGElement {
-    const { width, height, color, rounding } = this.props;
-    const element = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "rect",
-    );
+    const { width, height, svg } = this.props;
+
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svg, "image/svg+xml");
+    const element = svgDoc.documentElement as unknown as SVGElement;
 
     // Set attributes
-    element.setAttribute("fill", color);
+    // element.innerHTML = svg;
     element.setAttribute("width", width.toString());
     element.setAttribute("height", height.toString());
-    element.setAttribute("rx", rounding.toString());
 
     // Position the element.
     this.setPositionAttributes(

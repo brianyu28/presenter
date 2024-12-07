@@ -11,11 +11,9 @@ interface ImageProps extends ObjectProps {
 export class Image extends SlideObject {
   props: ImageProps;
 
-  constructor(props: Partial<ImageProps> = {}) {
-    if (!props.href) {
-      throw new Error("Image requires a href");
-    }
+  constructor(href: string, props: Partial<ImageProps> = {}) {
     super({
+      href,
       width: 100,
       height: 100,
       ...props,
