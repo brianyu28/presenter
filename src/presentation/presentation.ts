@@ -128,21 +128,7 @@ export class Presentation {
     this.svg.style.cursor = "none";
 
     // Set up keyboard commands.
-    const eventTarget = this.isFullBodyPresentation()
-      ? document.body
-      : this.svg;
-    (eventTarget as HTMLElement).addEventListener("keyup", (event) => {
-      if (event.key === "ArrowRight" || event.key === " ") {
-        this.next();
-      } else if (event.key === "ArrowLeft") {
-        this.previous();
-      }
-    });
-
-    // Show cursor when the cursor moves.
-    eventTarget.addEventListener("mousemove", (event) => {
-      this.svg.style.cursor = "auto";
-    });
+    this.setupKeyboardCommands();
 
     // Create shadow element that's hidden from view.
     this.shadow = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -196,6 +182,27 @@ export class Presentation {
   }
 
   /**
+   * Sets up keyboard commands for the presentation.
+   */
+  setupKeyboardCommands() {
+    const eventTarget = this.isFullBodyPresentation()
+      ? document.body
+      : this.svg;
+    (eventTarget as HTMLElement).addEventListener("keyup", (event) => {
+      if (event.key === "ArrowRight" || event.key === " ") {
+        this.next(!event.shiftKey);
+      } else if (event.key === "ArrowLeft") {
+        this.previous(!event.shiftKey);
+      }
+    });
+
+    // Show cursor when the cursor moves.
+    eventTarget.addEventListener("mousemove", (event) => {
+      this.svg.style.cursor = "auto";
+    });
+  }
+
+  /**
    * Updates the size of the parent SVG element.
    *
    * The size of the parent SVG element needs to be updated.
@@ -216,15 +223,16 @@ export class Presentation {
   /**
    * Advances to next animation in slide, or next slide if there is no next animation.
    * Returns true if we were able to successfully advance.
+   * @param includeIntermediateBuilds Determines whether to progress through builds.
    */
-  next(): boolean {
+  next(includeIntermediateBuilds: boolean): boolean {
     this.svg.style.cursor = "none";
     const currentSlide = this.slides[this.presentationState.currentSlide];
     if (currentSlide === undefined) {
       return;
     }
 
-    if (!currentSlide.nextAnimation(this)) {
+    if (!includeIntermediateBuilds || !currentSlide.nextAnimation(this)) {
       this.presentationState.currentSlide++;
       const nextSlide = this.slides[this.presentationState.currentSlide];
       if (nextSlide === undefined) {
@@ -236,39 +244,53 @@ export class Presentation {
 
   /**
    * Goes back to the previous slide.
+   * @param includeIntermediateBuilds Determines whether to progress through builds.
    */
-  previous(): boolean {
+  previous(includeIntermediateBuilds: boolean) {
     this.svg.style.cursor = "none";
 
-    // If we're past the end of the presentation, go to the last slide.
     const currentSlide = this.slides[this.presentationState.currentSlide];
+
+    // If we're past the end of the presentation, go to the last slide.
     if (currentSlide === undefined) {
       this.presentationState.currentSlide = this.slides.length - 1;
       const lastSlide = this.slides[this.presentationState.currentSlide];
       if (lastSlide === undefined) {
         return;
       }
-      lastSlide.render(this);
+      lastSlide.render(
+        this,
+        includeIntermediateBuilds ? lastSlide.animations.length : 0,
+      );
       return;
     }
 
-    // If we're in the middle of a build, go back to the start of the build.
-    if (currentSlide.animationIndex > 0) {
-      currentSlide.animationIndex = 0;
-      currentSlide.render(this);
+    // If we're not on the last build, go back one build.
+    if (includeIntermediateBuilds && currentSlide.animationIndex > 0) {
+      currentSlide.render(this, currentSlide.animationIndex - 1);
       return;
     }
 
-    // Otherwise, go back to the previous slide.
-    if (this.presentationState.currentSlide === 0) {
+    // If we're on the first build, do nothing.
+    if (
+      includeIntermediateBuilds &&
+      this.presentationState.currentSlide === 0
+    ) {
       return;
     }
-    this.presentationState.currentSlide--;
+
+    // Go back to the previous slide.
+    if (this.presentationState.currentSlide > 0) {
+      this.presentationState.currentSlide--;
+    }
     const previousSlide = this.slides[this.presentationState.currentSlide];
     if (previousSlide === undefined) {
       return;
     }
-    previousSlide.render(this);
+    previousSlide.render(
+      this,
+      includeIntermediateBuilds ? previousSlide.animations.length : 0,
+    );
   }
 
   /**
@@ -285,10 +307,31 @@ export class Presentation {
 
   /**
    * Computes the current size of an element in the DOM.
+   * Optionally accepts a custom list of children to see what the size of an
+   * element would be with different children.
+   * @param element Element to compute size of.
+   * @param children Custom children to use for element.
    * @returns BoundingBox
    */
-  computeRenderedBoundingBox(element: SVGGraphicsElement): BoundingBox {
+  computeRenderedBoundingBox(
+    element: SVGGraphicsElement,
+    children: Node[] | null = null,
+  ): BoundingBox {
+    // If we're computing the size of an element as-is that's already in the
+    //  SVG canvas, get its bounding box directly.
+    if (children === null && this.svg.contains(element)) {
+      return BoundingBox.fromElement(element);
+    }
+
     const clone = element.cloneNode(true) as SVGGraphicsElement;
+
+    // If we have custom children, use them as the children of the element.
+    if (children !== null) {
+      clone.innerHTML = "";
+      for (const child of children) {
+        clone.appendChild(child.cloneNode(true));
+      }
+    }
 
     this.shadow.appendChild(clone);
     const boundingBox = BoundingBox.fromElement(clone);

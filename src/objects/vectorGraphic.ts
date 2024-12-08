@@ -1,5 +1,4 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
-import { Presentation } from "../presentation/presentation";
 import { BoundingBox, Position } from "../util/position";
 
 interface VectorGraphicProps extends ObjectProps {
@@ -8,9 +7,8 @@ interface VectorGraphicProps extends ObjectProps {
   height: number;
 }
 
-// TODO: Complete this class.
-export class VectorGraphic extends SlideObject {
-  props: VectorGraphicProps;
+export class VectorGraphic extends SlideObject<VectorGraphicProps> {
+  parsedChildren: Node[];
 
   constructor(svg: string, props: Partial<VectorGraphicProps> = {}) {
     super({
@@ -21,34 +19,37 @@ export class VectorGraphic extends SlideObject {
     });
   }
 
-  generate(presentation: Presentation): SVGElement {
-    const { width, height, svg } = this.props;
+  tagName(): string {
+    return "svg";
+  }
 
+  createElement(): SVGElement {
     const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(svg, "image/svg+xml");
+    const svgDoc = parser.parseFromString(this.props.svg, "image/svg+xml");
     const element = svgDoc.documentElement as unknown as SVGElement;
 
-    // Set attributes
-    // element.innerHTML = svg;
-    element.setAttribute("width", width.toString());
-    element.setAttribute("height", height.toString());
-
-    // Position the element.
-    this.setPositionAttributes(
-      presentation,
-      new BoundingBox(this.props.position, width, height),
-      element,
-    );
+    // Store parsed children.
+    this.parsedChildren = Array.from(element.childNodes);
+    element.innerHTML = "";
 
     return element;
   }
 
-  animateMove(
-    position: Position,
-    params: anime.AnimeParams,
-    presentation: Presentation,
-  ) {
-    const bbox = new BoundingBox(position, this.props.width, this.props.height);
-    this.animate({ bbox, ...params }, presentation);
+  attributes(): Partial<Record<string, string>> {
+    const { position, width, height } = this.props;
+    const { x, y } = this.positionAttributes(
+      new BoundingBox(position, width, height),
+    );
+    return {
+      ...super.attributes(),
+      width: width.toString(),
+      height: height.toString(),
+      x: x.toString(),
+      y: y.toString(),
+    };
+  }
+
+  children(): Node[] {
+    return this.parsedChildren;
   }
 }

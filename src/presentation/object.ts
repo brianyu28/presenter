@@ -1,41 +1,178 @@
-import anime from "animejs/lib/anime.es.js";
-
 import { BoundingBox, Position } from "../util/position";
 import { Presentation } from "./presentation";
-import { Theme } from "./theme";
+import { AnimationProps, BuildFunction } from "../util/animation";
 
 export interface ObjectProps {
   position: Position | null;
-  verticalAnchor: "center" | "top" | "bottom";
-  horizontalAnchor: "center" | "start" | "end";
-
-  /** Property that overrides verticalAnchor and horizontalAnchor to center object. */
-  center?: boolean;
+  anchor:
+    | "topleft"
+    | "top"
+    | "topright"
+    | "left"
+    | "center"
+    | "right"
+    | "bottomleft"
+    | "bottom"
+    | "bottomright";
 }
 
-export class SlideObject {
-  props: ObjectProps;
+export class SlideObject<Props extends ObjectProps> {
+  /**
+   * Starting values for each property.
+   */
+  initialProps: Props;
+
+  /**
+   * Current values for each property.
+   */
+  props: Props;
+
+  _presentation: Presentation | null;
 
   _element: SVGElement | null;
 
-  constructor(props: Partial<ObjectProps>) {
+  _children: Node[];
+
+  /**
+   * Initializes a new object to include on a slide.
+   * @param props Object properties.
+   */
+  constructor(props: Partial<Props>) {
     this.props = {
       position: { x: 0, y: 0 },
-      verticalAnchor: "top",
-      horizontalAnchor: "start",
+      anchor: "topleft",
       ...props,
-      ...(props.center
-        ? { verticalAnchor: "center", horizontalAnchor: "center" }
-        : {}),
-    };
+    } as Props;
+    this.initialProps = { ...this.props };
     this._element = null;
+    this._presentation = null;
+    this._children = [];
   }
 
-  /* Generate and return the element. */
+  /**
+   * Returns the tag name of the element.
+   * @returns Tag name.
+   */
+  tagName(): string {
+    return "g";
+  }
+
+  /**
+   * Returns the DOM attributes that should be set for the element.
+   * @returns Object with attribute names and values.
+   */
+  attributes(): Partial<Record<string, string>> {
+    return {};
+  }
+
+  /**
+   * Returns additional DOM attributes to be set for the element.
+   * Some attributes can't be computed until after an element's other properties are set:
+   * e.g. text position depends on content and font size.
+   * Additional attributes are computed after all other attributes, styles, and children.
+   * @returns Object with attribute names and values.
+   */
+  additionalAttributes(): Partial<Record<string, string>> {
+    return {};
+  }
+
+  /**
+   * Returns the styles that should be set for the element.
+   * @returns Object with style names and values.
+   */
+  styles(): Partial<Record<string, string>> {
+    return {};
+  }
+
+  /**
+   * Returns the children that should be rendered for the object.
+   * @returns Array of SVG elements.
+   */
+  children(): Array<Node> {
+    return [];
+  }
+
+  /**
+   * Given a set of prop updates, checks if the children of the object need to be updated.
+   * @param props Properties to update.
+   * @returns Boolean indicating whether children need to be updated.
+   */
+  requiresChildrenUpdate(props: Partial<Props>): boolean {
+    return false;
+  }
+
+  /**
+   * Given a particular initial bounding box, returns the DOM position attributes that should be set for the element.
+   * @param bbox Bounding box.
+   * @returns Object with attribute names and values.
+   */
+  positionAttributes(bbox: BoundingBox): any {
+    if (this._presentation === null) {
+      throw new Error(
+        "Cannot compute object position attributes without presentation",
+      );
+    }
+    const { x, y } = this.positionInPresentation(bbox.origin);
+    const anchoredBox = this.anchorBoundingBox(
+      new BoundingBox({ x, y }, bbox.width, bbox.height),
+    );
+    return { x: anchoredBox.origin.x, y: anchoredBox.origin.y };
+  }
+
+  /**
+   * Re-generates the SVG element for the object.
+   * @param presentation Presentation object.
+   * @returns SVG element.
+   */
   generate(presentation: Presentation): SVGElement {
-    return null;
+    // Re-set values of all properties.
+    this.props = { ...this.initialProps };
+    this._presentation = presentation;
+
+    const element = this.createElement();
+
+    // Set attributes
+    for (const [attribute, value] of Object.entries(this.attributes())) {
+      element.setAttribute(attribute, value);
+    }
+
+    // Set styles
+    for (const [style, value] of Object.entries(this.styles())) {
+      element.style.setProperty(style, value);
+    }
+
+    // Set children
+    this._children = this.children();
+    for (const child of this._children) {
+      element.appendChild(child);
+    }
+
+    this._element = element;
+
+    // Set additional attributes
+    for (const [attribute, value] of Object.entries(
+      this.additionalAttributes(),
+    )) {
+      element.setAttribute(attribute, value);
+    }
+
+    return element;
   }
 
+  /**
+   * Creates a new HTML element for the object.
+   */
+  createElement(): SVGElement {
+    return document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      this.tagName(),
+    );
+  }
+
+  /**
+   * Returns the element for the object.
+   * @returns SVG element.
+   */
   element(): SVGElement {
     if (this._element === null) {
       throw new Error("Element not yet generated");
@@ -44,87 +181,156 @@ export class SlideObject {
   }
 
   /**
-   * Performs an animation on the object's element.
+   * Returns an animation to perform.
+   * @param props Properties of object to change.
+   * @param animationParams Animation behavior parameters.
+   * @returns Animation properties.
    */
-  animate(params: anime.AnimeParams, presentation: Presentation | null = null) {
-    const { bbox, ...remainingParams } = params;
+  animation(
+    props: Partial<Props>,
+    animationParams: anime.AnimeParams = {},
+    delay: number | null = null,
+    animate: boolean = true,
+  ): AnimationProps {
+    if (this._presentation === null) {
+      throw new Error("Cannot animate object without presentation");
+    }
 
-    const processedParams = {
-      ...remainingParams,
-      // Position
-      ...(bbox !== undefined
-        ? this.computePositionAttributes(presentation, bbox)
-        : {}),
-      // Default cubic bezier easing
-      ...(params.easing === "cubic"
-        ? { easing: "cubicBezier(0.42, 0, 0.58, 1)" }
-        : {}),
+    // Get new attributes and styles
+    const requiresChildrenUpdate = this.requiresChildrenUpdate(props);
+    this.props = { ...this.props, ...props };
+    if (requiresChildrenUpdate) {
+      this._children = this.children();
+    }
+    const newAttributes = this.attributes();
+    const newStyles = this.styles();
+    const newAdditionalAttributes = this.additionalAttributes();
+
+    // Get changes in attributes and styles
+    const attributeChanges = Object.fromEntries(
+      Object.entries(newAttributes).filter(
+        ([key, value]) => this._element.getAttribute(key) !== value,
+      ),
+    );
+    const styleChanges = Object.fromEntries(
+      Object.entries(newStyles).filter(
+        ([key, value]) => this._element.style.getPropertyValue(key) !== value,
+      ),
+    );
+    const additionalAttributeChanges = Object.fromEntries(
+      Object.entries(newAdditionalAttributes).filter(
+        ([key, value]) => this._element.getAttribute(key) !== value,
+      ),
+    );
+
+    return {
+      animate,
+      element: this.element(),
+      attributes: {
+        ...attributeChanges,
+        ...additionalAttributeChanges,
+      },
+      styles: styleChanges,
+      ...(delay !== null ? { delay } : {}),
+      ...(requiresChildrenUpdate ? { children: this._children } : {}),
+      animationParams: {
+        duration: 500,
+        easing: "linear",
+        ...animationParams,
+        ...(animationParams.easing === "cubic"
+          ? { easing: "cubicBezier(0.42, 0, 0.58, 1)" }
+          : {}),
+      },
     };
-
-    anime({
-      targets: this.element(),
-      duration: 500,
-      easing: "linear",
-      ...processedParams,
-    });
   }
 
   /**
-   * Returns an animation callback function that performs the animation.
+   * Returns an update animation that skips the animation and just performs the change.
+   * @param props Properties of object to change.
    */
-  animation(params: anime.AnimeParams): () => void {
-    return () => this.animate(params);
+  update(props: Partial<Props>, delay: number | null = null): AnimationProps {
+    return this.animation(props, {}, delay, false);
   }
 
   /**
-   * Performs a movement animation.
-   * Meant to be overriden for object-specific movement.
+   * Performs an animation on the object.
    */
-  animateMove(
+  animate(
+    props: Partial<Props>,
+    animationParams: anime.AnimeParams = {},
+  ): BuildFunction {
+    return (animate) => {
+      animate(this.animation(props, animationParams));
+    };
+  }
+
+  /**
+   * Sets properties of the object.
+   */
+  set(props: Partial<Props>): BuildFunction {
+    return (animate) => {
+      animate(this.update(props));
+    };
+  }
+
+  /**
+   * Animates a movement of the object.
+   */
+  move(
     position: Position,
-    params: anime.AnimeParams,
-    presentation: Presentation,
-  ) {
-    this.animate({ x: position.x, y: position.y, ...params }, presentation);
+    animationParams: anime.AnimeParams = {},
+  ): BuildFunction {
+    return this.animate({ position } as Partial<Props>, animationParams);
   }
 
   /**
    * Allow for x and y values to be interpreted as percentages of total width/height.
    */
-  positionInPresentation(
-    presentation: Presentation,
-    x: number,
-    y: number,
-  ): Position {
-    const adjustedX = x <= 1 ? x * presentation.boundingBox.width : x;
-    const adjustedY = y <= 1 ? y * presentation.boundingBox.height : y;
+  positionInPresentation(position: Position): Position {
+    const presentation = this._presentation;
+    const { x, y } = position;
+    const adjustedX = x >= 0 && x <= 1 ? x * presentation.boundingBox.width : x;
+    const adjustedY =
+      y >= 0 && y <= 1 ? y * presentation.boundingBox.height : y;
     return { x: adjustedX, y: adjustedY };
   }
 
   /**
    * Adjusts a bounding box to be anchored given the object's vertical and horizontal anchor settings.
-   * @param bbox
+   * @param bbox Bounding box to anchor.
+   * @returns Anchored bounding box.
    */
   anchorBoundingBox(bbox: BoundingBox): BoundingBox {
-    const { verticalAnchor, horizontalAnchor } = this.props;
     const y = (() => {
-      switch (verticalAnchor) {
+      switch (this.props.anchor) {
+        case "topleft":
         case "top":
+        case "topright":
           return bbox.origin.y;
+        case "left":
         case "center":
+        case "right":
           return bbox.origin.y - bbox.height / 2;
+        case "bottomleft":
         case "bottom":
+        case "bottomright":
           return bbox.origin.y - bbox.height;
       }
     })();
 
     const x = (() => {
-      switch (horizontalAnchor) {
-        case "start":
+      switch (this.props.anchor) {
+        case "topleft":
+        case "left":
+        case "bottomleft":
           return bbox.origin.x;
+        case "top":
         case "center":
+        case "bottom":
           return bbox.origin.x - bbox.width / 2;
-        case "end":
+        case "topright":
+        case "right":
+        case "bottomright":
           return bbox.origin.x - bbox.width;
       }
     })();
@@ -134,17 +340,18 @@ export class SlideObject {
 
   /**
    * Computes a bounding box for a given element given its rendered size and defined position.
-   * @param element
-   * @param presentation
+   * @param element Element for which to compute size.
+   * @param children Custom children to use when computing bounding box.
    * @returns
    */
   computeRenderedBoundingBox(
     element: SVGGraphicsElement,
-    presentation: Presentation,
-    adjustY: boolean = false,
+    children: Node[] | null = null,
   ): BoundingBox {
-    const renderedBoundingBox =
-      presentation.computeRenderedBoundingBox(element);
+    const renderedBoundingBox = this._presentation.computeRenderedBoundingBox(
+      element,
+      children,
+    );
 
     const box = new BoundingBox(
       {
@@ -156,41 +363,5 @@ export class SlideObject {
     );
 
     return box;
-  }
-
-  /**
-   * Given a particular initial bounding box, returns the DOM attributes that should be set for the element.
-   * Can be overriden by other elements.
-   */
-  computePositionAttributes(
-    presentation: Presentation,
-    bbox: BoundingBox,
-  ): any {
-    if (presentation === null) {
-      throw new Error(
-        "Cannot compute object position attributes without presentation",
-      );
-    }
-    const { x, y } = this.positionInPresentation(
-      presentation,
-      bbox.origin.x,
-      bbox.origin.y,
-    );
-    const anchoredBox = this.anchorBoundingBox(
-      new BoundingBox({ x, y }, bbox.width, bbox.height),
-    );
-    return { x: anchoredBox.origin.x, y: anchoredBox.origin.y };
-  }
-
-  setPositionAttributes(
-    presentation: Presentation,
-    bbox: BoundingBox,
-    element: SVGElement,
-  ) {
-    for (const [attribute, value] of Object.entries(
-      this.computePositionAttributes(presentation, bbox),
-    )) {
-      element.setAttribute(attribute, value.toString());
-    }
   }
 }

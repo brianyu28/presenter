@@ -15,4 +15,5 @@ export * from "./objects/vectorGraphic";
 export * from "./themes/index";
 
 // Util
+export * from "./util/animation";
 export * from "./util/position";

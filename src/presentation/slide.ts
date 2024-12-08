@@ -1,32 +1,47 @@
+import {
+  BuildFunction,
+  performAnimation,
+  skipAnimation,
+} from "../util/animation";
 import { SlideObject } from "./object";
 import { Presentation } from "./presentation";
 
 export interface SlideProps {}
 
 export class Slide {
-  objects: SlideObject[];
+  objects: SlideObject<any>[];
 
-  animations: ((presentation: Presentation) => void)[];
+  animations: BuildFunction[];
 
   animationIndex: number;
 
-  constructor(
-    objects: SlideObject[],
-    animations: ((presentation: Presentation) => void)[] = [],
-  ) {
+  constructor(objects: SlideObject<any>[], animations: BuildFunction[] = []) {
     this.objects = objects.filter((object) => object !== null);
     this.animations = animations;
     this.animationIndex = 0;
   }
 
-  render(presentation: Presentation) {
+  render(presentation: Presentation, animationIndex: number = 0) {
+    this.animationIndex = animationIndex;
+
+    // Generate new objects
+    this.objects.forEach((object) => {
+      object.generate(presentation);
+    });
+
+    // Handle non-zero animation index, skipping intermediate animations.
+    for (let i = 0; i < this.animationIndex; i++) {
+      const animation = this.animations[i];
+      if (animation) {
+        animation(skipAnimation);
+      }
+    }
+
     // Clear SVG element
     presentation.svg.innerHTML = "";
-    this.animationIndex = 0;
 
-    // Render objects
+    // Append objects to SVG
     this.objects.forEach((object) => {
-      object._element = object.generate(presentation);
       presentation.svg.appendChild(object.element());
     });
   }
@@ -36,7 +51,7 @@ export class Slide {
   nextAnimation(presentation: Presentation): boolean {
     const animation = this.animations[this.animationIndex];
     if (animation) {
-      animation(presentation);
+      animation(performAnimation);
       this.animationIndex++;
       return true;
     }

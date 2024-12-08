@@ -1,20 +1,17 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
-import { Presentation } from "../presentation/presentation";
-import { BoundingBox, Position } from "../util/position";
+import { BoundingBox } from "../util/position";
 
 interface RectangleProps extends ObjectProps {
-  color: string;
+  fill: string;
   width: number;
   height: number;
   rounding: number;
 }
 
-export class Rectangle extends SlideObject {
-  props: RectangleProps;
-
+export class Rectangle extends SlideObject<RectangleProps> {
   constructor(props: Partial<RectangleProps> = {}) {
     super({
-      color: "#000000",
+      fill: "#000000",
       width: 100,
       height: 100,
       rounding: 0,
@@ -22,35 +19,23 @@ export class Rectangle extends SlideObject {
     });
   }
 
-  generate(presentation: Presentation): SVGElement {
-    const { width, height, color, rounding } = this.props;
-    const element = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "rect",
-    );
-
-    // Set attributes
-    element.setAttribute("fill", color);
-    element.setAttribute("width", width.toString());
-    element.setAttribute("height", height.toString());
-    element.setAttribute("rx", rounding.toString());
-
-    // Position the element.
-    this.setPositionAttributes(
-      presentation,
-      new BoundingBox(this.props.position, width, height),
-      element,
-    );
-
-    return element;
+  tagName(): string {
+    return "rect";
   }
 
-  animateMove(
-    position: Position,
-    params: anime.AnimeParams,
-    presentation: Presentation,
-  ) {
-    const bbox = new BoundingBox(position, this.props.width, this.props.height);
-    this.animate({ bbox, ...params }, presentation);
+  attributes(): Partial<Record<string, string>> {
+    const { position, width, height, fill, rounding } = this.props;
+    const { x, y } = this.positionAttributes(
+      new BoundingBox(position, width, height),
+    );
+    return {
+      ...super.attributes(),
+      fill,
+      width: width.toString(),
+      height: height.toString(),
+      rx: rounding.toString(),
+      x: x.toString(),
+      y: y.toString(),
+    };
   }
 }

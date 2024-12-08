@@ -1,6 +1,5 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
-import { Presentation } from "../presentation/presentation";
-import { BoundingBox, Position } from "../util/position";
+import { BoundingBox } from "../util/position";
 
 interface ImageProps extends ObjectProps {
   href: string;
@@ -8,9 +7,7 @@ interface ImageProps extends ObjectProps {
   height: number;
 }
 
-export class Image extends SlideObject {
-  props: ImageProps;
-
+export class Image extends SlideObject<ImageProps> {
   constructor(href: string, props: Partial<ImageProps> = {}) {
     super({
       href,
@@ -20,34 +17,23 @@ export class Image extends SlideObject {
     });
   }
 
-  generate(presentation: Presentation): SVGElement {
-    const { width, height, href } = this.props;
-    const element = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "image",
-    );
-
-    // Set attributes
-    element.setAttribute("href", href);
-    element.setAttribute("width", width.toString());
-    element.setAttribute("height", height.toString());
-
-    // Position the element.
-    this.setPositionAttributes(
-      presentation,
-      new BoundingBox(this.props.position, width, height),
-      element,
-    );
-
-    return element;
+  tagName(): string {
+    return "image";
   }
 
-  animateMove(
-    position: Position,
-    params: anime.AnimeParams,
-    presentation: Presentation,
-  ) {
-    const bbox = new BoundingBox(position, this.props.width, this.props.height);
-    this.animate({ bbox, ...params }, presentation);
+  attributes(): Partial<Record<string, string>> {
+    const { position, href, width, height } = this.props;
+    const { x, y } = this.positionAttributes(
+      new BoundingBox(position, width, height),
+    );
+
+    return {
+      ...super.attributes(),
+      href,
+      width: width.toString(),
+      height: height.toString(),
+      x: x.toString(),
+      y: y.toString(),
+    };
   }
 }
