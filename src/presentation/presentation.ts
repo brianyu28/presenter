@@ -1,7 +1,5 @@
-import DefaultTheme from "../themes/default";
 import { BoundingBox } from "../util/position";
 import { Slide } from "./slide";
-import { Theme } from "./theme";
 
 export interface PresentationOptions {
   /**
@@ -15,9 +13,9 @@ export interface PresentationOptions {
   height: number;
 
   /**
-   * Presentation theme to use.
+   * Slide color for the presentation.
    */
-  theme: Theme;
+  backgroundColor: string;
 }
 
 interface PresentationState {
@@ -90,7 +88,7 @@ export class Presentation {
     this.options = {
       width: 3840,
       height: 2160,
-      theme: DefaultTheme,
+      backgroundColor: "#ffffff",
       ...options,
     };
     this.presentationState = {
@@ -124,7 +122,7 @@ export class Presentation {
 
     // Create SVG element.
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    this.svg.style.backgroundColor = this.options.theme.backgroundColor;
+    this.svg.style.backgroundColor = this.options.backgroundColor;
     this.svg.style.cursor = "none";
 
     // Set up keyboard commands.
@@ -299,10 +297,6 @@ export class Presentation {
    */
   isFullBodyPresentation(): boolean {
     return this.element === document.body;
-  }
-
-  theme(): Theme {
-    return this.options.theme;
   }
 
   /**

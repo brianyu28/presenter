@@ -88,7 +88,7 @@ export class SlideObject<Props extends ObjectProps> {
    * Returns the children that should be rendered for the object.
    * @returns Array of SVG elements.
    */
-  children(): Array<Node> {
+  children(): Node[] {
     return [];
   }
 
