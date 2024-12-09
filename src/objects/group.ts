@@ -1,7 +1,7 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
 import { BoundingBox } from "../util/position";
 
-interface GroupProps extends ObjectProps {
+export interface GroupProps extends ObjectProps {
   /**
    * A positioned group places the group's anchor at a particular coordinate.
    * A non-positioned group uses the position as an offset for its children.

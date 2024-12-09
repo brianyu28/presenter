@@ -1,11 +1,13 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
 import { BoundingBox } from "../util/position";
 
-interface RectangleProps extends ObjectProps {
+export interface RectangleProps extends ObjectProps {
   fill: string;
   width: number;
   height: number;
   rounding: number;
+  borderWidth: number;
+  borderColor: string;
 }
 
 export class Rectangle extends SlideObject<RectangleProps> {
@@ -15,6 +17,8 @@ export class Rectangle extends SlideObject<RectangleProps> {
       width: 100,
       height: 100,
       rounding: 0,
+      borderWidth: 0,
+      borderColor: "#000000",
       ...props,
     });
   }
@@ -24,7 +28,15 @@ export class Rectangle extends SlideObject<RectangleProps> {
   }
 
   attributes(): Partial<Record<string, string>> {
-    const { position, width, height, fill, rounding } = this.props;
+    const {
+      position,
+      width,
+      height,
+      fill,
+      rounding,
+      borderWidth,
+      borderColor,
+    } = this.props;
     const { x, y } = this.positionAttributes(
       new BoundingBox(position, width, height),
     );
@@ -36,6 +48,12 @@ export class Rectangle extends SlideObject<RectangleProps> {
       rx: rounding.toString(),
       x: x.toString(),
       y: y.toString(),
+      ...(borderWidth > 0
+        ? {
+            "stroke-width": borderWidth.toString(),
+            stroke: borderColor,
+          }
+        : {}),
     };
   }
 }

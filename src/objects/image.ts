@@ -1,7 +1,7 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
 import { BoundingBox } from "../util/position";
 
-interface ImageProps extends ObjectProps {
+export interface ImageProps extends ObjectProps {
   href: string;
   width: number;
   height: number;

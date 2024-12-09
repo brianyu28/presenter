@@ -4,15 +4,24 @@ export interface RichTextProps {
   fontSize?: number;
   fontFamily?: string;
   color?: string;
+  dy?: number;
 }
 
 export type RichTextSpan = string | [string, RichTextProps];
 
 /**
+ * Creates a text node with spaces replaced by non-breaking spaces.
+ */
+export function createSpacePreservingTextNode(text: string): Text {
+  return document.createTextNode(text.replace(/\s/g, "\u00A0"));
+}
+
+/**
  * Given rich text configuration, returns the corresponding tspan nodes.
  */
 export function generateTextNodes(
-  lines: RichTextSpan[][],
+  lines: (string | RichTextSpan[])[],
+  lineSpacing: string = "1em",
   anchor: "start" | "middle" | "end" = "start",
 ): Node[] {
   const nodes: Node[] = [];
@@ -27,12 +36,26 @@ export function generateTextNodes(
     lineSpan.setAttribute("x", "0");
     lineSpan.setAttribute("text-anchor", anchor);
     if (lineNumber > 1) {
-      lineSpan.setAttribute("dy", "1em");
+      lineSpan.setAttribute("dy", lineSpacing);
+    }
+
+    // If it's a blank line, we should at least add a space to keep the line height.
+    if (line.length === 0 || (line.length === 1 && line[0] === "")) {
+      lineSpan.appendChild(createSpacePreservingTextNode(" "));
+      nodes.push(lineSpan);
+      continue;
+    }
+
+    // If the line is just a string, just use a single text node in the line.
+    if (typeof line === "string") {
+      lineSpan.appendChild(createSpacePreservingTextNode(line));
+      nodes.push(lineSpan);
+      continue;
     }
 
     for (const span of line) {
       if (typeof span === "string") {
-        lineSpan.appendChild(document.createTextNode(span));
+        lineSpan.appendChild(createSpacePreservingTextNode(span));
       } else {
         const [text, props] = span;
         const node = document.createElementNS(
@@ -43,6 +66,7 @@ export function generateTextNodes(
 
         const attributes = {
           fill: props.color,
+          dy: props.dy,
         };
 
         for (const [key, value] of Object.entries(attributes)) {
@@ -52,7 +76,7 @@ export function generateTextNodes(
         }
 
         const styles = {
-          "font-family": props.fontFamily,
+          "font-family": props.fontFamily ? `"${props.fontFamily}"` : undefined,
           "font-size": props.fontSize,
           "font-weight": props.fontWeight,
           "font-style": props.fontStyle,

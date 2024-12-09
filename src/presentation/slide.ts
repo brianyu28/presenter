@@ -15,10 +15,18 @@ export class Slide {
 
   animationIndex: number;
 
+  /**
+   * Property for use during development/debugging only.
+   * Manually set this property to a build function index
+   * to debug a specific animation.
+   */
+  debugAnimation: number | null;
+
   constructor(objects: SlideObject<any>[], animations: BuildFunction[] = []) {
     this.objects = objects.filter((object) => object !== null);
     this.animations = animations;
     this.animationIndex = 0;
+    this.debugAnimation = null;
   }
 
   render(presentation: Presentation, animationIndex: number = 0) {
@@ -29,11 +37,22 @@ export class Slide {
       object.generate(presentation);
     });
 
-    // Handle non-zero animation index, skipping intermediate animations.
-    for (let i = 0; i < this.animationIndex; i++) {
-      const animation = this.animations[i];
-      if (animation) {
-        animation(skipAnimation);
+    if (this.debugAnimation !== null && !presentation.svg.innerHTML) {
+      // Jump directly to the animation we wish to debug.
+      for (let i = 0; i <= this.debugAnimation; i++) {
+        const animation = this.animations[i];
+        if (animation) {
+          animation(skipAnimation);
+        }
+      }
+      this.animationIndex = this.debugAnimation + 1;
+    } else {
+      // Handle non-zero animation index, skipping intermediate animations.
+      for (let i = 0; i < this.animationIndex; i++) {
+        const animation = this.animations[i];
+        if (animation) {
+          animation(skipAnimation);
+        }
       }
     }
 

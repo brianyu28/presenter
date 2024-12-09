@@ -1,6 +1,6 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
 
-interface ParagraphProps extends ObjectProps {
+export interface ParagraphProps extends ObjectProps {
   content: string | string[];
   width: number;
   height: number;
@@ -43,7 +43,7 @@ export class Paragraph extends SlideObject<ParagraphProps> {
 
     // Set div styling
     const styles = {
-      "font-family": this.props.fontFamily,
+      "font-family": `"${this.props.fontFamily}"`,
       "font-size": `${this.props.fontSize}px`,
       color: this.props.color,
     };

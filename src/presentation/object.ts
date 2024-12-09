@@ -4,6 +4,7 @@ import { AnimationProps, BuildFunction } from "../util/animation";
 
 export interface ObjectProps {
   position: Position | null;
+  opacity?: number;
   anchor:
     | "topleft"
     | "top"
@@ -81,7 +82,10 @@ export class SlideObject<Props extends ObjectProps> {
    * @returns Object with style names and values.
    */
   styles(): Partial<Record<string, string>> {
-    return {};
+    const { opacity } = this.props;
+    return {
+      ...(opacity !== undefined ? { opacity: opacity.toString() } : {}),
+    };
   }
 
   /**
@@ -288,11 +292,17 @@ export class SlideObject<Props extends ObjectProps> {
    */
   positionInPresentation(position: Position): Position {
     const presentation = this._presentation;
-    const { x, y } = position;
-    const adjustedX = x >= 0 && x <= 1 ? x * presentation.boundingBox.width : x;
-    const adjustedY =
-      y >= 0 && y <= 1 ? y * presentation.boundingBox.height : y;
-    return { x: adjustedX, y: adjustedY };
+    let { x, y } = position;
+
+    // If values are in [-1, 1], treat them as a proportion of total width/height.
+    if (x <= 1 && x >= -1) {
+      x = x * presentation.boundingBox.width;
+    }
+    if (y <= 1 && y >= -1) {
+      y = y * presentation.boundingBox.height;
+    }
+
+    return { x, y };
   }
 
   /**

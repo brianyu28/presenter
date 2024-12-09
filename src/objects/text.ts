@@ -1,18 +1,14 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
-import { generateTextNodes } from "../util/richText";
+import {
+  createSpacePreservingTextNode,
+  generateTextNodes,
+  RichTextSpan,
+} from "../util/richText";
 
-interface RichTextProps {
-  fontStyle?: string; // "normal" | "italic" | "oblique"
-  fontWeight?: string | number; // "normal" | "bold" | number
-  fontSize?: number;
-  fontFamily?: string;
-  color?: string;
-}
+export type TextContent = string | (string | RichTextSpan[])[];
 
-type RichTextSpan = string | [string, RichTextProps];
-
-interface TextProps extends ObjectProps {
-  content: string | RichTextSpan[][];
+export interface TextProps extends ObjectProps {
+  content: TextContent;
   fontStyle: string; // "normal" | "italic" | "oblique"
   fontWeight: string | number; // "normal" | "bold" | number
   fontSize: number;
@@ -20,15 +16,14 @@ interface TextProps extends ObjectProps {
   color: string;
   dominantBaseline: string;
 
-  // Text alignment only matters for rich text
+  // Alignment and line spacing only matter for rich text.
+
   align: "left" | "center" | "right";
+  lineSpacing: string;
 }
 
 export class Text extends SlideObject<TextProps> {
-  constructor(
-    content: string | RichTextSpan[][],
-    props: Partial<TextProps> = {},
-  ) {
+  constructor(content: TextContent, props: Partial<TextProps> = {}) {
     super({
       content,
       color: "#000000",
@@ -38,6 +33,7 @@ export class Text extends SlideObject<TextProps> {
       fontFamily: "Arial",
       dominantBaseline: "ideographic",
       align: "left",
+      lineSpacing: "1em",
       ...props,
     });
   }
@@ -98,7 +94,7 @@ export class Text extends SlideObject<TextProps> {
         ? { "font-weight": fontWeight.toString() }
         : {}),
       "font-size": `${fontSize}px`,
-      "font-family": fontFamily,
+      "font-family": `"${fontFamily}"`,
     };
   }
 
@@ -107,7 +103,7 @@ export class Text extends SlideObject<TextProps> {
 
     // Not rich text, render as a single text node
     if (typeof content === "string") {
-      return [document.createTextNode(content)];
+      return [createSpacePreservingTextNode(content)];
     }
 
     // Multiline styled text, render as tspan elements
@@ -117,7 +113,7 @@ export class Text extends SlideObject<TextProps> {
         : this.props.align === "center"
           ? "middle"
           : "end";
-    return generateTextNodes(content, textAnchor);
+    return generateTextNodes(content, this.props.lineSpacing, textAnchor);
   }
 
   requiresChildrenUpdate(props: Partial<TextProps>): boolean {

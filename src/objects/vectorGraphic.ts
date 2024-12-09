@@ -1,7 +1,7 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
 import { BoundingBox, Position } from "../util/position";
 
-interface VectorGraphicProps extends ObjectProps {
+export interface VectorGraphicProps extends ObjectProps {
   svg: string;
   width: number;
   height: number;
