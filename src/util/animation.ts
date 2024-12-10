@@ -1,5 +1,7 @@
 import anime from "animejs/lib/anime.es.js";
 
+export { anime };
+
 /**
  * Data needed to process an animation.
  */
