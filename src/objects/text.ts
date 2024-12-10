@@ -15,6 +15,7 @@ export interface TextProps extends ObjectProps {
   fontFamily: string;
   color: string;
   dominantBaseline: string;
+  textDecoration: string;
 
   // Alignment and line spacing only matter for rich text.
 
@@ -32,6 +33,7 @@ export class Text extends SlideObject<TextProps> {
       fontWeight: "normal",
       fontFamily: "Arial",
       dominantBaseline: "ideographic",
+      textDecoration: "none",
       align: "left",
       lineSpacing: "1em",
       ...props,
@@ -47,10 +49,13 @@ export class Text extends SlideObject<TextProps> {
   }
 
   attributes(): Partial<Record<string, string>> {
-    const { color } = this.props;
+    const { color, textDecoration } = this.props;
 
     return {
       ...super.attributes(),
+      ...(textDecoration !== "none"
+        ? { "text-decoration": textDecoration }
+        : {}),
       fill: color,
     };
   }

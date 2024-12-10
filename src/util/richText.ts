@@ -3,6 +3,7 @@ export interface RichTextProps {
   fontWeight?: string | number; // "normal" | "bold" | number
   fontSize?: number;
   fontFamily?: string;
+  textDecoration?: string;
   color?: string;
   dy?: number;
 }
@@ -67,6 +68,7 @@ export function generateTextNodes(
         const attributes = {
           fill: props.color,
           dy: props.dy,
+          "text-decoration": props.textDecoration,
         };
 
         for (const [key, value] of Object.entries(attributes)) {

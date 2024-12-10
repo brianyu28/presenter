@@ -1,7 +1,7 @@
 {
   "name": "presenter",
-  "version": "0.1.1",
-  "description": "A JavaScript-based presentation library",
+  "version": "0.2.0",
+  "description": "A JavaScript presentation library",
   "main": "dist/presenter.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
