@@ -4,18 +4,11 @@ module.exports = {
   mode: process.env.NODE_ENV || "development",
   entry: "./src/index.ts",
   output: {
-    filename: "presenter.js",
+    filename: "main.js",
     path: path.resolve(__dirname, "dist"),
-    library: "Presenter",
-    libraryTarget: "umd",
-    globalObject: "this",
   },
-  watchOptions: {
-    ignored: [
-      "**/node_modules",
-      path.resolve(__dirname, "dist"),
-      path.resolve(__dirname, "examples"),
-    ],
+  devServer: {
+    static: "./dist",
   },
   resolve: {
     extensions: [".ts", ".js"],
@@ -25,7 +18,7 @@ module.exports = {
       {
         test: /\.ts$/,
         use: "ts-loader",
-        exclude: [/node_modules/, /packages/],
+        exclude: /node_modules/,
       },
     ],
   },

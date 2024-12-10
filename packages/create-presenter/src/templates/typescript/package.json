@@ -1,0 +1,21 @@
+{
+  "name": "{{ projectName }}",
+  "version": "1.0.0",
+  "description": "A Presenter.js presentation",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "NODE_ENV=production webpack",
+    "watch": "NODE_ENV=development webpack --watch",
+    "serve": "NODE_ENV=development webpack serve --open"
+  },
+  "devDependencies": {
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.7.2",
+    "webpack": "^5.96.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.1.0"
+  },
+  "dependencies": {
+    "presenter": "^0.2.3"
+  }
+}
