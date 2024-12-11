@@ -22,11 +22,20 @@ export class Slide {
    */
   debugAnimation: number | null;
 
+  /**
+   * Property used by the presenter-export package to note which
+   * animations of the slide are meant to be exported.
+   * "first", "last", "all", and "none" are special-cased values,
+   * otherwise it can be an animationIndex in [0, animations.length].
+   */
+  keyBuilds: "first" | "last" | "all" | "none" | number[] | null;
+
   constructor(objects: SlideObject<any>[], animations: BuildFunction[] = []) {
     this.objects = objects.filter((object) => object !== null);
     this.animations = animations;
     this.animationIndex = 0;
     this.debugAnimation = null;
+    this.keyBuilds = null;
   }
 
   render(presentation: Presentation, animationIndex: number = 0) {
@@ -78,9 +87,23 @@ export class Slide {
   }
 
   /**
-   * Sleep for a specified number of milliseconds in an animation.
+   * Returns the build indices that are meant to be exported.
    */
-  async sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  getKeyBuilds(): number[] {
+    if (this.keyBuilds === "first") {
+      return [0];
+    } else if (this.keyBuilds === "last") {
+      return [this.animations.length];
+    } else if (this.keyBuilds === "all") {
+      return Array.from({ length: this.animations.length + 1 }, (_, i) => i);
+    } else if (this.keyBuilds === "none") {
+      return [];
+    } else if (Array.isArray(this.keyBuilds)) {
+      return this.keyBuilds.filter(
+        (i) => i >= 0 && i <= this.animations.length,
+      );
+    } else {
+      return [0];
+    }
   }
 }

@@ -1,0 +1,25 @@
+{
+  "name": "presenter-export",
+  "version": "0.1.0",
+  "description": "A utility package with functions for exporting Presenter.js presentations",
+  "main": "dist/index.js",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "build": "NODE_ENV=production webpack",
+    "watch": "NODE_ENV=development webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brianyu28/presenter.git"
+  },
+  "author": "Brian Yu <brian@brianyu.me>",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/brianyu28/presenter/issues"
+  },
+  "homepage": "https://github.com/brianyu28/presenter#readme",
+  "dependencies": {
+    "html-to-image": "^1.11.11",
+    "presenter": "file:../.."
+  }
+}
