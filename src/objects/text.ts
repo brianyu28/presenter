@@ -1,9 +1,5 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
-import {
-  createSpacePreservingTextNode,
-  generateTextNodes,
-  RichTextSpan,
-} from "../util/richText";
+import { generateTextNodes, RichTextSpan } from "../util/richText";
 
 export type TextContent = string | (string | RichTextSpan[])[];
 
@@ -100,6 +96,7 @@ export class Text extends SlideObject<TextProps> {
         : {}),
       "font-size": `${fontSize}px`,
       "font-family": `"${fontFamily}"`,
+      "white-space": "pre",
     };
   }
 
@@ -108,7 +105,7 @@ export class Text extends SlideObject<TextProps> {
 
     // Not rich text, render as a single text node
     if (typeof content === "string") {
-      return [createSpacePreservingTextNode(content)];
+      return [document.createTextNode(content)];
     }
 
     // Multiline styled text, render as tspan elements

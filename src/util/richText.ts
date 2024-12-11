@@ -11,13 +11,6 @@ export interface RichTextProps {
 export type RichTextSpan = string | [string, RichTextProps];
 
 /**
- * Creates a text node with spaces replaced by non-breaking spaces.
- */
-export function createSpacePreservingTextNode(text: string): Text {
-  return document.createTextNode(text.replace(/\s/g, "\u00A0"));
-}
-
-/**
  * Given rich text configuration, returns the corresponding tspan nodes.
  */
 export function generateTextNodes(
@@ -42,21 +35,21 @@ export function generateTextNodes(
 
     // If it's a blank line, we should at least add a space to keep the line height.
     if (line.length === 0 || (line.length === 1 && line[0] === "")) {
-      lineSpan.appendChild(createSpacePreservingTextNode(" "));
+      lineSpan.appendChild(document.createTextNode(" "));
       nodes.push(lineSpan);
       continue;
     }
 
     // If the line is just a string, just use a single text node in the line.
     if (typeof line === "string") {
-      lineSpan.appendChild(createSpacePreservingTextNode(line));
+      lineSpan.appendChild(document.createTextNode(line));
       nodes.push(lineSpan);
       continue;
     }
 
     for (const span of line) {
       if (typeof span === "string") {
-        lineSpan.appendChild(createSpacePreservingTextNode(span));
+        lineSpan.appendChild(document.createTextNode(span));
       } else {
         const [text, props] = span;
         const node = document.createElementNS(

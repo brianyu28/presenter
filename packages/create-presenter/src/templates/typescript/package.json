@@ -16,6 +16,6 @@
     "webpack-dev-server": "^5.1.0"
   },
   "dependencies": {
-    "presenter": "^0.2.3"
+    "presenter": "^0.2.4"
   }
 }
