@@ -6,7 +6,12 @@ import {
 import { SlideObject } from "./object";
 import { Presentation } from "./presentation";
 
-export interface SlideProps {}
+export interface SlideProps {
+  /**
+   * Additional HTML element to show behind SVG content.
+   */
+  additionalElement: HTMLElement | (() => HTMLElement) | null;
+}
 
 export class Slide {
   objects: SlideObject<any>[];
@@ -30,12 +35,22 @@ export class Slide {
    */
   keyBuilds: "first" | "last" | "all" | "none" | number[] | null;
 
-  constructor(objects: SlideObject<any>[], animations: BuildFunction[] = []) {
+  props: SlideProps;
+
+  constructor(
+    objects: SlideObject<any>[],
+    animations: BuildFunction[] = [],
+    props: Partial<SlideProps> = {},
+  ) {
     this.objects = objects.filter((object) => object !== null);
     this.animations = animations;
     this.animationIndex = 0;
     this.debugAnimation = null;
     this.keyBuilds = null;
+    this.props = {
+      additionalElement: null,
+      ...props,
+    };
   }
 
   render(presentation: Presentation, animationIndex: number = 0) {
@@ -63,6 +78,17 @@ export class Slide {
           animation(skipAnimation);
         }
       }
+    }
+
+    presentation.additionalElementContainer.innerHTML = "";
+    if (this.props.additionalElement !== null) {
+      const element =
+        typeof this.props.additionalElement === "function"
+          ? this.props.additionalElement()
+          : this.props.additionalElement;
+      element.style.width = "100%";
+      element.style.height = "auto";
+      presentation.additionalElementContainer.appendChild(element);
     }
 
     // Clear SVG element

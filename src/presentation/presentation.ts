@@ -49,6 +49,11 @@ export class Presentation {
   shadow: SVGSVGElement | null;
 
   /**
+   * Additional element container for elements that aren't part of the SVG.
+   */
+  additionalElementContainer: HTMLElement | null;
+
+  /**
    * Presentation settings.
    */
   options: PresentationOptions;
@@ -103,6 +108,7 @@ export class Presentation {
     this.container = null;
     this.svg = null;
     this.shadow = null;
+    this.additionalElementContainer = null;
   }
 
   present() {
@@ -122,7 +128,7 @@ export class Presentation {
 
     // Create SVG element.
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    this.svg.style.backgroundColor = this.options.backgroundColor;
+    this.svg.style.backgroundColor = "transparent";
     this.svg.style.cursor = "none";
 
     // Set up keyboard commands.
@@ -132,7 +138,19 @@ export class Presentation {
     this.shadow = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     this.shadow.style.visibility = "hidden";
 
-    [this.svg, this.shadow].forEach((svg) => {
+    // Create element that's just used for the background color.
+    const background = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "svg",
+    );
+    background.style.backgroundColor = this.options.backgroundColor;
+
+    this.additionalElementContainer = document.createElement("div");
+    this.additionalElementContainer.style.width = "100%";
+    this.additionalElementContainer.style.height = "100%";
+    this.additionalElementContainer.style.position = "absolute";
+
+    [this.svg, this.shadow, background].forEach((svg) => {
       svg.setAttribute("width", "100%");
       svg.setAttribute(
         "viewBox",
@@ -165,6 +183,8 @@ export class Presentation {
     }
 
     this.container.appendChild(this.shadow);
+    this.container.appendChild(background);
+    this.container.appendChild(this.additionalElementContainer);
     this.container.appendChild(this.svg);
     this.element.appendChild(this.container);
 
@@ -185,7 +205,7 @@ export class Presentation {
   setupKeyboardCommands() {
     const eventTarget = this.isFullBodyPresentation()
       ? document.body
-      : this.svg;
+      : this.container;
     (eventTarget as HTMLElement).addEventListener("keyup", (event) => {
       if (event.key === "ArrowRight" || event.key === " ") {
         this.next(!event.shiftKey);
