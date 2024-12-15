@@ -188,63 +188,65 @@ export class SlideObject<Props extends ObjectProps> {
    * Returns an animation to perform.
    * @param props Properties of object to change.
    * @param animationParams Animation behavior parameters.
-   * @returns Animation properties.
+   * @returns Animation build function.
    */
-  animation(
+  animate(
     props: Partial<Props>,
     animationParams: anime.AnimeParams = {},
     delay: number | null = null,
     animate: boolean = true,
-  ): AnimationProps {
-    if (this._presentation === null) {
-      throw new Error("Cannot animate object without presentation");
-    }
+  ): BuildFunction {
+    return (run) => {
+      if (this._presentation === null) {
+        throw new Error("Cannot animate object without presentation");
+      }
 
-    // Get new attributes and styles
-    const requiresChildrenUpdate = this.requiresChildrenUpdate(props);
-    this.props = { ...this.props, ...props };
-    if (requiresChildrenUpdate) {
-      this._children = this.children();
-    }
-    const newAttributes = this.attributes();
-    const newStyles = this.styles();
-    const newAdditionalAttributes = this.additionalAttributes();
+      // Get new attributes and styles
+      const requiresChildrenUpdate = this.requiresChildrenUpdate(props);
+      this.props = { ...this.props, ...props };
+      if (requiresChildrenUpdate) {
+        this._children = this.children();
+      }
+      const newAttributes = this.attributes();
+      const newStyles = this.styles();
+      const newAdditionalAttributes = this.additionalAttributes();
 
-    // Get changes in attributes and styles
-    const attributeChanges = Object.fromEntries(
-      Object.entries(newAttributes).filter(
-        ([key, value]) => this._element.getAttribute(key) !== value,
-      ),
-    );
-    const styleChanges = Object.fromEntries(
-      Object.entries(newStyles).filter(
-        ([key, value]) => this._element.style.getPropertyValue(key) !== value,
-      ),
-    );
-    const additionalAttributeChanges = Object.fromEntries(
-      Object.entries(newAdditionalAttributes).filter(
-        ([key, value]) => this._element.getAttribute(key) !== value,
-      ),
-    );
+      // Get changes in attributes and styles
+      const attributeChanges = Object.fromEntries(
+        Object.entries(newAttributes).filter(
+          ([key, value]) => this._element.getAttribute(key) !== value,
+        ),
+      );
+      const styleChanges = Object.fromEntries(
+        Object.entries(newStyles).filter(
+          ([key, value]) => this._element.style.getPropertyValue(key) !== value,
+        ),
+      );
+      const additionalAttributeChanges = Object.fromEntries(
+        Object.entries(newAdditionalAttributes).filter(
+          ([key, value]) => this._element.getAttribute(key) !== value,
+        ),
+      );
 
-    return {
-      animate,
-      element: this.element(),
-      attributes: {
-        ...attributeChanges,
-        ...additionalAttributeChanges,
-      },
-      styles: styleChanges,
-      ...(delay !== null ? { delay } : {}),
-      ...(requiresChildrenUpdate ? { children: this._children } : {}),
-      animationParams: {
-        duration: 500,
-        easing: "linear",
-        ...animationParams,
-        ...(animationParams.easing === "cubic"
-          ? { easing: "cubicBezier(0.42, 0, 0.58, 1)" }
-          : {}),
-      },
+      run({
+        animate,
+        element: this.element(),
+        attributes: {
+          ...attributeChanges,
+          ...additionalAttributeChanges,
+        },
+        styles: styleChanges,
+        ...(delay !== null ? { delay } : {}),
+        ...(requiresChildrenUpdate ? { children: this._children } : {}),
+        animationParams: {
+          duration: 500,
+          easing: "linear",
+          ...animationParams,
+          ...(animationParams.easing === "cubic"
+            ? { easing: "cubicBezier(0.42, 0, 0.58, 1)" }
+            : {}),
+        },
+      });
     };
   }
 
@@ -252,29 +254,8 @@ export class SlideObject<Props extends ObjectProps> {
    * Returns an update animation that skips the animation and just performs the change.
    * @param props Properties of object to change.
    */
-  update(props: Partial<Props>, delay: number | null = null): AnimationProps {
-    return this.animation(props, {}, delay, false);
-  }
-
-  /**
-   * Performs an animation on the object.
-   */
-  animate(
-    props: Partial<Props>,
-    animationParams: anime.AnimeParams = {},
-  ): BuildFunction {
-    return (animate) => {
-      animate(this.animation(props, animationParams));
-    };
-  }
-
-  /**
-   * Sets properties of the object.
-   */
-  set(props: Partial<Props>): BuildFunction {
-    return (animate) => {
-      animate(this.update(props));
-    };
+  set(props: Partial<Props>, delay: number | null = null): BuildFunction {
+    return this.animate(props, {}, delay, false);
   }
 
   /**

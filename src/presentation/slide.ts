@@ -1,5 +1,6 @@
 import {
   BuildFunction,
+  BuildFunctionSequence,
   performAnimation,
   skipAnimation,
 } from "../util/animation";
@@ -16,7 +17,7 @@ export interface SlideProps {
 export class Slide {
   objects: SlideObject<any>[];
 
-  animations: BuildFunction[];
+  animations: BuildFunctionSequence;
 
   animationIndex: number;
 
@@ -39,7 +40,7 @@ export class Slide {
 
   constructor(
     objects: SlideObject<any>[],
-    animations: BuildFunction[] = [],
+    animations: BuildFunctionSequence = [],
     props: Partial<SlideProps> = {},
   ) {
     this.objects = objects.filter((object) => object !== null);
@@ -78,7 +79,14 @@ export class Slide {
       for (let i = 0; i <= this.debugAnimation; i++) {
         const animation = this.animations[i];
         if (animation) {
-          animation(skipAnimation);
+          // If we have a list of build functions, use skip animator on each.
+          if (Array.isArray(animation)) {
+            for (const animationUnit of animation) {
+              animationUnit(skipAnimation);
+            }
+          } else {
+            animation(skipAnimation);
+          }
         }
       }
       this.animationIndex = this.debugAnimation + 1;
@@ -87,7 +95,14 @@ export class Slide {
       for (let i = 0; i < this.animationIndex; i++) {
         const animation = this.animations[i];
         if (animation) {
-          animation(skipAnimation);
+          // If we have a list of build functions, use skip animation on each.
+          if (Array.isArray(animation)) {
+            for (const animationUnit of animation) {
+              animationUnit(skipAnimation);
+            }
+          } else {
+            animation(skipAnimation);
+          }
         }
       }
     }
@@ -106,7 +121,14 @@ export class Slide {
   nextAnimation(): boolean {
     const animation = this.animations[this.animationIndex];
     if (animation) {
-      animation(performAnimation);
+      // If we have a list of animations, perform each one.
+      if (Array.isArray(animation)) {
+        for (const animationUnit of animation) {
+          animationUnit(performAnimation);
+        }
+      } else {
+        animation(performAnimation);
+      }
       this.animationIndex++;
       return true;
     }

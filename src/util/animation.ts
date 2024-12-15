@@ -43,6 +43,12 @@ export type Animator = (
 export type BuildFunction = (animate: Animator) => void;
 
 /**
+ * A build function sequence is a sequence, where each element is a build
+ * function or a list of build functions to be performed on the same build.
+ */
+export type BuildFunctionSequence = (BuildFunction | BuildFunction[])[];
+
+/**
  * Perform an animation on an element.
  * @param props Animation properties.
  */
@@ -139,11 +145,11 @@ export interface StateContainer<T> {
   state: T;
 }
 
-export function stateChangeAnimation<T>(
+export function animateStateChange<T>(
   state: StateContainer<T>,
   finalState: Partial<T>,
   duration: number = 500,
-): AnimationProps {
+): BuildFunction {
   const animationKeys: (keyof T)[] = Object.keys(finalState) as (keyof T)[];
   let startTime: number | null = null;
   const startState: T = { ...state.state };
@@ -171,24 +177,15 @@ export function stateChangeAnimation<T>(
       requestAnimationFrame(animateCallback);
     }
   }
-  return {
-    animateCallback: () => {
-      requestAnimationFrame(animateCallback);
-    },
-    updateCallback: () => {
-      for (const key of animationKeys) {
-        state.state[key] = finalState[key];
-      }
-    },
-  };
-}
-
-export function animateStateChange<T>(
-  state: StateContainer<T>,
-  finalState: Partial<T>,
-  duration: number = 500,
-): BuildFunction {
-  return (run) => {
-    run(stateChangeAnimation(state, finalState, duration));
-  };
+  return (run) =>
+    run({
+      animateCallback: () => {
+        requestAnimationFrame(animateCallback);
+      },
+      updateCallback: () => {
+        for (const key of animationKeys) {
+          state.state[key] = finalState[key];
+        }
+      },
+    });
 }

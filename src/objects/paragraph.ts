@@ -48,7 +48,6 @@ export class Paragraph extends SlideObject<ParagraphProps> {
       color: this.props.color,
     };
     for (const [key, value] of Object.entries(styles)) {
-      console.log([key, value]);
       if (value !== undefined) {
         div.style.setProperty(key, value.toString());
       }
