@@ -61,6 +61,18 @@ export class Slide {
       object.generate(presentation);
     });
 
+    // Handle creating additional element if needed.
+    presentation.additionalElementContainer.innerHTML = "";
+    if (this.props.additionalElement !== null) {
+      const element =
+        typeof this.props.additionalElement === "function"
+          ? this.props.additionalElement()
+          : this.props.additionalElement;
+      element.style.width = "100%";
+      element.style.height = "auto";
+      presentation.additionalElementContainer.appendChild(element);
+    }
+
     if (this.debugAnimation !== null && !presentation.svg.innerHTML) {
       // Jump directly to the animation we wish to debug.
       for (let i = 0; i <= this.debugAnimation; i++) {
@@ -80,17 +92,6 @@ export class Slide {
       }
     }
 
-    presentation.additionalElementContainer.innerHTML = "";
-    if (this.props.additionalElement !== null) {
-      const element =
-        typeof this.props.additionalElement === "function"
-          ? this.props.additionalElement()
-          : this.props.additionalElement;
-      element.style.width = "100%";
-      element.style.height = "auto";
-      presentation.additionalElementContainer.appendChild(element);
-    }
-
     // Clear SVG element
     presentation.svg.innerHTML = "";
 
@@ -102,7 +103,7 @@ export class Slide {
 
   // Runs next animation and returns true.
   // If no more animations left to run, returns false.
-  nextAnimation(presentation: Presentation): boolean {
+  nextAnimation(): boolean {
     const animation = this.animations[this.animationIndex];
     if (animation) {
       animation(performAnimation);

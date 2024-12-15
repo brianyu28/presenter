@@ -21,6 +21,13 @@ export interface AnimationProps {
    * Delay, in milliseconds.
    */
   delay?: number;
+
+  /**
+   * An animation can also specify custom functions that can be called to
+   * perform an animation or update to the end state of the animation.
+   */
+  animateCallback?: () => void;
+  updateCallback?: () => void;
 }
 
 /**
@@ -57,6 +64,11 @@ export const performAnimation: Animator = async (
       skipAnimation(animation);
     }
 
+    // If there's a function associated with the animation, run that.
+    if (animation.animateCallback !== undefined) {
+      animation.animateCallback();
+    }
+
     if (animation.element !== undefined) {
       anime({
         targets: animation.element,
@@ -88,6 +100,11 @@ export const skipAnimation: Animator = async (
   }
 
   for (const animation of props) {
+    // If there's a function associated with skipping the animation, call it.
+    if (animation.updateCallback) {
+      animation.updateCallback();
+    }
+
     const element = animation.element;
     if (!element) {
       continue;
@@ -112,3 +129,66 @@ export const skipAnimation: Animator = async (
     }
   }
 };
+
+/**
+ * When performing animations on non-DOM elements, e.g. variables in the state
+ * of a Three.js scene, we need a unchanging reference to state that may get
+ * replaced. That state can hold any type.
+ */
+export interface StateContainer<T> {
+  state: T;
+}
+
+export function stateChangeAnimation<T>(
+  state: StateContainer<T>,
+  finalState: Partial<T>,
+  duration: number = 500,
+): AnimationProps {
+  const animationKeys: (keyof T)[] = Object.keys(finalState) as (keyof T)[];
+  let startTime: number | null = null;
+  const startState: T = { ...state.state };
+
+  function animateCallback(timestamp: number) {
+    if (startTime === null) {
+      startTime = timestamp;
+    }
+    const elapsed = timestamp - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+
+    for (const key of animationKeys) {
+      if (typeof finalState[key] === "number") {
+        const startValue = startState[key] as number;
+        const endValue = finalState[key] as number;
+        state.state[key] = (startValue +
+          progress * (endValue - startValue)) as any;
+      } else if (progress == 1) {
+        // If it's a non-numeric property, then just animate at the end.
+        state.state[key] = finalState[key];
+      }
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animateCallback);
+    }
+  }
+  return {
+    animateCallback: () => {
+      requestAnimationFrame(animateCallback);
+    },
+    updateCallback: () => {
+      for (const key of animationKeys) {
+        state.state[key] = finalState[key];
+      }
+    },
+  };
+}
+
+export function animateStateChange<T>(
+  state: StateContainer<T>,
+  finalState: Partial<T>,
+  duration: number = 500,
+): BuildFunction {
+  return (run) => {
+    run(stateChangeAnimation(state, finalState, duration));
+  };
+}

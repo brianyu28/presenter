@@ -250,7 +250,7 @@ export class Presentation {
       return;
     }
 
-    if (!includeIntermediateBuilds || !currentSlide.nextAnimation(this)) {
+    if (!includeIntermediateBuilds || !currentSlide.nextAnimation()) {
       this.presentationState.currentSlide++;
       const nextSlide = this.slides[this.presentationState.currentSlide];
       if (nextSlide === undefined) {
