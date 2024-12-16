@@ -49,6 +49,11 @@ export class Presentation {
   shadow: SVGSVGElement | null;
 
   /**
+   * Background SVG element, used for rendering background color.
+   */
+  background: SVGSVGElement | null;
+
+  /**
    * Additional element container for elements that aren't part of the SVG.
    */
   additionalElementContainer: HTMLElement | null;
@@ -108,6 +113,7 @@ export class Presentation {
     this.container = null;
     this.svg = null;
     this.shadow = null;
+    this.background = null;
     this.additionalElementContainer = null;
   }
 
@@ -139,18 +145,18 @@ export class Presentation {
     this.shadow.style.visibility = "hidden";
 
     // Create element that's just used for the background color.
-    const background = document.createElementNS(
+    this.background = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "svg",
     );
-    background.style.backgroundColor = this.options.backgroundColor;
+    this.background.style.backgroundColor = this.options.backgroundColor;
 
     this.additionalElementContainer = document.createElement("div");
     this.additionalElementContainer.style.width = "100%";
     this.additionalElementContainer.style.height = "100%";
     this.additionalElementContainer.style.position = "absolute";
 
-    [this.svg, this.shadow, background].forEach((svg) => {
+    [this.svg, this.shadow, this.background].forEach((svg) => {
       svg.setAttribute("width", "100%");
       svg.setAttribute(
         "viewBox",
@@ -183,7 +189,7 @@ export class Presentation {
     }
 
     this.container.appendChild(this.shadow);
-    this.container.appendChild(background);
+    this.container.appendChild(this.background);
     this.container.appendChild(this.additionalElementContainer);
     this.container.appendChild(this.svg);
     this.element.appendChild(this.container);
