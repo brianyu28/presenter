@@ -2,11 +2,35 @@ const path = require("path");
 
 module.exports = {
   mode: process.env.NODE_ENV || "development",
-  entry: "./src/index.ts",
+  entry: {
+    presenter: {
+      import: "./src/index.ts",
+      filename: "presenter.js",
+      library: {
+        name: "Presenter",
+        type: "umd",
+      },
+    },
+    export: {
+      import: "./src/export/index.ts",
+      filename: "presenter-export.js",
+      library: {
+        name: "PresenterExport",
+        type: "umd",
+      },
+    },
+    morph: {
+      import: "./src/morph/index.ts",
+      filename: "presenter-morph.js",
+      library: {
+        name: "PresenterMorph",
+        type: "umd",
+      },
+    },
+  },
   output: {
-    filename: "presenter.js",
+    // filename: "[name].js",
     path: path.resolve(__dirname, "dist"),
-    library: "Presenter",
     libraryTarget: "umd",
     globalObject: "this",
   },
@@ -25,7 +49,7 @@ module.exports = {
       {
         test: /\.ts$/,
         use: "ts-loader",
-        exclude: [/node_modules/, /packages/],
+        exclude: [/node_modules/, /packages/, /dist/],
       },
     ],
   },

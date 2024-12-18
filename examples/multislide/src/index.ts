@@ -8,10 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const presentation = new Presentation(
     "My Presentation",
     [
-      new BasicAnimationSlide(),
       new SimpleSlide(),
       new PositionsSlide(),
       new ShapesSlide(),
+      new BasicAnimationSlide(),
     ],
     document.body,
   );

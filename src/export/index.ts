@@ -1,4 +1,4 @@
-import { Presentation } from "presenter";
+import { Presentation } from "../presentation/presentation";
 import { toPng } from "html-to-image";
 
 /**
@@ -45,6 +45,10 @@ export async function renderPresentationAsImages(presentation: Presentation) {
 /**
  * Renders whole slide container (background, additional element canvas, svg)
  * and sends to a server endpoint.
+ *
+ * When rendering all componenst of the slide container, the server endpoint
+ * is requried to perform additional image compositing to generate the
+ * render.
  */
 export async function exportCurrentSlideContainer(
   presentation: Presentation,

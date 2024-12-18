@@ -8,5 +8,5 @@
     "target": "es5",
     "allowJs": true
   },
-  "exclude": ["./examples", "./packages"]
+  "exclude": ["./examples", "./packages", "./dist"]
 }
