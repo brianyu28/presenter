@@ -152,12 +152,16 @@ export function animateStateChange<T>(
 ): BuildFunction {
   const animationKeys: (keyof T)[] = Object.keys(finalState) as (keyof T)[];
   let startTime: number | null = null;
-  const startState: T = { ...state.state };
+  let startState: T | null = null;
 
   function animateCallback(timestamp: number) {
     if (startTime === null) {
       startTime = timestamp;
     }
+    if (startState === null) {
+      startState = { ...state.state };
+    }
+
     const elapsed = timestamp - startTime;
     const progress = Math.min(elapsed / duration, 1);
 
@@ -179,7 +183,10 @@ export function animateStateChange<T>(
   }
   return (run) =>
     run({
+      animate: true,
       animateCallback: () => {
+        startTime = null;
+        startState = null;
         requestAnimationFrame(animateCallback);
       },
       updateCallback: () => {

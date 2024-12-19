@@ -3,6 +3,7 @@ import SimpleSlide from "./slides/simple";
 import PositionsSlide from "./slides/positions";
 import ShapesSlide from "./slides/shapes";
 import BasicAnimationSlide from "./slides/basicAnimation";
+import MorphSlide from "./slides/morph";
 
 document.addEventListener("DOMContentLoaded", () => {
   const presentation = new Presentation(
@@ -12,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
       new PositionsSlide(),
       new ShapesSlide(),
       new BasicAnimationSlide(),
+      new MorphSlide(),
     ],
     document.body,
   );

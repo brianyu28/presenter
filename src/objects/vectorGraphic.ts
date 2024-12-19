@@ -10,6 +10,15 @@ export interface VectorGraphicProps extends ObjectProps {
 export class VectorGraphic extends SlideObject<VectorGraphicProps> {
   parsedChildren: Node[];
 
+  /**
+   * Returns an SVG node given string content.
+   */
+  static svgNode(content: string): SVGElement {
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(content, "image/svg+xml");
+    return svgDoc.documentElement as unknown as SVGElement;
+  }
+
   constructor(svg: string, props: Partial<VectorGraphicProps> = {}) {
     super({
       svg,
@@ -24,9 +33,10 @@ export class VectorGraphic extends SlideObject<VectorGraphicProps> {
   }
 
   createElement(): SVGElement {
-    const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(this.props.svg, "image/svg+xml");
-    const element = svgDoc.documentElement as unknown as SVGElement;
+    // Get SVG element from string input
+    const element = (this.constructor as typeof VectorGraphic).svgNode(
+      this.props.svg,
+    );
 
     // Store parsed children.
     this.parsedChildren = Array.from(element.childNodes);
