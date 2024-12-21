@@ -9,6 +9,8 @@
     "serve": "NODE_ENV=development webpack serve --open"
   },
   "devDependencies": {
+    "@types/three": "^0.171.0",
+    "copy-webpack-plugin": "^12.0.2",
     "ts-loader": "^9.5.1",
     "typescript": "^5.7.2",
     "webpack": "^5.96.1",
@@ -16,6 +18,7 @@
     "webpack-dev-server": "^5.1.0"
   },
   "dependencies": {
-    "presenter": "file:../.."
+    "presenter": "file:../..",
+    "three": "^0.171.0"
   }
 }

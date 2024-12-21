@@ -4,8 +4,9 @@ import { createDirectory, input, print, writeTemplateFile } from "./cli";
 import packageTemplate from "./templates/typescript/package.json?source";
 import tsConfigTemplate from "./templates/typescript/tsconfig.json?source";
 import webpackConfigTemplate from "./templates/typescript/webpack.config.js?source";
-import htmlTemplate from "./templates/typescript/dist/index.html?source";
+import htmlTemplate from "./templates/typescript/public/index.html?source";
 import srcTemplate from "./templates/typescript/src/index.ts.template?source";
+import customDTsTemplate from "./templates/typescript/src/custom.d.ts.template?source";
 
 async function main() {
   try {
@@ -23,7 +24,7 @@ async function main() {
 
     print(`Creating a new Presenter.js presentation in ${projectName}...`);
     await createDirectory(projectName);
-    await createDirectory(path.join(projectName, "dist"));
+    await createDirectory(path.join(projectName, "public"));
     await createDirectory(path.join(projectName, "src"));
 
     await writeTemplateFile(
@@ -44,13 +45,18 @@ async function main() {
       {},
     );
     await writeTemplateFile(
-      path.join(cwd, projectName, "dist", "index.html"),
+      path.join(cwd, projectName, "public", "index.html"),
       htmlTemplate,
       {},
     );
     await writeTemplateFile(
       path.join(cwd, projectName, "src", "index.ts"),
       srcTemplate,
+      {},
+    );
+    await writeTemplateFile(
+      path.join(cwd, projectName, "src", "custom.d.ts"),
+      customDTsTemplate,
       {},
     );
 

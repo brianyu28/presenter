@@ -3,8 +3,7 @@ node_modules/
 *.tgz
 
 # Webpack
-**/dist/**
-!**/dist/index.html
+dist/
 
 # Other
 .DS_Store
