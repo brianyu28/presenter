@@ -70,7 +70,6 @@ export class Text extends SlideObject<TextProps> {
     const bbox = this.computeRenderedBoundingBox(
       this.element() as SVGGraphicsElement,
       this.childrenWithContentLength(this.contentLength()),
-      // this._children,
     );
     const { x, y } = this.positionAttributes(bbox);
 
@@ -152,7 +151,8 @@ export class Text extends SlideObject<TextProps> {
     // lines. If it's a simple string, then return just the text node with
     // the trimmed content.
     if (typeof content === "string") {
-      const trimmedContent = content.slice(0, length);
+      const trimmedContent =
+        length === null ? content : content.slice(0, length);
       return [document.createTextNode(trimmedContent)];
     }
 
@@ -210,6 +210,10 @@ export class Text extends SlideObject<TextProps> {
               spans.push([span[0].slice(0, remaining), span[1]]);
               remaining = 0;
             }
+          }
+
+          if (remaining === 0) {
+            break;
           }
         }
         lines.push(spans);

@@ -57,7 +57,8 @@ export function morphPath(
       interpolator = pathInterpolator(element.getAttribute("d"), targetPath);
     }
 
-    // Subsequently,
+    // Subsequently, compute an interpolated path based on how far we should
+    // be in the morph between two paths.
     const elapsed = timestamp - startTime;
     const progress = Math.min(elapsed / duration, 1);
     const t = easingFunction(progress);

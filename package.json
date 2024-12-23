@@ -25,7 +25,9 @@
     "build": "NODE_ENV=production webpack",
     "watch": "NODE_ENV=development webpack --watch",
     "prettier": "prettier . --write --ignore-unknown",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "jest",
+    "coverage": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -45,15 +47,22 @@
   "devDependencies": {
     "@types/animejs": "^3.1.12",
     "@types/flubber": "^0.4.0",
+    "@types/jest": "^29.5.14",
     "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "lint-staged": "^15.2.10",
     "prettier": "^3.4.2",
+    "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.1",
     "typescript": "^5.7.2",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4"
   },
   "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+    "**/*": [
+      "prettier --write --ignore-unknown",
+      "jest --findRelatedTests"
+    ]
   }
 }
