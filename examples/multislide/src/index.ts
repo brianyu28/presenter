@@ -6,6 +6,7 @@ import BasicAnimationSlide from "./slides/basicAnimation";
 import MorphSlide from "./slides/morph";
 import ThreeDimensionalSlide from "./slides/threeDimensional";
 import LatexSlide from "./slides/latex";
+import RichTextSlide from "./slides/richText";
 
 document.addEventListener("DOMContentLoaded", () => {
   const presentation = new Presentation(
@@ -18,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
       new MorphSlide(),
       new ThreeDimensionalSlide(),
       new LatexSlide(),
+      new RichTextSlide(),
     ],
     document.body,
   );

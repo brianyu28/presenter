@@ -1,4 +1,5 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
+import { BuildFunction } from "../util/animation";
 import { generateTextNodes, RichTextSpan } from "../util/richText";
 
 export type TextContent = string | (string | RichTextSpan[])[];
@@ -12,6 +13,10 @@ export interface TextProps extends ObjectProps {
   color: string;
   dominantBaseline: string;
   textDecoration: string;
+
+  // How many characters of content should be visible. `null` to show all
+  // content.
+  length: number | null;
 
   // Alignment and line spacing only matter for rich text.
 
@@ -30,6 +35,7 @@ export class Text extends SlideObject<TextProps> {
       fontFamily: "Arial",
       dominantBaseline: "ideographic",
       textDecoration: "none",
+      length: null,
       align: "left",
       lineSpacing: "1em",
       ...props,
@@ -63,7 +69,8 @@ export class Text extends SlideObject<TextProps> {
   additionalAttributes(): Partial<Record<string, string>> {
     const bbox = this.computeRenderedBoundingBox(
       this.element() as SVGGraphicsElement,
-      this._children,
+      this.childrenWithContentLength(this.contentLength()),
+      // this._children,
     );
     const { x, y } = this.positionAttributes(bbox);
 
@@ -101,24 +108,183 @@ export class Text extends SlideObject<TextProps> {
   }
 
   children(): Node[] {
-    const { content } = this.props;
+    const length = this.props.length ?? this.contentLength();
+    return this.childrenWithContentLength(length);
+  }
 
-    // Not rich text, render as a single text node
-    if (typeof content === "string") {
-      return [document.createTextNode(content)];
+  requiresChildrenUpdate(props: Partial<TextProps>): boolean {
+    return (
+      ("content" in props && props.content !== this.props.content) ||
+      ("length" in props && props.length !== this.props.length)
+    );
+  }
+
+  /**
+   * Returns the number of characters in the total text content.
+   */
+  contentLength(): number {
+    if (typeof this.props.content === "string") {
+      return this.props.content.length;
     }
 
-    // Multiline styled text, render as tspan elements
+    return this.props.content.reduce((acc, item) => {
+      if (typeof item === "string") {
+        return acc + item.length;
+      }
+
+      return (
+        acc +
+        item.reduce((acc, span) => {
+          const text = typeof span === "string" ? span : span[0];
+          return acc + text.length;
+        }, 0)
+      );
+    }, 0);
+  }
+
+  /**
+   * Returns the children of a text node, up to a particular content length.
+   */
+  childrenWithContentLength(length: number | null): Node[] {
+    const { content } = this.props;
+
+    // Text content can be a simple string or a list of possibly-formatted
+    // lines. If it's a simple string, then return just the text node with
+    // the trimmed content.
+    if (typeof content === "string") {
+      const trimmedContent = content.slice(0, length);
+      return [document.createTextNode(trimmedContent)];
+    }
+
+    // Content is multi-line or styled text.
+    // We need to first determine its alignment.
     let textAnchor: "start" | "middle" | "end" =
       this.props.align === "left"
         ? "start"
         : this.props.align === "center"
           ? "middle"
           : "end";
-    return generateTextNodes(content, this.props.lineSpacing, textAnchor);
+
+    // If the length is `null`, we include all characters and don't need to do
+    // any additional calculations.
+    if (length === null) {
+      return generateTextNodes(content, this.props.lineSpacing, textAnchor);
+    }
+
+    // If the content is a list of lines, then we need to re-create the list
+    // of lines, but trimmed to only `length` characters.
+    let remaining = length;
+    const lines: (string | RichTextSpan[])[] = [];
+
+    // Look at each line and determine whether it should be copied.
+    for (const line of content) {
+      // String lines can be copied directly.
+      if (typeof line === "string") {
+        if (line.length <= remaining) {
+          lines.push(line);
+          remaining -= line.length;
+        } else {
+          lines.push(line.slice(0, remaining));
+          remaining = 0;
+        }
+      } else {
+        // Otherwise, a line consists of a list of spans of possibly rich text.
+        const spans: RichTextSpan[] = [];
+        for (const span of line) {
+          // Some spans are plain text and can be copied directly
+          if (typeof span === "string") {
+            if (span.length <= remaining) {
+              spans.push(span);
+              remaining -= span.length;
+            } else {
+              spans.push(span.slice(0, remaining));
+              remaining = 0;
+            }
+          } else {
+            // Otherwise, spans are rich text and we need to consider just the
+            // length of the text component.
+            if (span[0].length <= remaining) {
+              spans.push(span);
+              remaining -= span[0].length;
+            } else {
+              spans.push([span[0].slice(0, remaining), span[1]]);
+              remaining = 0;
+            }
+          }
+        }
+        lines.push(spans);
+      }
+
+      if (remaining === 0) {
+        break;
+      }
+    }
+
+    // Multiline styled text, render as tspan elements
+    return generateTextNodes(lines, this.props.lineSpacing, textAnchor);
   }
 
-  requiresChildrenUpdate(props: Partial<TextProps>): boolean {
-    return "content" in props && props.content !== this.props.content;
+  regenerateChildren() {
+    this._children = this.children();
+    this._element.innerHTML = "";
+    for (const child of this._children) {
+      this._element.appendChild(child);
+    }
+  }
+
+  /**
+   * Returns a write-on animation for changing the characters.
+   *
+   * Writing on text requires a different approach than other text animations
+   * since the children of the element need to be replaced.
+   */
+  writeOn(
+    length: number | null = null,
+    duration: number = 1000,
+  ): BuildFunction {
+    let startLength: number | null = null;
+    let endLength: number | null = null;
+    let startTime: number | null = null;
+
+    const animateCallback = (timestamp: number) => {
+      if (startTime === null) {
+        startTime = timestamp;
+      }
+      if (startLength === null) {
+        startLength = this.props.length ?? this.contentLength();
+      }
+      if (endLength === null) {
+        endLength = length ?? this.contentLength();
+      }
+
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      this.props.length = Math.floor(
+        startLength + (endLength - startLength) * progress,
+      );
+      this.regenerateChildren();
+
+      if (progress < 1) {
+        requestAnimationFrame(animateCallback);
+      }
+    };
+
+    return (run) =>
+      run({
+        animate: true,
+        animateCallback: () => {
+          startTime = null;
+          startLength = null;
+          endLength = null;
+          requestAnimationFrame(animateCallback);
+        },
+        updateCallback: () => {
+          startTime = null;
+          startLength = null;
+          endLength = null;
+          this.props.length = endLength;
+          this.regenerateChildren();
+        },
+      });
   }
 }
