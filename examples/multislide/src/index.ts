@@ -7,6 +7,7 @@ import MorphSlide from "./slides/morph";
 import ThreeDimensionalSlide from "./slides/threeDimensional";
 import LatexSlide from "./slides/latex";
 import RichTextSlide from "./slides/richText";
+import ShortcutsSlide from "./slides/shortcuts";
 
 document.addEventListener("DOMContentLoaded", () => {
   const presentation = new Presentation(
@@ -20,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
       new ThreeDimensionalSlide(),
       new LatexSlide(),
       new RichTextSlide(),
+      new ShortcutsSlide(),
     ],
     document.body,
   );

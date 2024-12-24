@@ -1,5 +1,4 @@
 import {
-  BuildFunction,
   BuildFunctionSequence,
   performAnimation,
   skipAnimation,
@@ -12,6 +11,13 @@ export interface SlideProps {
    * Additional HTML element to show behind SVG content.
    */
   additionalElement: HTMLElement | (() => HTMLElement) | null;
+
+  /**
+   * A shortcut allows a keyboard shortcut to link directly to a slide.
+   * Represented as either just a string (the shortcut),
+   * or a string and number (shortcut and animation index).
+   */
+  shortcuts: (string | [string, number])[];
 }
 
 export class Slide {
@@ -50,6 +56,7 @@ export class Slide {
     this.keyBuilds = null;
     this.props = {
       additionalElement: null,
+      shortcuts: [],
       ...props,
     };
   }

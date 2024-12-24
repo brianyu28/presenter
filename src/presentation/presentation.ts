@@ -79,6 +79,16 @@ export class Presentation {
   presentationState: PresentationState;
 
   /**
+   * Keyboard shortcut access to jump to particular slides.
+   */
+  shortcuts: Record<string, { slideIndex: number; animationIndex: number }>;
+
+  /**
+   * Current text command that the presenter has entered into presentation.
+   */
+  textCommand: { active: boolean; command: string };
+
+  /**
    *
    * @param title Title of the presentation.
    */
@@ -90,6 +100,9 @@ export class Presentation {
   ) {
     if (this.element === null) {
       throw new Error("Presentation cannot be mounted to null element.");
+    }
+    if (slides.length === 0) {
+      throw new Error("Presentation requires at least one slide");
     }
 
     this.title = title;
@@ -115,6 +128,36 @@ export class Presentation {
     this.shadow = null;
     this.background = null;
     this.additionalElementContainer = null;
+    this.textCommand = { active: false, command: "" };
+
+    // Set up shortcuts
+    this.shortcuts = {
+      // First build of first slide
+      s: { slideIndex: 0, animationIndex: 0 },
+      // Last build of last slide
+      e: {
+        slideIndex: slides.length - 1,
+        animationIndex: slides[slides.length - 1].animations.length,
+      },
+    };
+
+    // Add numbered shortcuts for each slide
+    for (let i = 0; i < slides.length; i++) {
+      this.shortcuts[(i + 1).toString()] = { slideIndex: i, animationIndex: 0 };
+    }
+
+    // Add custom shortcuts on particular slides
+    slides.forEach((slide, slideIndex) => {
+      slide.props.shortcuts.forEach((shortcut) => {
+        const shortcutText =
+          typeof shortcut === "string" ? shortcut : shortcut[0];
+        const animationIndex = typeof shortcut === "string" ? 0 : shortcut[1];
+        this.shortcuts[shortcutText] = {
+          slideIndex: slideIndex,
+          animationIndex: animationIndex,
+        };
+      });
+    });
   }
 
   present() {
@@ -212,18 +255,82 @@ export class Presentation {
     const eventTarget = this.isFullBodyPresentation()
       ? document.body
       : this.container;
-    (eventTarget as HTMLElement).addEventListener("keyup", (event) => {
-      if (event.key === "ArrowRight" || event.key === " ") {
-        this.next(!event.shiftKey);
-      } else if (event.key === "ArrowLeft") {
-        this.previous(!event.shiftKey);
-      }
-    });
+    (eventTarget as HTMLElement).addEventListener(
+      "keyup",
+      this.handleKeyboardEvent.bind(this),
+    );
 
     // Show cursor when the cursor moves.
-    eventTarget.addEventListener("mousemove", (event) => {
+    eventTarget.addEventListener("mousemove", () => {
       this.svg.style.cursor = "auto";
     });
+  }
+
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+      this.resetTextCommand();
+      return;
+    }
+
+    if (event.key === "ArrowRight" || event.key === " ") {
+      this.resetTextCommand();
+      this.next(!event.shiftKey);
+      return;
+    }
+
+    if (event.key === "ArrowLeft") {
+      this.resetTextCommand();
+      this.previous(!event.shiftKey);
+      return;
+    }
+
+    // Check for an active text command
+    if (this.textCommand.active) {
+      // Submitting a text command
+      if (event.key === "Enter") {
+        const { command } = this.textCommand;
+        this.resetTextCommand();
+
+        // Check for a valid shortcut
+        const shortcut = this.shortcuts[command];
+        if (shortcut === undefined) {
+          return;
+        }
+
+        // Before going to a new slide, set up a "back" shortcut
+        // (accessible via "gb") that goes back to where the user came from.
+        const currentSlide = this.slides[this.presentationState.currentSlide];
+        this.shortcuts["b"] = {
+          slideIndex: this.presentationState.currentSlide,
+          animationIndex: currentSlide.animationIndex,
+        };
+
+        // Render the slide specified by the shortcut
+        this.presentationState.currentSlide = shortcut.slideIndex;
+        const slide = this.slides[this.presentationState.currentSlide];
+        if (slide === undefined) {
+          return;
+        }
+        slide.render(this, shortcut.animationIndex);
+        return;
+      }
+
+      // Adding to a new text command
+      if (event.key === "Backspace") {
+        this.textCommand.command = this.textCommand.command.slice(0, -1);
+      } else {
+        this.textCommand.command += event.key;
+      }
+    } else if (event.key === "g") {
+      // We've started a new text command
+      this.textCommand.active = true;
+      this.textCommand.command = "";
+    }
+  }
+
+  resetTextCommand() {
+    this.textCommand.active = false;
+    this.textCommand.command = "";
   }
 
   /**
