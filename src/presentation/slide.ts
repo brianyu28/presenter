@@ -8,6 +8,11 @@ import { Presentation } from "./presentation";
 
 export interface SlideProps {
   /**
+   * An optional title for the slide, shown in navigation bar.
+   */
+  title: string | null;
+
+  /**
    * Additional HTML element to show behind SVG content.
    */
   additionalElement: HTMLElement | (() => HTMLElement) | null;
@@ -57,6 +62,7 @@ export class Slide {
     this.props = {
       additionalElement: null,
       shortcuts: [],
+      title: null,
       ...props,
     };
   }

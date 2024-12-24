@@ -21,6 +21,12 @@ export default class ShortcutsSlide extends Slide {
     );
     super([text], [text.animate({ color: "#0000ff" })], {
       shortcuts: ["hi", ["bye", 1]],
+      /**
+       * Specifying a `title` for the slide will let that name show up in the
+       * navigation menu. Activate the navigation menu by typing the tilde
+       * (`) key on the keyboard.
+       */
+      title: "Shortcuts",
     });
   }
 }

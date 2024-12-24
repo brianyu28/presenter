@@ -59,6 +59,11 @@ export class Presentation {
   additionalElementContainer: HTMLElement | null;
 
   /**
+   * Element that allows navigation between different slides.
+   */
+  navigatorContainer: HTMLElement | null;
+
+  /**
    * Presentation settings.
    */
   options: PresentationOptions;
@@ -231,10 +236,42 @@ export class Presentation {
       this.updateSVGContainerSize();
     }
 
+    this.navigatorContainer = document.createElement("div");
+    this.navigatorContainer.style.position = "absolute";
+    this.navigatorContainer.style.height = "100%";
+    this.navigatorContainer.style.width = "200px";
+    this.navigatorContainer.style.backgroundColor = "#e6e6e6";
+    this.navigatorContainer.style.overflow = "scroll";
+    this.navigatorContainer.style.display = "none";
+
+    // Add slides to the navigator container
+    this.slides.forEach((slide, index) => {
+      const slideElement = document.createElement("button");
+      slideElement.style.display = "block";
+      slideElement.style.margin = "10px";
+      slideElement.style.padding = "10px";
+      slideElement.style.width = "calc(100% - 20px)";
+      slideElement.style.textAlign = "left";
+      slideElement.style.backgroundColor = "transparent";
+      slideElement.style.border = "none";
+      slideElement.style.cursor = "pointer";
+      slideElement.innerHTML = `${index + 1}`;
+      if (slide.props.title !== null) {
+        slideElement.innerHTML += `: ${slide.props.title}`;
+      }
+      slideElement.addEventListener("click", () => {
+        this.navigatorContainer.style.display = "none";
+        this.presentationState.currentSlide = index;
+        slide.render(this);
+      });
+      this.navigatorContainer.appendChild(slideElement);
+    });
+
     this.container.appendChild(this.shadow);
     this.container.appendChild(this.background);
     this.container.appendChild(this.additionalElementContainer);
     this.container.appendChild(this.svg);
+    this.container.appendChild(this.navigatorContainer);
     this.element.appendChild(this.container);
 
     // Set up presentation state
@@ -325,6 +362,12 @@ export class Presentation {
       // We've started a new text command
       this.textCommand.active = true;
       this.textCommand.command = "";
+    } else if (event.key === "`") {
+      const navigatorVisible =
+        this.navigatorContainer.style.display === "block";
+      this.navigatorContainer.style.display = navigatorVisible
+        ? "none"
+        : "block";
     }
   }
 
