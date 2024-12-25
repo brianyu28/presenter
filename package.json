@@ -62,7 +62,7 @@
   "lint-staged": {
     "**/*": [
       "prettier --write --ignore-unknown",
-      "jest --findRelatedTests"
+      "jest --findRelatedTests --passWithNoTests"
     ]
   }
 }

@@ -8,6 +8,7 @@ import ThreeDimensionalSlide from "./slides/threeDimensional";
 import LatexSlide from "./slides/latex";
 import RichTextSlide from "./slides/richText";
 import ShortcutsSlide from "./slides/shortcuts";
+import GroupSlide from "./slides/group";
 
 document.addEventListener("DOMContentLoaded", () => {
   const presentation = new Presentation(
@@ -22,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
       new LatexSlide(),
       new RichTextSlide(),
       new ShortcutsSlide(),
+      new GroupSlide(),
     ],
     document.body,
   );

@@ -1,5 +1,5 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
-import { BoundingBox } from "../util/position";
+import { BoundingBox, Position } from "../util/position";
 
 export interface GroupProps extends ObjectProps {
   /**
@@ -8,6 +8,9 @@ export interface GroupProps extends ObjectProps {
    */
   positioned: boolean;
   objects: SlideObject<any>[];
+  rotation: number;
+  rotationOrigin: Position;
+  scale: number;
 }
 
 export class Group extends SlideObject<GroupProps> {
@@ -20,6 +23,9 @@ export class Group extends SlideObject<GroupProps> {
       objects,
       position: { x: 0, y: 0 },
       positioned: positioned === null ? "position" in props : positioned,
+      rotation: 0,
+      rotationOrigin: { x: 0, y: 0 },
+      scale: 1,
       ...props,
     });
   }
@@ -49,6 +55,11 @@ export class Group extends SlideObject<GroupProps> {
       this._element as SVGGraphicsElement,
     );
 
+    // Adjust the bounding box's size if the group has been scaled up.
+    const scale = this.props.scale;
+    bbox.width *= scale;
+    bbox.height *= scale;
+
     // Then, we determine where we want the group to be positioned.
     const { x, y } = this.positionInPresentation(this.props.position);
     const anchoredBox = this.anchorBoundingBox(
@@ -59,8 +70,11 @@ export class Group extends SlideObject<GroupProps> {
     const adjustedX = anchoredBox.origin.x - bbox.origin.x;
     const adjustedY = anchoredBox.origin.y - bbox.origin.y;
 
+    const rotationTransform = `rotate(${this.props.rotation}, ${this.props.rotationOrigin.x}, ${this.props.rotationOrigin.y})`;
+    const scaleTransform = `scale(${scale})`;
+
     return {
-      transform: `translate(${adjustedX}, ${adjustedY})`,
+      transform: `translate(${adjustedX}, ${adjustedY}) ${rotationTransform} ${scaleTransform}`,
     };
   }
 
