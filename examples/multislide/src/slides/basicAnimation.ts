@@ -40,7 +40,7 @@ export default class BasicAnimationSlide extends Slide {
         rectangle.set({ fill: "#000000" }),
 
         // Group multiple animations together in a list for them to be performed together.
-        [rectangle.animate({ opacity: 0 }), text.animate({ opacity: 0 })],
+        [rectangle.animate({ opacity: 0.5 }), text.animate({ opacity: 0.5 })],
       ],
     );
   }

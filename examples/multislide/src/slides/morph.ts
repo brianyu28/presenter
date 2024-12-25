@@ -33,6 +33,17 @@ export default class MorphSlide extends Slide {
       [shape],
       [
         /**
+         * Draw-on animations allow for animating drawing and filling in
+         * the path. Typically this is achieved by giving the shape
+         * `fill = "none"` to begin, so that the shape is hidden to start
+         * and appears after drawing.
+         *
+         * For more complex shapes, give paths unique IDs or class names
+         * and change the selector argument.
+         */
+        shape.drawOn("path", { color: "rgb(71, 62, 241)" }),
+
+        /**
          * Simple morph between two star shapes with corresponding points. By
          * default, a spring easing function is used, so we can override the
          * easing to be linear.
