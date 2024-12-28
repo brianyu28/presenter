@@ -10,6 +10,11 @@ module.exports = {
   },
   devServer: {
     static: "./dist",
+    open: {
+      app: {
+        name: "Google Chrome",
+      },
+    },
   },
   resolve: {
     extensions: [".ts", ".js"],
@@ -22,7 +27,7 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
-        test: /\.(svg)$/i,
+        test: /\.(svg|c)$/i,
         type: "asset/source",
       },
     ],

@@ -16,6 +16,10 @@
     "./morph": {
       "require": "./dist/presenter-morph.js",
       "types": "./dist/src/morph/index.d.ts"
+    },
+    "./code": {
+      "require": "./dist/presenter-code.js",
+      "types": "./dist/src/code/index.d.ts"
     }
   },
   "files": [

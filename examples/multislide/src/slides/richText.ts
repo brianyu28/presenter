@@ -30,10 +30,11 @@ export default class RichTextSlide extends Slide {
     super(
       [text],
       [
-        // The `writeOn` animation can animate adding text up to a particular character.
-        text.writeOn(63),
-        // Without an argument, animation can animate adding all remaining text.
-        text.writeOn(),
+        // Animating the `length` property can animate adding text up to a particular character.
+        text.animate({ length: 63 }),
+
+        // Animating with `length` set to `null` animates all remaining text.
+        text.animate({ length: null }),
       ],
     );
   }

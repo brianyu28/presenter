@@ -27,6 +27,14 @@ module.exports = {
         type: "umd",
       },
     },
+    code: {
+      import: "./src/code/index.ts",
+      filename: "presenter-code.js",
+      library: {
+        name: "PresenterCode",
+        type: "umd",
+      },
+    },
   },
   output: {
     // filename: "[name].js",

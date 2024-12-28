@@ -1,20 +1,22 @@
 import { BoundingBox, Position } from "../util/position";
 import { Presentation } from "./presentation";
-import { AnimationProps, BuildFunction } from "../util/animation";
+import { BuildFunction } from "../util/animation";
+
+export type Anchor =
+  | "topleft"
+  | "top"
+  | "topright"
+  | "left"
+  | "center"
+  | "right"
+  | "bottomleft"
+  | "bottom"
+  | "bottomright";
 
 export interface ObjectProps {
   position: Position | null;
   opacity?: number;
-  anchor:
-    | "topleft"
-    | "top"
-    | "topright"
-    | "left"
-    | "center"
-    | "right"
-    | "bottomleft"
-    | "bottom"
-    | "bottomright";
+  anchor: Anchor;
 }
 
 export class SlideObject<Props extends ObjectProps> {

@@ -9,6 +9,7 @@ import LatexSlide from "./slides/latex";
 import RichTextSlide from "./slides/richText";
 import ShortcutsSlide from "./slides/shortcuts";
 import GroupSlide from "./slides/group";
+import CodeSlide from "./slides/code";
 
 document.addEventListener("DOMContentLoaded", () => {
   const presentation = new Presentation(
@@ -24,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
       new RichTextSlide(),
       new ShortcutsSlide(),
       new GroupSlide(),
+      new CodeSlide(),
     ],
     document.body,
   );

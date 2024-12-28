@@ -1,5 +1,5 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
-import { BuildFunction } from "../util/animation";
+import { Animator, BuildFunction } from "../util/animation";
 import { generateTextNodes, RichTextSpan } from "../util/richText";
 
 export type TextContent = string | (string | RichTextSpan[])[];
@@ -234,6 +234,31 @@ export class Text extends SlideObject<TextProps> {
     for (const child of this._children) {
       this._element.appendChild(child);
     }
+  }
+
+  animate(
+    props: Partial<TextProps>,
+    animationParams: anime.AnimeParams = {},
+    delay: number | null = null,
+    animate: boolean = true,
+  ): BuildFunction {
+    // The length property needs to be animated separately as a write-on animation.
+    const { length, ...textProps } = props;
+
+    // If there is no length property, we can animate normally.
+    if (length === undefined) {
+      return super.animate(textProps, animationParams, delay, animate);
+    }
+
+    // Otherwise, we need to animate a write-on animation.
+    return (run: Animator) => {
+      this.writeOn(length, (animationParams.duration ?? 1000) as number)(run);
+
+      // Animate the other properties if needed.
+      if (Object.keys(textProps).length > 0) {
+        super.animate(textProps, animationParams, delay, animate)(run);
+      }
+    };
   }
 
   /**
