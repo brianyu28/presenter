@@ -1,0 +1,126 @@
+"""
+Presenter.js Syntax Highlighter
+
+A script that takes source code and generates a syntax highlighting JSON file.
+"""
+
+import json
+import sys
+
+from pygments import highlight
+from pygments.formatter import Formatter
+from pygments.lexers import get_lexer_for_filename
+
+INCLUDE_BOLDING = False
+
+
+def main():
+    filename = sys.argv[1]
+    highlights = CodeSyntaxHighlighter.format_file(filename, style="github-dark")
+
+    output_filename = f"{filename}.highlight.json"
+    with open(output_filename, "w") as outfile:
+        json.dump(highlights, outfile, indent=2)
+    print(f"Syntax highlighting saved to {output_filename}")
+
+
+class CodeSyntaxHighlighter(Formatter):
+    """
+    Runs Pygments syntax highlighting on a file.
+    """
+
+    def __init__(self, **options):
+        Formatter.__init__(self, **options)
+        self.styles = {}
+        for token, style in self.style:
+            self.styles[token] = style
+
+    def format(self, tokensource, outfile):
+        next_start = 0
+        for ttype, value in tokensource:
+            style = self.styles[ttype]
+            start = next_start
+            end = start + len(value) - 1
+            next_start = end + 1
+            color = f"#{style['color']}"
+
+            bold = 1 if style.get("bold") == True and INCLUDE_BOLDING else 0
+            outfile.write(f"{start},{end},{color},{bold}\n")
+
+    @classmethod
+    def format_file(cls, filename, style=None):
+        """
+        Return character level styling for text via syntax highlighting.
+
+        Style options:
+        - default
+        - sas (light mode)
+        - github-dark (dark mode)
+        """
+        if style is None:
+            style = "default"
+        lexer = get_lexer_for_filename(filename)
+        formatter = cls(style=style)
+        contents = open(filename).read().strip()
+        result = highlight(contents, lexer, formatter)
+
+        # Get highlights as character offsets in file
+        highlights = []
+        for row in result.splitlines():
+            values = row.split(",")
+            highlights.append(
+                {
+                    "start": int(values[0]),
+                    "end": int(values[1]),
+                    "color": values[2],
+                    "bold": int(values[3]) == 1,
+                }
+            )
+
+        # Compute highlights as character offsets per-line
+        lines = contents.split("\n")
+        line_index = 0
+        line_highlights = [[]]
+
+        # Starting index of the current line
+        character_index = 0
+
+        while True:
+            # Get the next highlighted region.
+            # If there are no more, we're done.
+            try: 
+                region = highlights.pop(0)
+            except IndexError:
+                break
+
+            highlight_start = region["start"] - character_index
+            highlight_end = region["end"] - character_index
+
+            # If highlight is the newline at end of line, skip
+            print(line_index, highlight_start, highlight_end)
+            if highlight_start == len(lines[line_index]) and highlight_end == len(lines[line_index]):
+                line_index += 1
+                line_highlights.append([])
+                character_index += len(lines[line_index - 1]) + 1
+                continue
+
+            # If highlight is out-of-bounds, report error
+            if highlight_start < 0 or highlight_end >= len(lines[line_index]):
+                raise Exception(f"Error: Encountered invalid region on line {line_index + 1}, characters {highlight_start + 1} to {highlight_end + 1}")
+
+            line_highlights[line_index].append({
+                "start": highlight_start + 1,
+                "end": highlight_end + 1,
+                "color": region["color"],
+                "bold": region["bold"],
+            })
+
+        # Remove trailing newlines
+        if len(line_highlights[-1]) == 0:
+            line_highlights.pop()
+
+        return line_highlights
+
+
+if __name__ == "__main__":
+    main()

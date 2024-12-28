@@ -5,9 +5,29 @@ import { Anchor } from "../presentation/object";
 import { Presentation } from "../presentation/presentation";
 import { Animator, BuildFunction } from "../util/animation";
 import { Position } from "../util/position";
+import { RichTextSpan } from "../util/richText";
+
+/**
+ * Region for syntax highlighting.
+ *
+ * The `presenter-syntax-highlight` script can be used to generate a list of
+ * highlight regions for each line of code. This allows code to be
+ * syntax-highlighted on the slide.
+ */
+export interface CodeHighlightRegion {
+  // Start character index
+  start: number;
+  // End character index
+  end: number;
+  // Hex color code
+  color: string;
+  // Whether text should be bold
+  bold: boolean;
+}
 
 export interface CodeBlockProps {
   code: string;
+  highlights: CodeHighlightRegion[][] | null;
 
   // Number of visible characters of code
   length: number | null;
@@ -55,6 +75,7 @@ export class CodeBlock extends Group {
   constructor(props: Partial<CodeBlockProps> = {}) {
     const codeBlockProps: CodeBlockProps = {
       code: "",
+      highlights: null,
       length: null,
       fontFamily: "Courier New",
       fontSize: 130,
@@ -158,7 +179,7 @@ export class CodeBlock extends Group {
     const maxLineLength = code
       .split("\n")
       .reduce((max, line) => Math.max(max, line.length), 0);
-    const codeContent = CodeBlock.buildTextContent(code);
+    const codeContent = CodeBlock.buildTextContent(code, props.highlights);
 
     return {
       group: {
@@ -211,10 +232,41 @@ export class CodeBlock extends Group {
     };
   }
 
-  static buildTextContent(code: string): TextContent {
-    return code.split("\n").map((line) => {
-      return line;
-    });
+  static buildTextContent(
+    code: string,
+    highlights: CodeHighlightRegion[][] | null,
+  ): TextContent {
+    // If there are no highlights, return each line as plain text
+    if (highlights === null) {
+      return code.split("\n").map((line) => {
+        return line;
+      });
+    }
+
+    // Otherwise, build each line with highlights
+    const lines = code.split("\n");
+    const textContentLines: TextContent = [];
+
+    for (const highlightLine of highlights) {
+      const line: RichTextSpan[] = [];
+
+      for (const highlight of highlightLine) {
+        line.push([
+          lines[textContentLines.length].substring(
+            highlight.start - 1,
+            highlight.end,
+          ),
+          {
+            color: highlight.color,
+            fontWeight: highlight.bold ? "bold" : "normal",
+          },
+        ]);
+      }
+
+      textContentLines.push(line);
+    }
+
+    return textContentLines;
   }
 
   /**

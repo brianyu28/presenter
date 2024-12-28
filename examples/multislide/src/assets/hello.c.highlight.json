@@ -1,0 +1,143 @@
+[
+  [
+    {
+      "start": 1,
+      "end": 1,
+      "color": "#8b949e",
+      "bold": false
+    },
+    {
+      "start": 2,
+      "end": 8,
+      "color": "#8b949e",
+      "bold": false
+    },
+    {
+      "start": 9,
+      "end": 9,
+      "color": "#6e7681",
+      "bold": false
+    },
+    {
+      "start": 10,
+      "end": 18,
+      "color": "#8b949e",
+      "bold": false
+    }
+  ],
+  [],
+  [
+    {
+      "start": 1,
+      "end": 3,
+      "color": "#ff7b72",
+      "bold": false
+    },
+    {
+      "start": 4,
+      "end": 4,
+      "color": "#6e7681",
+      "bold": false
+    },
+    {
+      "start": 5,
+      "end": 8,
+      "color": "#d2a8ff",
+      "bold": false
+    },
+    {
+      "start": 9,
+      "end": 9,
+      "color": "#e6edf3",
+      "bold": false
+    },
+    {
+      "start": 10,
+      "end": 13,
+      "color": "#ff7b72",
+      "bold": false
+    },
+    {
+      "start": 14,
+      "end": 14,
+      "color": "#e6edf3",
+      "bold": false
+    },
+    {
+      "start": 15,
+      "end": 15,
+      "color": "#6e7681",
+      "bold": false
+    },
+    {
+      "start": 16,
+      "end": 16,
+      "color": "#e6edf3",
+      "bold": false
+    }
+  ],
+  [
+    {
+      "start": 1,
+      "end": 4,
+      "color": "#6e7681",
+      "bold": false
+    },
+    {
+      "start": 5,
+      "end": 10,
+      "color": "#e6edf3",
+      "bold": false
+    },
+    {
+      "start": 11,
+      "end": 11,
+      "color": "#e6edf3",
+      "bold": false
+    },
+    {
+      "start": 12,
+      "end": 12,
+      "color": "#a5d6ff",
+      "bold": false
+    },
+    {
+      "start": 13,
+      "end": 25,
+      "color": "#a5d6ff",
+      "bold": false
+    },
+    {
+      "start": 26,
+      "end": 27,
+      "color": "#79c0ff",
+      "bold": false
+    },
+    {
+      "start": 28,
+      "end": 28,
+      "color": "#a5d6ff",
+      "bold": false
+    },
+    {
+      "start": 29,
+      "end": 29,
+      "color": "#e6edf3",
+      "bold": false
+    },
+    {
+      "start": 30,
+      "end": 30,
+      "color": "#e6edf3",
+      "bold": false
+    }
+  ],
+  [
+    {
+      "start": 1,
+      "end": 1,
+      "color": "#e6edf3",
+      "bold": false
+    }
+  ]
+]
