@@ -11,6 +11,7 @@ describe("Presentation keyboard commands", () => {
       [slide1, slide2],
       document.body,
     );
+    presentation.setupShortcuts();
     expect(presentation.shortcuts["s"]).toMatchObject({
       slideIndex: 0,
       animationIndex: 0,
@@ -29,6 +30,7 @@ describe("Presentation keyboard commands", () => {
       [slide1, slide2],
       document.body,
     );
+    presentation.setupShortcuts();
     expect(presentation.shortcuts["1"]).toMatchObject({
       slideIndex: 0,
       animationIndex: 0,
@@ -50,6 +52,7 @@ describe("Presentation keyboard commands", () => {
       [slide1, slide2],
       document.body,
     );
+    presentation.setupShortcuts();
     expect(presentation.shortcuts["test1"]).toMatchObject({
       slideIndex: 1,
       animationIndex: 0,

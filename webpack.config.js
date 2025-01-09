@@ -11,6 +11,14 @@ module.exports = {
         type: "umd",
       },
     },
+    video: {
+      import: "./src/video/index.ts",
+      filename: "presenter-video.js",
+      library: {
+        name: "PresenterVideo",
+        type: "umd",
+      },
+    },
     export: {
       import: "./src/export/index.ts",
       filename: "presenter-export.js",
@@ -61,4 +69,5 @@ module.exports = {
       },
     ],
   },
+  devtool: process.env.NODE_ENV === "production" ? false : "eval-source-map",
 };

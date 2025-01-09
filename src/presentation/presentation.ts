@@ -103,13 +103,6 @@ export class Presentation {
     element: HTMLElement,
     options: Partial<PresentationOptions> = {},
   ) {
-    if (this.element === null) {
-      throw new Error("Presentation cannot be mounted to null element.");
-    }
-    if (slides.length === 0) {
-      throw new Error("Presentation requires at least one slide");
-    }
-
     this.title = title;
     this.element = element;
     this.slides = slides;
@@ -134,25 +127,47 @@ export class Presentation {
     this.background = null;
     this.additionalElementContainer = null;
     this.textCommand = { active: false, command: "" };
+    this.shortcuts = {};
+  }
 
-    // Set up shortcuts
+  present() {
+    // Setup
+    this.validatePresentation();
+    this.setupShortcuts();
+    this.setupContainer();
+    this.startPresentation();
+  }
+
+  validatePresentation() {
+    if (this.element === null) {
+      throw new Error("Presentation cannot be mounted to null element.");
+    }
+    if (this.slides.length === 0) {
+      throw new Error("Presentation requires at least one slide");
+    }
+  }
+
+  /**
+   * Set up keyboard shortcuts to jump to particular slides.
+   */
+  setupShortcuts() {
     this.shortcuts = {
       // First build of first slide
       s: { slideIndex: 0, animationIndex: 0 },
       // Last build of last slide
       e: {
-        slideIndex: slides.length - 1,
-        animationIndex: slides[slides.length - 1].animations.length,
+        slideIndex: this.slides.length - 1,
+        animationIndex: this.slides[this.slides.length - 1].animations.length,
       },
     };
 
     // Add numbered shortcuts for each slide
-    for (let i = 0; i < slides.length; i++) {
+    for (let i = 0; i < this.slides.length; i++) {
       this.shortcuts[(i + 1).toString()] = { slideIndex: i, animationIndex: 0 };
     }
 
     // Add custom shortcuts on particular slides
-    slides.forEach((slide, slideIndex) => {
+    this.slides.forEach((slide, slideIndex) => {
       slide.props.shortcuts.forEach((shortcut) => {
         const shortcutText =
           typeof shortcut === "string" ? shortcut : shortcut[0];
@@ -165,7 +180,10 @@ export class Presentation {
     });
   }
 
-  present() {
+  /**
+   * Sets up presentation container and all child elements.
+   */
+  setupContainer() {
     // Create container element.
     this.container = document.createElement("div");
     this.container.style.width = "100%";
@@ -273,16 +291,6 @@ export class Presentation {
     this.container.appendChild(this.svg);
     this.container.appendChild(this.navigatorContainer);
     this.element.appendChild(this.container);
-
-    // Set up presentation state
-    this.presentationState.currentSlide = 0;
-
-    // Render slide
-    const currentSlide = this.slides[this.presentationState.currentSlide];
-    if (currentSlide === undefined) {
-      return;
-    }
-    currentSlide.render(this);
   }
 
   /**
@@ -374,6 +382,18 @@ export class Presentation {
   resetTextCommand() {
     this.textCommand.active = false;
     this.textCommand.command = "";
+  }
+
+  startPresentation() {
+    // Set up presentation state
+    this.presentationState.currentSlide = 0;
+
+    // Render slide
+    const currentSlide = this.slides[this.presentationState.currentSlide];
+    if (currentSlide === undefined) {
+      return;
+    }
+    currentSlide.render(this);
   }
 
   /**

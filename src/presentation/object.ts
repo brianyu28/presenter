@@ -166,6 +166,46 @@ export class SlideObject<Props extends ObjectProps> {
   }
 
   /**
+   * Updates an element in-place with possibly changed props.
+   *
+   * Not used by presentation system, only used by video system to process
+   * keyframe changes.
+   */
+  updateProps(props: Partial<Props>) {
+    const originalProps = this.props;
+    this.props = { ...originalProps, ...props };
+
+    // Compute differences between original props and new props.
+    const differences: Partial<Props> = {};
+    Object.keys(props).forEach((prop) => {
+      const key = prop as keyof Props;
+      if (originalProps[key] !== props[key]) {
+        differences[key] = props[key];
+      }
+    });
+    const requiresChildrenUpdate = this.requiresChildrenUpdate(differences);
+
+    // Set attributes
+    for (const [attribute, value] of Object.entries(this.attributes())) {
+      this._element.setAttribute(attribute, value);
+    }
+
+    // Set styles
+    for (const [style, value] of Object.entries(this.styles())) {
+      this._element.style.setProperty(style, value);
+    }
+
+    // Update children if needed
+    if (requiresChildrenUpdate) {
+      this._element.innerHTML = "";
+      this._children = this.children();
+      for (const child of this._children) {
+        this._element.appendChild(child);
+      }
+    }
+  }
+
+  /**
    * Creates a new HTML element for the object.
    */
   createElement(): SVGElement {

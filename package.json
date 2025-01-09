@@ -9,6 +9,10 @@
       "require": "./dist/presenter.js",
       "types": "./dist/src/index.d.ts"
     },
+    "./video": {
+      "require": "./dist/presenter-video.js",
+      "types": "./dist/src/video/index.d.ts"
+    },
     "./export": {
       "require": "./dist/presenter-export.js",
       "types": "./dist/src/export/index.d.ts"
