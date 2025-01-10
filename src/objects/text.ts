@@ -22,6 +22,7 @@ export interface TextProps extends ObjectProps {
 
   align: "left" | "center" | "right";
   lineSpacing: string;
+  ligatures: string | null;
 }
 
 export class Text extends SlideObject<TextProps> {
@@ -38,6 +39,7 @@ export class Text extends SlideObject<TextProps> {
       length: null,
       align: "left",
       lineSpacing: "1em",
+      ligatures: null,
       ...props,
     });
   }
@@ -71,7 +73,17 @@ export class Text extends SlideObject<TextProps> {
       this.element() as SVGGraphicsElement,
       this.childrenWithContentLength(this.contentLength()),
     );
-    const { x, y } = this.positionAttributes(bbox);
+    let { x, y } = this.positionAttributes(bbox);
+
+    // For rich text, we might need to adjust the x value for center-aligned or right-aligned text.
+    // This is because the default translation by (x, y) assumes left-aligned text.
+    if (this.isRichText()) {
+      if (this.props.align === "center") {
+        x += bbox.width / 2;
+      } else if (this.props.align === "right") {
+        x += bbox.width;
+      }
+    }
 
     return {
       ...super.additionalAttributes(),
@@ -93,13 +105,15 @@ export class Text extends SlideObject<TextProps> {
   }
 
   styles(): Partial<Record<string, string>> {
-    const { fontSize, fontFamily, fontStyle, fontWeight } = this.props;
+    const { fontSize, fontFamily, fontStyle, fontWeight, ligatures } =
+      this.props;
     return {
       ...super.styles(),
       ...(fontStyle !== "normal" ? { "font-style": fontStyle } : {}),
       ...(fontWeight !== "normal"
         ? { "font-weight": fontWeight.toString() }
         : {}),
+      ...(ligatures !== null ? { "font-variant-ligatures": ligatures } : {}),
       "font-size": `${fontSize}px`,
       "font-family": `"${fontFamily}"`,
       "white-space": "pre",
@@ -252,7 +266,11 @@ export class Text extends SlideObject<TextProps> {
 
     // Otherwise, we need to animate a write-on animation.
     return (run: Animator) => {
-      this.writeOn(length, (animationParams.duration ?? 1000) as number)(run);
+      this.writeOn(
+        length,
+        (animationParams.duration ?? 1000) as number,
+        animate,
+      )(run);
 
       // Animate the other properties if needed.
       if (Object.keys(textProps).length > 0) {
@@ -270,6 +288,7 @@ export class Text extends SlideObject<TextProps> {
   writeOn(
     length: number | null = null,
     duration: number = 1000,
+    animate: boolean = true,
   ): BuildFunction {
     let startLength: number | null = null;
     let endLength: number | null = null;
@@ -300,7 +319,7 @@ export class Text extends SlideObject<TextProps> {
 
     return (run) =>
       run({
-        animate: true,
+        animate,
         animateCallback: () => {
           startTime = null;
           startLength = null;
@@ -311,7 +330,7 @@ export class Text extends SlideObject<TextProps> {
           startTime = null;
           startLength = null;
           endLength = null;
-          this.props.length = endLength;
+          this.props.length = length;
           this.regenerateChildren();
         },
       });

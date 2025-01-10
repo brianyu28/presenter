@@ -399,14 +399,14 @@ export class Presentation {
    * Returns true if we were able to successfully advance.
    * @param includeIntermediateBuilds Determines whether to progress through builds.
    */
-  next(includeIntermediateBuilds: boolean): boolean {
+  async next(includeIntermediateBuilds: boolean): Promise<boolean> {
     this.svg.style.cursor = "none";
     const currentSlide = this.slides[this.presentationState.currentSlide];
     if (currentSlide === undefined) {
       return;
     }
 
-    if (!includeIntermediateBuilds || !currentSlide.nextAnimation()) {
+    if (!includeIntermediateBuilds || !(await currentSlide.nextAnimation())) {
       this.presentationState.currentSlide++;
       const nextSlide = this.slides[this.presentationState.currentSlide];
       if (nextSlide === undefined) {

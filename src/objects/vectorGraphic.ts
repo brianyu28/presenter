@@ -1,5 +1,5 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
-import { BuildFunction } from "../util/animation";
+import { AnimationProps, BuildFunction } from "../util/animation";
 import { BoundingBox, Position } from "../util/position";
 
 export interface VectorGraphicProps extends ObjectProps {
@@ -15,6 +15,7 @@ interface DrawOnProps {
   fillColor: string | null;
   drawDuration: number;
   fillDuration: number;
+  easing: string;
 }
 
 export class VectorGraphic extends SlideObject<VectorGraphicProps> {
@@ -74,19 +75,58 @@ export class VectorGraphic extends SlideObject<VectorGraphicProps> {
   }
 
   /**
+   * Perform animation on a particular path of the graphic.
+   * Requires specifying `attributes` or `styles` for path animation props.
+   */
+  animatePath(
+    selector: string,
+    props: Partial<AnimationProps>,
+    duration: number = 500,
+    animate: boolean = true,
+  ): BuildFunction {
+    return (run) => {
+      const element = this.element().querySelector(selector) as SVGPathElement;
+      run({
+        animate,
+        element,
+        ...props,
+        animationParams: {
+          duration,
+          ...(props.animationParams ?? {}),
+        },
+      });
+    };
+  }
+
+  /**
+   * Sets path animation properties without animating.
+   */
+  setPath(selector: string, props: Partial<AnimationProps>): BuildFunction {
+    return this.animatePath(selector, props, 0, false);
+  }
+
+  /**
    * Animates the drawing on of a particular path.
    */
   drawOn(selector: string, props: Partial<DrawOnProps>): BuildFunction {
-    const { color, strokeWidth, fill, fillColor, drawDuration, fillDuration } =
-      {
-        color: "#000000",
-        strokeWidth: 5,
-        fill: true,
-        fillColor: null,
-        drawDuration: 1000,
-        fillDuration: 1000,
-        ...props,
-      };
+    const {
+      color,
+      strokeWidth,
+      fill,
+      fillColor,
+      drawDuration,
+      fillDuration,
+      easing,
+    } = {
+      color: "#000000",
+      strokeWidth: 5,
+      fill: true,
+      fillColor: null,
+      drawDuration: 1000,
+      fillDuration: 1000,
+      easing: "linear",
+      ...props,
+    };
 
     return (run) => {
       const element = this.element().querySelector(selector) as SVGPathElement;
@@ -110,7 +150,7 @@ export class VectorGraphic extends SlideObject<VectorGraphicProps> {
         },
         animationParams: {
           duration: drawDuration,
-          easing: "linear",
+          easing,
         },
       });
 

@@ -6,6 +6,7 @@ export interface LineProps extends ObjectProps {
   end: Position;
   color: string;
   width: number;
+  linecap: "butt" | "round" | "square" | null;
 }
 
 export class Line extends SlideObject<LineProps> {
@@ -15,6 +16,7 @@ export class Line extends SlideObject<LineProps> {
       end: { x: 100, y: 100 },
       color: "#000000",
       width: 10,
+      linecap: null,
       ...props,
     });
   }
@@ -24,7 +26,7 @@ export class Line extends SlideObject<LineProps> {
   }
 
   attributes(): Partial<Record<string, string>> {
-    const { color, width } = this.props;
+    const { color, width, linecap } = this.props;
     const start = this.positionInPresentation(this.props.start);
     const end = this.positionInPresentation(this.props.end);
 
@@ -36,6 +38,7 @@ export class Line extends SlideObject<LineProps> {
       y2: end.y.toString(),
       stroke: color,
       "stroke-width": width.toString(),
+      ...(linecap !== null ? { "stroke-linecap": linecap } : {}),
     };
   }
 }

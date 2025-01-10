@@ -45,8 +45,13 @@ export type BuildFunction = (animate: Animator) => void;
 /**
  * A build function sequence is a sequence, where each element is a build
  * function or a list of build functions to be performed on the same build.
+ *
+ * In a list of build functions, a number in place of a build function represents a delay.
  */
-export type BuildFunctionSequence = (BuildFunction | BuildFunction[])[];
+export type BuildFunctionSequence = (
+  | BuildFunction
+  | (BuildFunction | number)[]
+)[];
 
 /**
  * Perform an animation on an element.
@@ -68,6 +73,7 @@ export const performAnimation: Animator = async (
     // Skip animation if change shouldn't be animated.
     if (animation.animate === false) {
       skipAnimation(animation);
+      continue;
     }
 
     // If there's a function associated with the animation, run that.

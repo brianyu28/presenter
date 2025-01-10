@@ -88,13 +88,21 @@ export class Slide {
     }
 
     if (this.debugAnimation !== null && !presentation.svg.innerHTML) {
+      let debugAnimation = this.debugAnimation;
+      if (debugAnimation < 0) {
+        debugAnimation = this.animations.length + debugAnimation;
+      }
+
       // Jump directly to the animation we wish to debug.
-      for (let i = 0; i <= this.debugAnimation; i++) {
+      for (let i = 0; i <= debugAnimation; i++) {
         const animation = this.animations[i];
         if (animation) {
           // If we have a list of build functions, use skip animator on each.
           if (Array.isArray(animation)) {
             for (const animationUnit of animation) {
+              if (typeof animationUnit === "number") {
+                continue;
+              }
               animationUnit(skipAnimation);
             }
           } else {
@@ -102,7 +110,7 @@ export class Slide {
           }
         }
       }
-      this.animationIndex = this.debugAnimation + 1;
+      this.animationIndex = debugAnimation + 1;
     } else {
       // Handle non-zero animation index, skipping intermediate animations.
       for (let i = 0; i < this.animationIndex; i++) {
@@ -111,6 +119,9 @@ export class Slide {
           // If we have a list of build functions, use skip animation on each.
           if (Array.isArray(animation)) {
             for (const animationUnit of animation) {
+              if (typeof animationUnit === "number") {
+                continue;
+              }
               animationUnit(skipAnimation);
             }
           } else {
@@ -131,12 +142,17 @@ export class Slide {
 
   // Runs next animation and returns true.
   // If no more animations left to run, returns false.
-  nextAnimation(): boolean {
+  async nextAnimation(): Promise<boolean> {
     const animation = this.animations[this.animationIndex];
     if (animation) {
       // If we have a list of animations, perform each one.
       if (Array.isArray(animation)) {
         for (const animationUnit of animation) {
+          // If animation unit is a delay, then delay.
+          if (typeof animationUnit === "number") {
+            await new Promise((resolve) => setTimeout(resolve, animationUnit));
+            continue;
+          }
           animationUnit(performAnimation);
         }
       } else {
