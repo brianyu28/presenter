@@ -58,7 +58,7 @@ export class Slide {
     this.animations = animations;
     this.animationIndex = 0;
     this.debugAnimation = null;
-    this.keyBuilds = null;
+    this.keyBuilds = "last";
     this.props = {
       additionalElement: null,
       shortcuts: [],

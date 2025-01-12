@@ -271,6 +271,34 @@ export class SlideObject<Props extends ObjectProps> {
   }
 
   /**
+   * Animates fading an object into view.
+   */
+  fadeIn(animationParams: anime.AnimeParams = {}): BuildFunction {
+    return this.animate({ opacity: 1 } as Partial<Props>, animationParams);
+  }
+
+  /**
+   * Animates fading an object out of view.
+   */
+  fadeOut(animationParams: anime.AnimeParams = {}): BuildFunction {
+    return this.animate({ opacity: 0 } as Partial<Props>, animationParams);
+  }
+
+  /**
+   * Sets an objects opacity to 1.
+   */
+  show(): BuildFunction {
+    return this.set({ opacity: 1 } as Partial<Props>);
+  }
+
+  /**
+   * Sets an objects opacity to 0.
+   */
+  hide(): BuildFunction {
+    return this.set({ opacity: 0 } as Partial<Props>);
+  }
+
+  /**
    * Allow for x and y values to be interpreted as percentages of total width/height.
    */
   positionInPresentation(position: Position): Position {
