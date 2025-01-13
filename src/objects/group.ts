@@ -41,11 +41,16 @@ export class Group extends SlideObject<GroupProps> {
   }
 
   additionalAttributes(): Partial<Record<string, string>> {
-    // If the group is not positioned, we don't need to add any additional attributes.
+    const scale = this.props.scale;
+
+    const rotationTransform = `rotate(${this.props.rotation}, ${this.props.rotationOrigin.x}, ${this.props.rotationOrigin.y})`;
+    const scaleTransform = `scale(${scale})`;
+
+    // If the group is not positioned, we don't need to separately account for the group's bounding box.
     if (!this.props.positioned) {
       const { x, y } = this.positionInPresentation(this.props.position);
       return {
-        transform: `translate(${x}, ${y})`,
+        transform: `translate(${x}, ${y}) ${rotationTransform} ${scaleTransform}`,
       };
     }
 
@@ -56,7 +61,6 @@ export class Group extends SlideObject<GroupProps> {
     );
 
     // Adjust the bounding box's size if the group has been scaled up.
-    const scale = this.props.scale;
     bbox.width *= scale;
     bbox.height *= scale;
 
@@ -69,9 +73,6 @@ export class Group extends SlideObject<GroupProps> {
     // Determine how much we need to transform group to get it at the correct position.
     const adjustedX = anchoredBox.origin.x - bbox.origin.x;
     const adjustedY = anchoredBox.origin.y - bbox.origin.y;
-
-    const rotationTransform = `rotate(${this.props.rotation}, ${this.props.rotationOrigin.x}, ${this.props.rotationOrigin.y})`;
-    const scaleTransform = `scale(${scale})`;
 
     return {
       transform: `translate(${adjustedX}, ${adjustedY}) ${rotationTransform} ${scaleTransform}`,
