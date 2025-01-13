@@ -6,6 +6,7 @@ export * from "./presentation/object";
 // Objects
 export * from "./objects/arrow";
 export * from "./objects/circle";
+export * from "./objects/grid";
 export * from "./objects/group";
 export * from "./objects/image";
 export * from "./objects/line";
