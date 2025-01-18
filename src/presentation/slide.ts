@@ -30,11 +30,15 @@ export class Slide {
 
   animations: BuildFunctionSequence;
 
+  /**
+   * Which animation we're set to render next.
+   * Slides start with animationIndex = 0.
+   */
   animationIndex: number;
 
   /**
    * Property for use during development/debugging only.
-   * Manually set this property to a build function index
+   * Manually set this property to an animation index
    * to debug a specific animation.
    */
   debugAnimation: number | null;
@@ -90,11 +94,11 @@ export class Slide {
     if (this.debugAnimation !== null && !presentation.svg.innerHTML) {
       let debugAnimation = this.debugAnimation;
       if (debugAnimation < 0) {
-        debugAnimation = this.animations.length + debugAnimation;
+        debugAnimation = this.animations.length + 1 + debugAnimation;
       }
 
       // Jump directly to the animation we wish to debug.
-      for (let i = 0; i <= debugAnimation; i++) {
+      for (let i = 0; i < debugAnimation; i++) {
         const animation = this.animations[i];
         if (animation) {
           // If we have a list of build functions, use skip animator on each.
@@ -110,7 +114,7 @@ export class Slide {
           }
         }
       }
-      this.animationIndex = debugAnimation + 1;
+      this.animationIndex = debugAnimation;
     } else {
       // Handle non-zero animation index, skipping intermediate animations.
       for (let i = 0; i < this.animationIndex; i++) {
