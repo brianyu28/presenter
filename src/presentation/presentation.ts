@@ -1,6 +1,20 @@
 import { BoundingBox } from "../util/position";
 import { Slide } from "./slide";
 
+/*
+ * Normally, presentations run with browser fonts.
+ * However, when exporting to PDF, we need to embed the fonts.
+ * `PresentationFont` encodes the needed information to embed fonts.
+ *
+ * Only TTF fonts are supported due to a limitation in jsPDF.
+ */
+export interface PresentationFont {
+  url: string;
+  fontFamily: string;
+  fontStyle?: string;
+  fontWeight?: string | number;
+}
+
 export interface PresentationOptions {
   /**
    * Width of the presentation.
@@ -16,6 +30,11 @@ export interface PresentationOptions {
    * Slide color for the presentation.
    */
   backgroundColor: string;
+
+  /**
+   * Fonts to embed in PDF export.
+   */
+  fonts: PresentationFont[];
 }
 
 interface PresentationState {
@@ -117,6 +136,7 @@ export class Presentation {
       width: 3840,
       height: 2160,
       backgroundColor: "#ffffff",
+      fonts: [],
       ...options,
     };
     this.presentationState = {

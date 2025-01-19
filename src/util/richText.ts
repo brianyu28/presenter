@@ -1,3 +1,5 @@
+import { TextContent } from "../objects/text";
+
 export interface RichTextProps {
   fontStyle?: string; // "normal" | "italic" | "oblique"
   fontWeight?: string | number; // "normal" | "bold" | number
@@ -9,6 +11,48 @@ export interface RichTextProps {
 }
 
 export type RichTextSpan = string | [string, RichTextProps];
+
+/**
+ * Given a string, returns that string with leading spaces converted to &nbsp;
+ */
+function preserveStringLeadingSpaces(content: string): string {
+  return content.replace(/^\s+/g, (match) => match.replace(/ /g, "\u00A0"));
+}
+
+export function preserveLeadingSpaces(content: TextContent): TextContent {
+  if (typeof content === "string") {
+    return preserveStringLeadingSpaces(content);
+  }
+
+  const lines = [];
+  for (const originalLine of content) {
+    if (typeof originalLine === "string") {
+      lines.push(preserveStringLeadingSpaces(originalLine));
+      continue;
+    }
+
+    // An empty line doesn't need modification.
+    if (originalLine.length === 0) {
+      lines.push(originalLine);
+      continue;
+    }
+
+    // Otherwise, we just need to look at the first span to preserve its leading spaces.
+    const spans = Array.from(originalLine);
+    const firstSpan = spans[0];
+    if (typeof firstSpan === "string") {
+      spans[0] = preserveStringLeadingSpaces(firstSpan);
+    } else {
+      spans[0] = [preserveStringLeadingSpaces(firstSpan[0]), spans[0][1]] as [
+        string,
+        RichTextProps,
+      ];
+    }
+    lines.push(spans);
+  }
+
+  return lines;
+}
 
 /**
  * Given rich text configuration, returns the corresponding tspan nodes.

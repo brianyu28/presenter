@@ -1,6 +1,6 @@
 {
   "name": "presenter",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "A JavaScript presentation library",
   "main": "dist/presenter.js",
   "types": "dist/src/index.d.ts",
@@ -46,7 +46,9 @@
   "dependencies": {
     "animejs": "^3.2.2",
     "flubber": "^0.4.2",
-    "html-to-image": "^1.11.11"
+    "html-to-image": "^1.11.11",
+    "jspdf": "^2.5.2",
+    "svg2pdf.js": "^2.2.4"
   },
   "devDependencies": {
     "@types/animejs": "^3.1.12",

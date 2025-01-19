@@ -1,5 +1,8 @@
+import jsPDF from "jspdf";
+import "svg2pdf.js";
 import { Presentation } from "../presentation/presentation";
 import { toPng } from "html-to-image";
+import { blobToBase64 } from "./util";
 
 /**
  * Renders the SVG content of a single slide of a presentation to a PNG image.
@@ -121,4 +124,80 @@ export async function exportAllSlides(
         .map((_, i) => `${String(i + 1).padStart(3, "0")}.png`),
     }),
   });
+}
+
+export async function exportToPDF(
+  presentation: Presentation,
+  promptForConfirmation: boolean = false,
+) {
+  if (promptForConfirmation) {
+    if (!confirm("Download slides as PDF?")) {
+      return;
+    }
+  }
+
+  const { width, height } = presentation.options;
+
+  // Create new PDF document.
+  const doc = new jsPDF({
+    orientation: "landscape",
+    unit: "px",
+    format: [width, height],
+    hotfixes: ["px_scaling"],
+  });
+
+  // Load any fonts needed for the presentation.
+  for (let font of presentation.options.fonts) {
+    const res = await fetch(font.url);
+    const fontBase64 = (await blobToBase64(await res.blob())).split(",")[1];
+
+    const fontFamily = font.fontFamily;
+    const fontStyle = font.fontStyle ?? "normal";
+    const fontWeight = font.fontWeight ?? "normal";
+
+    // Arbitrary but unique filename to represent the font
+    const filename = `${fontFamily}-${fontStyle}-${fontWeight}.ttf`;
+
+    doc.addFileToVFS(filename, fontBase64);
+    doc.addFont(filename, fontFamily, fontStyle, fontWeight);
+  }
+
+  let firstPage = true;
+  let slideIndex = 0;
+  for (const slide of presentation.slides) {
+    for (const animationIndex of slide.getKeyBuilds()) {
+      slideIndex++;
+      slide.render(presentation, animationIndex);
+
+      // Remove any SVG elements with opacity 0.
+      // svg2pdf.js doesn't know how to appropriately handle them.
+      const invisibleSVGs = presentation.svg.querySelectorAll("svg");
+      invisibleSVGs.forEach((invisibleSVG) => {
+        if (invisibleSVG.style.opacity === "0") {
+          invisibleSVG.remove();
+        }
+      });
+
+      // If it's not the first slide, add a new page.
+      if (!firstPage) {
+        doc.addPage([width, height], "landscape");
+      } else {
+        firstPage = false;
+      }
+
+      // Add background color.
+      doc.setFillColor(presentation.options.backgroundColor);
+      doc.rect(0, 0, width, height, "F");
+
+      // Add SVG content.
+      await doc.svg(presentation.svg, {
+        x: 0,
+        y: 0,
+        width,
+        height,
+      });
+    }
+  }
+
+  doc.save(`${presentation.title}.pdf`);
 }

@@ -14,6 +14,11 @@ export interface TextProps extends ObjectProps {
   dominantBaseline: string;
   textDecoration: string;
 
+  // To ensure text is drawn in the correct position, we need to shift text
+  // by its baseline height. On average, most font baselines are about 22%
+  // of the total height, but this can be customized as needed.
+  baselineHeight: number;
+
   // How many characters of content should be visible. `null` to show all
   // content.
   length: number | null;
@@ -34,6 +39,7 @@ export class Text extends SlideObject<TextProps> {
       fontStyle: "normal",
       fontWeight: "normal",
       fontFamily: "Arial",
+      baselineHeight: 0.22,
       dominantBaseline: "ideographic",
       textDecoration: "none",
       length: null,
@@ -85,6 +91,8 @@ export class Text extends SlideObject<TextProps> {
       }
     }
 
+    y -= this.props.fontSize * this.props.baselineHeight;
+
     return {
       ...super.additionalAttributes(),
       // Rich text needs a `translate` transformation instead of an `x` and `y` attributes.
@@ -100,7 +108,9 @@ export class Text extends SlideObject<TextProps> {
             x: x.toString(),
             y: (y + bbox.height).toString(),
           }),
-      "dominant-baseline": this.props.dominantBaseline,
+      // Text elements used to be computed with dominant-baseline,
+      // but this had the effect of the text not rendering correctly in PDFs.
+      // "dominant-baseline": this.props.dominantBaseline,
     };
   }
 
