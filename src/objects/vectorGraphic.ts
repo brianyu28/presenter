@@ -16,6 +16,13 @@ interface DrawOnProps {
   drawDuration: number;
   fillDuration: number;
   easing: string;
+  pathLength: number | null;
+
+  /**
+   * Controls whether there should still be a stroke present at end of animation.
+   * If `endWithoutStroke` is true, the stroke width fades out to 0 at the end.
+   */
+  endWithoutStroke: boolean;
 }
 
 export class VectorGraphic extends SlideObject<VectorGraphicProps> {
@@ -92,6 +99,7 @@ export class VectorGraphic extends SlideObject<VectorGraphicProps> {
         ...props,
         animationParams: {
           duration,
+          easing: "linear",
           ...(props.animationParams ?? {}),
         },
       });
@@ -108,7 +116,7 @@ export class VectorGraphic extends SlideObject<VectorGraphicProps> {
   /**
    * Animates the drawing on of a particular path.
    */
-  drawOn(selector: string, props: Partial<DrawOnProps>): BuildFunction {
+  drawOn(selector: string, props: Partial<DrawOnProps> = {}): BuildFunction {
     const {
       color,
       strokeWidth,
@@ -117,6 +125,7 @@ export class VectorGraphic extends SlideObject<VectorGraphicProps> {
       drawDuration,
       fillDuration,
       easing,
+      endWithoutStroke,
     } = {
       color: "#000000",
       strokeWidth: 5,
@@ -125,6 +134,7 @@ export class VectorGraphic extends SlideObject<VectorGraphicProps> {
       drawDuration: 1000,
       fillDuration: 1000,
       easing: "linear",
+      endWithoutStroke: true,
       ...props,
     };
 
@@ -133,7 +143,7 @@ export class VectorGraphic extends SlideObject<VectorGraphicProps> {
       if (!element) {
         throw new Error(`Path element with selector ${selector} not found`);
       }
-      const pathLength = element.getTotalLength();
+      const pathLength = props.pathLength ?? element.getTotalLength();
 
       // Set initial path attributes for drawing stroke.
       element.setAttribute("stroke-dashoffset", `${pathLength}`);
@@ -168,9 +178,11 @@ export class VectorGraphic extends SlideObject<VectorGraphicProps> {
         attributes: {
           fill: fillColor ?? color,
           "stroke-dasharray": "none",
+          ...(endWithoutStroke ? { "stroke-width": "0" } : {}),
         },
         animationParams: {
           duration: fillDuration,
+          easing,
         },
       });
     };

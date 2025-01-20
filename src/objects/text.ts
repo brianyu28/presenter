@@ -345,4 +345,69 @@ export class Text extends SlideObject<TextProps> {
         },
       });
   }
+
+  /**
+   * Sets position attributes of text and re-generates any children.
+   *
+   * This is because re-generating children alone won't change the position
+   * attributes, which menas the text might be mis-aligned.
+   */
+  generateChildrenAndReposition() {
+    const element = this.element();
+
+    // Set attributes
+    for (const [attribute, value] of Object.entries(this.attributes())) {
+      element.setAttribute(attribute, value);
+    }
+
+    this.regenerateChildren();
+
+    // Set additional attributes
+    for (const [attribute, value] of Object.entries(
+      this.additionalAttributes(),
+    )) {
+      element.setAttribute(attribute, value);
+    }
+  }
+
+  /**
+   * Animates the content of a text element via an
+   * interpolation function that returns the text content
+   * for a given progress amount.
+   */
+  animateContent(
+    computeContent: (proportion: number) => TextContent,
+    duration: number = 1000,
+  ): BuildFunction {
+    let startTime: number | null = null;
+
+    const animateCallback = (timestamp: number) => {
+      if (startTime === null) {
+        startTime = timestamp;
+      }
+
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      this.props.content = computeContent(progress);
+      this.generateChildrenAndReposition();
+
+      if (progress < 1) {
+        requestAnimationFrame(animateCallback);
+      }
+    };
+
+    return (run) =>
+      run({
+        animate: true,
+        animateCallback: () => {
+          startTime = null;
+          requestAnimationFrame(animateCallback);
+        },
+        updateCallback: () => {
+          startTime = null;
+          this.props.content = computeContent(1);
+          this.generateChildrenAndReposition();
+        },
+      });
+  }
 }
