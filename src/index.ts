@@ -8,6 +8,7 @@ export * from "./objects/arrow";
 export * from "./objects/circle";
 export * from "./objects/grid";
 export * from "./objects/group";
+export * from "./objects/iframe";
 export * from "./objects/image";
 export * from "./objects/line";
 export * from "./objects/paragraph";
