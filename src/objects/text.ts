@@ -97,12 +97,18 @@ export class Text extends SlideObject<TextProps> {
       ...super.additionalAttributes(),
       // Rich text needs a `translate` transformation instead of an `x` and `y` attributes.
       // This is because each line gets set with a `x` of 0 to align content.
-      // Additionally, the text node as a whole is set with `y: 1em` to align the top-left
-      // of the whole text content (0, 0).
+      //
+      // Additionally, the text node as a whole is set with a `y` value equal to the height
+      // of a single line (i.e. the height of the text with one character visible), since
+      // we each line is rendered from the bottom-left corner.
       ...(this.isRichText()
         ? {
             transform: `translate(${x.toString()} ${y.toString()})`,
-            y: "1em",
+            // y: "1em",
+            y: this.computeRenderedBoundingBox(
+              this.element() as SVGGraphicsElement,
+              this.childrenWithContentLength(1),
+            ).height.toString(),
           }
         : {
             x: x.toString(),

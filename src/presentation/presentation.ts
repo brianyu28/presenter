@@ -430,6 +430,8 @@ export class Presentation {
       this.presentationState.currentSlide++;
       const nextSlide = this.slides[this.presentationState.currentSlide];
       if (nextSlide === undefined) {
+        // Undo slide incremenet.
+        this.presentationState.currentSlide--;
         return;
       }
       nextSlide.render(this);

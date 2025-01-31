@@ -6,6 +6,7 @@ export interface IFrameProps extends ObjectProps {
   width: number;
   height: number;
   backgroundColor: string;
+  pointerEvents: string;
 
   // Scale of iframe content
   scale: number;
@@ -19,6 +20,7 @@ export class IFrame extends SlideObject<IFrameProps> {
       height: 1500,
       scale: 3,
       backgroundColor: "#ffffff",
+      pointerEvents: "auto",
       ...props,
     });
   }
@@ -45,6 +47,7 @@ export class IFrame extends SlideObject<IFrameProps> {
     return {
       ...super.styles(),
       "background-color": this.props.backgroundColor,
+      "pointer-events": this.props.pointerEvents,
       ...(this.props.opacity === 0 ? { "pointer-events": "none" } : {}),
     };
   }
