@@ -18,6 +18,11 @@ export * from "./objects/text";
 export * from "./objects/rectangle";
 export * from "./objects/vectorGraphic";
 
+// Library
+export * from "./library/bullets";
+export * from "./library/mainTitle";
+export * from "./library/slideTitle";
+
 // Util
 export * from "./util/animation";
 export * from "./util/easing";
