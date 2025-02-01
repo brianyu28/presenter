@@ -4,9 +4,13 @@ export interface ParagraphProps extends ObjectProps {
   content: string | string[];
   width: number;
   height: number;
+  fontStyle: string; // "normal" | "italic" | "oblique"
+  fontWeight: string | number; // "normal" | "bold" | number
   fontSize: number;
   fontFamily: string;
   color: string;
+  align: "left" | "center" | "right";
+  lineHeight: number | string | null;
 }
 
 export class Paragraph extends SlideObject<ParagraphProps> {
@@ -17,6 +21,10 @@ export class Paragraph extends SlideObject<ParagraphProps> {
       height: 1000,
       fontSize: 100,
       fontFamily: "Arial",
+      fontStyle: "normal",
+      fontWeight: "normal",
+      align: "left",
+      lineHeight: null,
       color: "#000000",
       ...props,
     });
@@ -38,13 +46,19 @@ export class Paragraph extends SlideObject<ParagraphProps> {
   }
 
   children(): Node[] {
-    const { content } = this.props;
+    const { content, fontStyle, fontWeight, align, lineHeight } = this.props;
     const div = document.createElement("div");
 
     // Set div styling
     const styles = {
       "font-family": `"${this.props.fontFamily}"`,
       "font-size": `${this.props.fontSize}px`,
+      ...(fontStyle !== "normal" ? { "font-style": fontStyle } : {}),
+      ...(fontWeight !== "normal"
+        ? { "font-weight": fontWeight.toString() }
+        : {}),
+      ...(align !== "left" ? { "text-align": align } : {}),
+      ...(lineHeight !== null ? { "line-height": lineHeight.toString() } : {}),
       color: this.props.color,
     };
     for (const [key, value] of Object.entries(styles)) {
