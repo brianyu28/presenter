@@ -10,6 +10,7 @@ export interface ImageProps extends ObjectProps {
 
 export class Image extends SlideObject<ImageProps> {
   constructor(href: string, props: Partial<ImageProps> = {}) {
+    Image.prefetch(href);
     super({
       href,
       width: 100,
@@ -49,5 +50,30 @@ export class Image extends SlideObject<ImageProps> {
           }
         : {}),
     };
+  }
+
+  /**
+   * By default, browsers might not fetch an image until the image element is
+   * added to the DOM. Pre-fetching them when the image object is created
+   * means the image will be fetched before the slide is rendered, so there's
+   * no delay between the slide appearing and the image loading.
+   */
+  static prefetch(href: string): void {
+    const runPrefetch = () => {
+      const element = document.createElement("img");
+      element.src = href;
+      element.style.display = "none";
+
+      document.body.appendChild(element);
+      element.addEventListener("load", () => {
+        element.remove();
+      });
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", runPrefetch);
+    } else {
+      runPrefetch();
+    }
   }
 }
