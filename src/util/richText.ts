@@ -3,11 +3,13 @@ import { TextContent } from "../objects/text";
 export interface RichTextProps {
   fontStyle?: string; // "normal" | "italic" | "oblique"
   fontWeight?: string | number; // "normal" | "bold" | number
-  fontSize?: number;
+  fontSize?: string | number;
   fontFamily?: string;
   textDecoration?: string;
   color?: string;
   dy?: number;
+  superscript?: boolean;
+  subscript?: boolean;
 }
 
 export type RichTextSpan = string | [string, RichTextProps];
@@ -114,12 +116,25 @@ export function generateTextNodes(
           }
         }
 
-        const styles = {
+        const styles: Record<string, any> = {
           "font-family": props.fontFamily ? `"${props.fontFamily}"` : undefined,
           "font-size": props.fontSize,
           "font-weight": props.fontWeight,
           "font-style": props.fontStyle,
         };
+
+        // Check for superscript or subscript
+        if (props.superscript === true) {
+          styles["baseline-shift"] = "super";
+          if (styles["font-size"] === undefined) {
+            styles["font-size"] = "50%";
+          }
+        } else if (props.subscript === true) {
+          styles["baseline-shift"] = "sub";
+          if (styles["font-size"] === undefined) {
+            styles["font-size"] = "50%";
+          }
+        }
 
         for (const [key, value] of Object.entries(styles)) {
           if (value !== undefined) {
