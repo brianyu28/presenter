@@ -5,6 +5,7 @@ import {
 } from "../util/animation";
 import { SlideObject } from "./object";
 import { Presentation } from "./presentation";
+import { storePresentationState } from "./storage";
 
 export interface SlideProps {
   /**
@@ -37,13 +38,6 @@ export class Slide {
   animationIndex: number;
 
   /**
-   * Property for use during development/debugging only.
-   * Manually set this property to an animation index
-   * to debug a specific animation.
-   */
-  debugAnimation: number | null;
-
-  /**
    * Property used by the presenter-export package to note which
    * animations of the slide are meant to be exported.
    * "first", "last", "all", and "none" are special-cased values,
@@ -61,7 +55,6 @@ export class Slide {
     this.objects = objects.filter((object) => object !== null);
     this.animations = animations;
     this.animationIndex = 0;
-    this.debugAnimation = null;
     this.keyBuilds = "last";
     this.props = {
       additionalElement: null,
@@ -97,46 +90,20 @@ export class Slide {
       presentation.additionalElementContainer.appendChild(element);
     }
 
-    if (this.debugAnimation !== null && !presentation.svg.innerHTML) {
-      let debugAnimation = this.debugAnimation;
-      if (debugAnimation < 0) {
-        debugAnimation = this.animations.length + 1 + debugAnimation;
-      }
-
-      // Jump directly to the animation we wish to debug.
-      for (let i = 0; i < debugAnimation; i++) {
-        const animation = this.animations[i];
-        if (animation) {
-          // If we have a list of build functions, use skip animator on each.
-          if (Array.isArray(animation)) {
-            for (const animationUnit of animation) {
-              if (typeof animationUnit === "number") {
-                continue;
-              }
-              animationUnit(skipAnimation);
+    // Handle non-zero animation index, skipping intermediate animations.
+    for (let i = 0; i < this.animationIndex; i++) {
+      const animation = this.animations[i];
+      if (animation) {
+        // If we have a list of build functions, use skip animation on each.
+        if (Array.isArray(animation)) {
+          for (const animationUnit of animation) {
+            if (typeof animationUnit === "number") {
+              continue;
             }
-          } else {
-            animation(skipAnimation);
+            animationUnit(skipAnimation);
           }
-        }
-      }
-      this.animationIndex = debugAnimation;
-    } else {
-      // Handle non-zero animation index, skipping intermediate animations.
-      for (let i = 0; i < this.animationIndex; i++) {
-        const animation = this.animations[i];
-        if (animation) {
-          // If we have a list of build functions, use skip animation on each.
-          if (Array.isArray(animation)) {
-            for (const animationUnit of animation) {
-              if (typeof animationUnit === "number") {
-                continue;
-              }
-              animationUnit(skipAnimation);
-            }
-          } else {
-            animation(skipAnimation);
-          }
+        } else {
+          animation(skipAnimation);
         }
       }
     }

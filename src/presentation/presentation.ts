@@ -1,5 +1,6 @@
 import { BoundingBox } from "../util/position";
 import { Slide } from "./slide";
+import { restorePresentationState, storePresentationState } from "./storage";
 
 /*
  * Normally, presentations run with browser fonts.
@@ -35,6 +36,16 @@ export interface PresentationOptions {
    * Fonts to embed in PDF export.
    */
   fonts: PresentationFont[];
+
+  /**
+   * How long cached presentation state should be valid for, in minutes.
+   * `null` menas don't use cached data at all.
+   * `0` means use cached data indefinitely.
+   *
+   * When presentation state is cached, reloading the presentation returns
+   * the user to the slide and build they were on previously.
+   */
+  stateCacheTTL: number | null;
 }
 
 interface PresentationState {
@@ -147,6 +158,7 @@ export class Presentation {
       height: 2160,
       backgroundColor: "#ffffff",
       fonts: [],
+      stateCacheTTL: 15,
       ...options,
     };
     this.presentationState = {
@@ -294,8 +306,7 @@ export class Presentation {
       }
       slideElement.addEventListener("click", () => {
         this.navigatorContainer.style.display = "none";
-        this.presentationState.currentSlide = index;
-        slide.render(this);
+        this.renderSlide(index);
       });
       this.navigatorContainer.appendChild(slideElement);
     });
@@ -308,14 +319,26 @@ export class Presentation {
     this.element.appendChild(this.container);
 
     // Set up presentation state
-    this.presentationState.currentSlide = 0;
+    const restored = restorePresentationState(this, this.options.stateCacheTTL);
+    if (!restored) {
+      this.renderSlide(0);
+    }
+  }
 
-    // Render slide
-    const currentSlide = this.slides[this.presentationState.currentSlide];
-    if (currentSlide === undefined) {
+  /**
+   * Renders a slide.
+   */
+  renderSlide(slideIndex: number, animationIndex: number | "last" = 0) {
+    const slide = this.slides[slideIndex];
+    if (slide === undefined) {
       return;
     }
-    currentSlide.render(this);
+    this.presentationState.currentSlide = slideIndex;
+    slide.render(
+      this,
+      animationIndex === "last" ? slide.animations.length : animationIndex,
+    );
+    storePresentationState(this);
   }
 
   /**
@@ -376,15 +399,11 @@ export class Presentation {
         };
 
         // Render the slide specified by the shortcut
-        let slideIndex = shortcut.slideIndex;
-        if (slideIndex !== null) {
-          this.presentationState.currentSlide = slideIndex;
-        }
-        const slide = this.slides[this.presentationState.currentSlide];
-        if (slide === undefined) {
-          return;
-        }
-        slide.render(this, shortcut.animationIndex);
+        let slideIndex =
+          shortcut.slideIndex !== null
+            ? shortcut.slideIndex
+            : this.presentationState.currentSlide;
+        this.renderSlide(slideIndex, shortcut.animationIndex);
         return;
       }
 
@@ -442,16 +461,16 @@ export class Presentation {
       return;
     }
 
-    if (!includeIntermediateBuilds || !(await currentSlide.nextAnimation())) {
-      this.presentationState.currentSlide++;
-      const nextSlide = this.slides[this.presentationState.currentSlide];
-      if (nextSlide === undefined) {
-        // Undo slide incremenet.
-        this.presentationState.currentSlide--;
+    if (includeIntermediateBuilds) {
+      const animationPerformed = await currentSlide.nextAnimation();
+      if (animationPerformed) {
+        storePresentationState(this);
         return;
       }
-      nextSlide.render(this);
     }
+
+    // If we didn't perform an animation, go to the next slide.
+    this.renderSlide(this.presentationState.currentSlide + 1);
   }
 
   /**
@@ -461,25 +480,12 @@ export class Presentation {
   previous(includeIntermediateBuilds: boolean) {
     this.svg.style.cursor = "none";
 
-    const currentSlide = this.slides[this.presentationState.currentSlide];
+    const currentSlideIndex = this.presentationState.currentSlide;
+    const currentSlide = this.slides[currentSlideIndex];
 
-    // If we're past the end of the presentation, go to the last slide.
-    if (currentSlide === undefined) {
-      this.presentationState.currentSlide = this.slides.length - 1;
-      const lastSlide = this.slides[this.presentationState.currentSlide];
-      if (lastSlide === undefined) {
-        return;
-      }
-      lastSlide.render(
-        this,
-        includeIntermediateBuilds ? lastSlide.animations.length : 0,
-      );
-      return;
-    }
-
-    // If we're not on the last build, go back one build.
+    // If we're not on the last build of the slide, go back one build.
     if (includeIntermediateBuilds && currentSlide.animationIndex > 0) {
-      currentSlide.render(this, currentSlide.animationIndex - 1);
+      this.renderSlide(currentSlideIndex, currentSlide.animationIndex - 1);
       return;
     }
 
@@ -492,16 +498,9 @@ export class Presentation {
     }
 
     // Go back to the previous slide.
-    if (this.presentationState.currentSlide > 0) {
-      this.presentationState.currentSlide--;
-    }
-    const previousSlide = this.slides[this.presentationState.currentSlide];
-    if (previousSlide === undefined) {
-      return;
-    }
-    previousSlide.render(
-      this,
-      includeIntermediateBuilds ? previousSlide.animations.length : 0,
+    this.renderSlide(
+      currentSlideIndex - 1,
+      includeIntermediateBuilds ? "last" : 0,
     );
   }
 

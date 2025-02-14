@@ -54,6 +54,5 @@ export default class CodeSlide extends Slide {
         ),
       ],
     );
-    this.debugAnimation = 0;
   }
 }
