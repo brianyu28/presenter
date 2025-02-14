@@ -1,6 +1,6 @@
 {
   "name": "presenter-browser",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A browser application for Presenter.js",
   "license": "ISC",
   "author": "",
@@ -12,6 +12,7 @@
     "make": "electron-forge make"
   },
   "dependencies": {
+    "electron-prompt": "^1.7.0",
     "electron-squirrel-startup": "^1.0.1"
   },
   "devDependencies": {

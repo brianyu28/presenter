@@ -74,6 +74,12 @@ export class Slide {
   render(presentation: Presentation, animationIndex: number = 0) {
     this.animationIndex = animationIndex;
 
+    // If there are cleanup operations to perform, perform them first.
+    for (const cleanupHandler of presentation.slideCleanupHandlers) {
+      cleanupHandler();
+    }
+    presentation.slideCleanupHandlers = [];
+
     // Generate new objects
     this.objects.forEach((object) => {
       object.generate(presentation);

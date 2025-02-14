@@ -104,13 +104,23 @@ export class Presentation {
 
   /**
    * Keyboard shortcut access to jump to particular slides.
+   * A null slide index indicates not changing the slide
+   * (i.e. keeping the same slide active.)
    */
-  shortcuts: Record<string, { slideIndex: number; animationIndex: number }>;
+  shortcuts: Record<
+    string,
+    { slideIndex: number | null; animationIndex: number }
+  >;
 
   /**
    * Current text command that the presenter has entered into presentation.
    */
   textCommand: { active: boolean; command: string };
+
+  /*
+   * Functions that should be called before switching to a new slide.
+   */
+  slideCleanupHandlers: (() => void)[];
 
   /**
    *
@@ -154,11 +164,14 @@ export class Presentation {
     this.background = null;
     this.additionalElementContainer = null;
     this.textCommand = { active: false, command: "" };
+    this.slideCleanupHandlers = [];
 
     // Set up shortcuts
     this.shortcuts = {
       // First build of first slide
       s: { slideIndex: 0, animationIndex: 0 },
+      // First build of current slide, has the effecxt of re-loading a slide
+      c: { slideIndex: null, animationIndex: 0 },
       // Last build of last slide
       e: {
         slideIndex: slides.length - 1,
@@ -363,7 +376,10 @@ export class Presentation {
         };
 
         // Render the slide specified by the shortcut
-        this.presentationState.currentSlide = shortcut.slideIndex;
+        let slideIndex = shortcut.slideIndex;
+        if (slideIndex !== null) {
+          this.presentationState.currentSlide = slideIndex;
+        }
         const slide = this.slides[this.presentationState.currentSlide];
         if (slide === undefined) {
           return;

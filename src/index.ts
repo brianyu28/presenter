@@ -14,6 +14,7 @@ export * from "./objects/line";
 export * from "./objects/paragraph";
 export * from "./objects/polygon";
 export * from "./objects/path";
+export * from "./objects/screenCapture";
 export * from "./objects/text";
 export * from "./objects/rectangle";
 export * from "./objects/vectorGraphic";
