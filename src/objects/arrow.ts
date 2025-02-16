@@ -253,7 +253,7 @@ export class Arrow extends SlideObject<ArrowProps> {
     );
 
     return (run) => {
-      // If we're trying to draw in the arrow, and the current opacity is 1,
+      // If we're trying to draw in the arrow, and the current opacity is 0,
       // make sure we show the line.
       if (drawn && !("opacity" in objectProps) && this.props.opacity === 0) {
         this.set({ opacity: 1 })(run);

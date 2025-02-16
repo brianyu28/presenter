@@ -61,7 +61,7 @@ export class Path extends SlideObject<PathProps> {
 
   animate(
     props: Partial<PathProps>,
-    animationParams: anime.AnimeParams = {},
+    animationParams: anime.AnimeParams & { fillDuration?: number } = {},
     delay: number | null = null,
     animate: boolean = true,
   ): BuildFunction {
@@ -76,7 +76,7 @@ export class Path extends SlideObject<PathProps> {
     return (run: Animator) => {
       this.drawOn({
         drawDuration: (animationParams.duration ?? 1000) as number,
-        fillDuration: (animationParams.duration ?? 1000) as number,
+        fillDuration: (animationParams.fillDuration ?? 300) as number,
         easing: (animationParams.easing ?? "linear") as string,
       })(run);
 
@@ -109,7 +109,7 @@ export class Path extends SlideObject<PathProps> {
           "stroke-dashoffset": "0",
         },
         animationParams: {
-          drawing: drawDuration,
+          duration: drawDuration,
           easing: props.easing ?? "linear",
         },
       });
