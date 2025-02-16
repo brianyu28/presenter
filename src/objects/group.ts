@@ -11,6 +11,8 @@ export interface GroupProps extends ObjectProps {
   rotation: number;
   rotationOrigin: Position;
   scale: number;
+  skewX: number;
+  skewY: number;
 }
 
 export class Group extends SlideObject<GroupProps> {
@@ -26,6 +28,8 @@ export class Group extends SlideObject<GroupProps> {
       rotation: 0,
       rotationOrigin: { x: 0, y: 0 },
       scale: 1,
+      skewX: 0,
+      skewY: 0,
       ...props,
     });
   }
@@ -41,16 +45,17 @@ export class Group extends SlideObject<GroupProps> {
   }
 
   additionalAttributes(): Partial<Record<string, string>> {
-    const scale = this.props.scale;
+    const { rotation, rotationOrigin, scale, skewX, skewY } = this.props;
 
-    const rotationTransform = `rotate(${this.props.rotation}, ${this.props.rotationOrigin.x}, ${this.props.rotationOrigin.y})`;
+    const rotationTransform = `rotate(${rotation}, ${rotationOrigin.x}, ${rotationOrigin.y})`;
     const scaleTransform = `scale(${scale})`;
+    const skewTransform = `${skewX !== 0 ? `skewX(${skewX})` : ""} ${skewY !== 0 ? `skewY(${skewY})` : ""}`;
 
     // If the group is not positioned, we don't need to separately account for the group's bounding box.
     if (!this.props.positioned) {
       const { x, y } = this.positionInPresentation(this.props.position);
       return {
-        transform: `translate(${x}, ${y}) ${rotationTransform} ${scaleTransform}`,
+        transform: `translate(${x}, ${y}) ${rotationTransform} ${scaleTransform} ${skewTransform}`,
       };
     }
 
@@ -75,7 +80,7 @@ export class Group extends SlideObject<GroupProps> {
     const adjustedY = anchoredBox.origin.y - bbox.origin.y;
 
     return {
-      transform: `translate(${adjustedX}, ${adjustedY}) ${rotationTransform} ${scaleTransform}`,
+      transform: `translate(${adjustedX}, ${adjustedY}) ${rotationTransform} ${scaleTransform} ${skewTransform}`,
     };
   }
 
