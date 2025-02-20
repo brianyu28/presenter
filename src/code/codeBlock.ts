@@ -38,6 +38,7 @@ export interface CodeBlockProps {
   backgroundColor: string | null;
   backgroundRounding: number;
   padding: number;
+  lineSpacing: string;
 
   // Monospace code sizing properties
   lineHeight: number;
@@ -83,6 +84,7 @@ export class CodeBlock extends Group {
       backgroundColor: "#000000",
       backgroundRounding: 10,
       padding: 50,
+      lineSpacing: "1em",
       lineHeight: props.fontSize ?? 130,
       characterWidth: 80,
       focusColor: "#4166a5",
@@ -225,6 +227,7 @@ export class CodeBlock extends Group {
         length: props.length,
         fontFamily: props.fontFamily,
         fontSize: props.fontSize,
+        lineSpacing: props.lineSpacing,
         color: props.textColor,
         position: { x: padding, y: padding },
         anchor: "topleft",
