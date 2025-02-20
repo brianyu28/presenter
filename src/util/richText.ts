@@ -6,6 +6,7 @@ export interface RichTextProps {
   fontSize?: string | number;
   fontFamily?: string;
   textDecoration?: string;
+  smallCaps?: boolean;
   color?: string;
   dy?: number;
   superscript?: boolean;
@@ -134,6 +135,10 @@ export function generateTextNodes(
           if (styles["font-size"] === undefined) {
             styles["font-size"] = "50%";
           }
+        }
+
+        if (props.smallCaps === true) {
+          styles["font-variant"] = "small-caps";
         }
 
         for (const [key, value] of Object.entries(styles)) {

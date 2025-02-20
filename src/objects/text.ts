@@ -13,6 +13,7 @@ export interface TextProps extends ObjectProps {
   color: string;
   dominantBaseline: string;
   textDecoration: string;
+  smallCaps: boolean;
 
   // To ensure text is drawn in the correct position, we need to shift text
   // by its baseline height. On average, most font baselines are about 22%
@@ -42,6 +43,7 @@ export class Text extends SlideObject<TextProps> {
       baselineHeight: 0.22,
       dominantBaseline: "ideographic",
       textDecoration: "none",
+      smallCaps: false,
       length: null,
       align: "left",
       lineSpacing: "1em",
@@ -121,8 +123,14 @@ export class Text extends SlideObject<TextProps> {
   }
 
   styles(): Partial<Record<string, string>> {
-    const { fontSize, fontFamily, fontStyle, fontWeight, ligatures } =
-      this.props;
+    const {
+      fontSize,
+      fontFamily,
+      fontStyle,
+      fontWeight,
+      ligatures,
+      smallCaps,
+    } = this.props;
     return {
       ...super.styles(),
       ...(fontStyle !== "normal" ? { "font-style": fontStyle } : {}),
@@ -130,6 +138,7 @@ export class Text extends SlideObject<TextProps> {
         ? { "font-weight": fontWeight.toString() }
         : {}),
       ...(ligatures !== null ? { "font-variant-ligatures": ligatures } : {}),
+      ...(smallCaps === true ? { "font-variant": "small-caps" } : {}),
       "font-size": `${fontSize}px`,
       "font-family": `"${fontFamily}"`,
       "white-space": "pre",
@@ -150,13 +159,21 @@ export class Text extends SlideObject<TextProps> {
 
   /**
    * Returns the number of characters in the total text content.
+   * Optional argument: `throughLine` to return number of characters
+   * through the end of that line, assuming multi-line content.
+   * Defaults to `null`, which considers the full text.
    */
-  contentLength(): number {
+  contentLength(throughLine: number | null = null): number {
     if (typeof this.props.content === "string") {
       return this.props.content.length;
     }
 
-    return this.props.content.reduce((acc, item) => {
+    let lines = this.props.content;
+    if (throughLine !== null) {
+      lines = lines.slice(0, throughLine);
+    }
+
+    return lines.reduce((acc, item) => {
       if (typeof item === "string") {
         return acc + item.length;
       }
