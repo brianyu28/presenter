@@ -109,6 +109,7 @@ class CodeSyntaxHighlighter(Formatter):
                 line_highlights[line_index].append({
                     "start": highlight_start + 1,
                     "end": len(lines[line_index]),
+                    "content": lines[line_index][highlight_start:],
                     "color": region["color"],
                     "bold": region["bold"],
                 })
@@ -128,9 +129,12 @@ class CodeSyntaxHighlighter(Formatter):
                 character_index += len(lines[line_index - 1]) + 1
                 continue
 
+            # Add the highlight configuration.
+            # The "content" field is ignored by Presenter.js, but is useful for debugging.
             line_highlights[line_index].append({
                 "start": highlight_start + 1,
                 "end": highlight_end + 1,
+                "content": lines[line_index][highlight_start:highlight_end + 1],
                 "color": region["color"],
                 "bold": region["bold"],
             })
