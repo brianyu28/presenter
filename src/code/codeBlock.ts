@@ -1,4 +1,5 @@
 import { Group, GroupProps } from "../objects/group";
+import { Mask } from "../objects/mask";
 import { Rectangle, RectangleProps } from "../objects/rectangle";
 import { Text, TextContent, TextProps } from "../objects/text";
 import { Anchor } from "../presentation/object";
@@ -44,6 +45,19 @@ export interface CodeBlockProps {
   lineHeight: number;
   characterWidth: number;
 
+  // If non-null, `lineCount` is the number of lines to show at a time.
+  // Lines can be masked so that only some are visible in the region at a time.
+  lineCount: number | null;
+  colCount: number | null;
+  maskLines: boolean;
+  firstLine: number;
+  unfocusedOpacity: number;
+
+  // Whether to show line numbers
+  lineNumbers: boolean;
+  firstLineNumber: number;
+  lineNumberColor: string;
+
   // Focus: emphasizes one area of the code
   focusColor: string;
   focusOpacity: number;
@@ -68,12 +82,27 @@ export interface CodeBlockProps {
 }
 
 export class CodeBlock extends Group {
+  initialCodeBlockProps: CodeBlockProps;
   codeBlockProps: CodeBlockProps;
+
   background: Rectangle;
+  maskRect: Rectangle | null;
+  maskFocusRect: Rectangle | null;
+
+  // Code content group contains text and focus highlight
+  codeContentGroup: Group;
   focus: Rectangle;
   text: Text;
+  lineNumbers: Text | null;
 
   constructor(props: Partial<CodeBlockProps> = {}) {
+    // If not specified whether to mask lines, decide based on whether
+    // we've specified a line count to show.
+    const maskLines =
+      props.maskLines === undefined
+        ? "lineCount" in props && props.lineCount !== null
+        : props.maskLines;
+
     const codeBlockProps: CodeBlockProps = {
       code: "",
       highlights: null,
@@ -83,10 +112,18 @@ export class CodeBlock extends Group {
       textColor: "#ffffff",
       backgroundColor: "#000000",
       backgroundRounding: 10,
-      padding: 50,
+      padding: 15,
       lineSpacing: "1em",
       lineHeight: props.fontSize ?? 130,
       characterWidth: 80,
+      lineCount: null,
+      colCount: null,
+      maskLines,
+      firstLine: 1,
+      unfocusedOpacity: 1,
+      lineNumbers: false,
+      firstLineNumber: 1,
+      lineNumberColor: "#d0d0d0",
       focusColor: "#4166a5",
       focusOpacity: 0,
       focusRounding: 10,
@@ -102,22 +139,70 @@ export class CodeBlock extends Group {
       anchor: "topleft",
       ...props,
     };
+    super([], {
+      positioned: true,
+    });
+    this.codeBlockProps = codeBlockProps;
+    this.initialCodeBlockProps = codeBlockProps;
+  }
+
+  createElement(): SVGElement {
+    this.codeBlockProps = { ...this.initialCodeBlockProps };
     const {
       group: groupProps,
       background: backgroundProps,
+      mask: maskProps,
+      maskFocus: maskFocusProps,
       focus: focusProps,
       text: { content, ...textProps },
-    } = CodeBlock.getComponentProps(codeBlockProps);
+      lineNumbers: lineNumbersProps,
+    } = CodeBlock.getComponentProps(this.codeBlockProps);
 
     const background = new Rectangle(backgroundProps);
+
+    let mask = null;
+    let maskRect = null;
+    let maskFocusRect = null;
+    if (this.codeBlockProps.maskLines) {
+      maskRect = new Rectangle(maskProps);
+      maskFocusRect = new Rectangle(maskFocusProps);
+      mask = new Mask([maskRect, maskFocusRect]);
+    }
+
     const focus = new Rectangle(focusProps);
     const text = new Text(content, textProps);
-    super([background, focus, text], groupProps);
 
-    this.codeBlockProps = codeBlockProps;
+    let lineNumbers = null;
+    if (lineNumbersProps !== null) {
+      const { content: lineNumbersContent, ...remainingLineNumbersProps } =
+        lineNumbersProps;
+      lineNumbers = new Text(lineNumbersContent, remainingLineNumbersProps);
+    }
+
+    const codeContentGroup = new Group(
+      [focus, text, ...(lineNumbers !== null ? [lineNumbers] : [])],
+      {
+        ...(mask !== null ? { mask: mask.id } : {}),
+      },
+    );
+
+    this.props.objects = [
+      ...(mask !== null ? [mask] : []),
+      background,
+      codeContentGroup,
+    ];
+    this.props = {
+      ...this.props,
+      ...groupProps,
+    };
+
     this.background = background;
+    this.maskRect = maskRect;
+    this.maskFocusRect = maskFocusRect;
     this.focus = focus;
     this.text = text;
+    this.lineNumbers = lineNumbers;
+    return super.createElement();
   }
 
   /**
@@ -135,8 +220,11 @@ export class CodeBlock extends Group {
       const {
         group: groupProps,
         background: backgroundProps,
+        mask: maskProps,
+        maskFocus: maskFocusProps,
         focus: focusProps,
         text: { content, ...textProps },
+        lineNumbers: lineNumbersProps,
       } = CodeBlock.getComponentProps(this.codeBlockProps);
       super.animate(groupProps, animationParams, delay, animate)(run);
       this.background.animate(
@@ -146,13 +234,41 @@ export class CodeBlock extends Group {
         animate,
       )(run);
       this.focus.animate(focusProps, animationParams, delay, animate)(run);
+
+      // Hnadle mask animations
+      if (this.maskRect !== null) {
+        this.maskRect.animate(maskProps, animationParams, delay, animate)(run);
+        this.maskFocusRect.animate(
+          maskFocusProps,
+          animationParams,
+          delay,
+          animate,
+        )(run);
+      }
+
+      // Handle code and line number animations
       this.text.animate(
         { content, ...textProps },
         animationParams,
         delay,
         animate,
       )(run);
+      if (lineNumbersProps !== null) {
+        this.lineNumbers.animate(
+          lineNumbersProps,
+          animationParams,
+          delay,
+          animate,
+        )(run);
+      }
     };
+  }
+
+  set(
+    props: Partial<CodeBlockProps>,
+    delay: number | null = null,
+  ): BuildFunction {
+    return this.animate(props, {}, delay, false);
   }
 
   /**
@@ -161,13 +277,21 @@ export class CodeBlock extends Group {
   static getComponentProps(props: CodeBlockProps): {
     group: Partial<GroupProps>;
     background: Partial<RectangleProps>;
+    mask: Partial<RectangleProps>;
+    maskFocus: Partial<RectangleProps>;
     focus: Partial<RectangleProps>;
     text: Partial<TextProps>;
+    lineNumbers: Partial<TextProps> | null;
   } {
     const {
       padding,
       characterWidth,
       lineHeight,
+      firstLine,
+      unfocusedOpacity,
+      lineNumbers,
+      firstLineNumber,
+      lineNumberColor,
       focusLineStart,
       focusLineEnd,
       focusColStart,
@@ -181,7 +305,69 @@ export class CodeBlock extends Group {
     const maxLineLength = code
       .split("\n")
       .reduce((max, line) => Math.max(max, line.length), 0);
+    const colCount = props.colCount ?? maxLineLength;
     const codeContent = CodeBlock.buildTextContent(code, props.highlights);
+    const lineCount = props.lineCount ?? codeContent.length;
+
+    let lineNumbersProps: Partial<TextProps> | null = null;
+
+    const lineNumberLength = codeContent.length.toString().length + 3;
+    if (lineNumbers) {
+      const lineNumbersContent = Array.from(
+        { length: codeContent.length },
+        (_, i) => firstLineNumber + i,
+      ).map((lineNumber) => {
+        return `${lineNumber}  `.padStart(lineNumberLength, " ");
+      });
+
+      lineNumbersProps = {
+        content: lineNumbersContent,
+        fontFamily: props.fontFamily,
+        fontSize: props.fontSize,
+        lineSpacing: props.lineSpacing,
+        color: lineNumberColor,
+        position: { x: padding, y: padding - (firstLine - 1) * lineHeight },
+        anchor: "topleft",
+      };
+    }
+    const lineNumberPadding = lineNumbers
+      ? lineNumberLength * characterWidth
+      : 0;
+
+    const backgroundProps: Partial<RectangleProps> = {
+      width: characterWidth * colCount + 2 * padding + lineNumberPadding,
+      height: lineHeight * lineCount + 2 * padding,
+      rounding: props.backgroundRounding,
+      fill:
+        props.backgroundColor === null ? "transparent" : props.backgroundColor,
+      position: { x: 0, y: 0 },
+      anchor: "topleft",
+    };
+
+    const focusProps: Partial<RectangleProps> = {
+      width:
+        characterWidth * (focusColEnd - focusColStart + 1) + focusPaddingX * 2,
+      height:
+        lineHeight * (focusLineEnd - focusLineStart + 1) + focusPaddingY * 2,
+      rounding: props.focusRounding,
+      fill: props.focusColor,
+      opacity: props.focusOpacity,
+      position: {
+        x:
+          padding +
+          lineNumberPadding +
+          (focusColStart - 1) * characterWidth -
+          focusPaddingX +
+          focusOffsetX,
+        y:
+          padding -
+          (firstLine - 1) * lineHeight +
+          (focusLineStart - 1) * lineHeight -
+          focusPaddingY +
+          focusOffsetY,
+      },
+      anchor: "topleft",
+    };
 
     return {
       group: {
@@ -189,38 +375,18 @@ export class CodeBlock extends Group {
         anchor: props.anchor,
       },
       background: {
-        width: characterWidth * maxLineLength + 2 * padding,
-        height: lineHeight * codeContent.length + 2 * padding,
-        rounding: props.backgroundRounding,
-        fill:
-          props.backgroundColor === null
-            ? "transparent"
-            : props.backgroundColor,
-        position: { x: 0, y: 0 },
-        anchor: "topleft",
+        ...backgroundProps,
+      },
+      mask: {
+        ...backgroundProps,
+        fill: `rgb(255, 255, 255, ${unfocusedOpacity})`,
       },
       focus: {
-        width:
-          characterWidth * (focusColEnd - focusColStart + 1) +
-          focusPaddingX * 2,
-        height:
-          lineHeight * (focusLineEnd - focusLineStart + 1) + focusPaddingY * 2,
-        rounding: props.focusRounding,
-        fill: props.focusColor,
-        opacity: props.focusOpacity,
-        position: {
-          x:
-            padding +
-            (focusColStart - 1) * characterWidth -
-            focusPaddingX +
-            focusOffsetX,
-          y:
-            padding +
-            (focusLineStart - 1) * lineHeight -
-            focusPaddingY +
-            focusOffsetY,
-        },
-        anchor: "topleft",
+        ...focusProps,
+      },
+      maskFocus: {
+        ...focusProps,
+        fill: "white",
       },
       text: {
         content: codeContent,
@@ -229,9 +395,13 @@ export class CodeBlock extends Group {
         fontSize: props.fontSize,
         lineSpacing: props.lineSpacing,
         color: props.textColor,
-        position: { x: padding, y: padding },
+        position: {
+          x: padding + lineNumberPadding,
+          y: padding - (firstLine - 1) * lineHeight,
+        },
         anchor: "topleft",
       },
+      lineNumbers: lineNumbersProps,
     };
   }
 
@@ -270,6 +440,22 @@ export class CodeBlock extends Group {
     }
 
     return textContentLines;
+  }
+
+  /**
+   * When code block is masked, we don't want to include the full text in
+   * the bounding box calculation. Instead, we want to use just visible
+   * background rectangle.
+   */
+  sizingElement(): SVGGraphicsElement {
+    // When not masked, use the default behavior.
+    if (!this.codeBlockProps.maskLines) {
+      return super.sizingElement();
+    }
+
+    const g = this.element().cloneNode();
+    g.appendChild(this.background.element().cloneNode());
+    return g as SVGGraphicsElement;
   }
 
   /**

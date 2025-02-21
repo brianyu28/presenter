@@ -11,6 +11,7 @@ export * from "./objects/group";
 export * from "./objects/iframe";
 export * from "./objects/image";
 export * from "./objects/line";
+export * from "./objects/mask";
 export * from "./objects/paragraph";
 export * from "./objects/polygon";
 export * from "./objects/path";

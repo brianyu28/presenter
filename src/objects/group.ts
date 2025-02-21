@@ -62,7 +62,7 @@ export class Group extends SlideObject<GroupProps> {
     // For a positioned group, we want to adjust transformation of the bounding box.
     // First, we calculate the existing bounding box of the group.
     const bbox = this._presentation.computeRenderedBoundingBox(
-      this._element as SVGGraphicsElement,
+      this.sizingElement(),
     );
 
     // Adjust the bounding box's size if the group has been scaled up.
@@ -82,6 +82,15 @@ export class Group extends SlideObject<GroupProps> {
     return {
       transform: `translate(${adjustedX}, ${adjustedY}) ${rotationTransform} ${scaleTransform} ${skewTransform}`,
     };
+  }
+
+  /**
+   * Returns the element to be used for computing the bounding box of the group.
+   * Allows overriding so that sometimes we can use custom rules for determining
+   * a group's bounding box.
+   */
+  sizingElement(): SVGGraphicsElement {
+    return this._element as SVGGraphicsElement;
   }
 
   children(): Node[] {

@@ -88,7 +88,7 @@ class CodeSyntaxHighlighter(Formatter):
         while True:
             # Get the next highlighted region.
             # If there are no more, we're done.
-            try: 
+            try:
                 region = highlights.pop(0)
             except IndexError:
                 break
@@ -97,16 +97,36 @@ class CodeSyntaxHighlighter(Formatter):
             highlight_end = region["end"] - character_index
 
             # If highlight is the newline at end of line, skip
-            print(line_index, highlight_start, highlight_end)
             if highlight_start == len(lines[line_index]) and highlight_end == len(lines[line_index]):
                 line_index += 1
                 line_highlights.append([])
                 character_index += len(lines[line_index - 1]) + 1
                 continue
 
-            # If highlight is out-of-bounds, report error
+            # If highlight is out-of-bounds, we must move on to the next line
             if highlight_start < 0 or highlight_end >= len(lines[line_index]):
-                raise Exception(f"Error: Encountered invalid region on line {line_index + 1}, characters {highlight_start + 1} to {highlight_end + 1}")
+                # Use as many characters as we can on this line
+                line_highlights[line_index].append({
+                    "start": highlight_start + 1,
+                    "end": len(lines[line_index]),
+                    "color": region["color"],
+                    "bold": region["bold"],
+                })
+
+                # The remaining characters must move on to the next line.
+                # We add one to include the newline character.
+                remaining = highlight_end - (len(lines[line_index]) + 1)
+                highlights.insert(0, {
+                    "start": region["end"] - remaining,
+                    "end": region["end"],
+                    "color": region["color"],
+                    "bold": region["bold"],
+                })
+
+                line_index += 1
+                line_highlights.append([])
+                character_index += len(lines[line_index - 1]) + 1
+                continue
 
             line_highlights[line_index].append({
                 "start": highlight_start + 1,

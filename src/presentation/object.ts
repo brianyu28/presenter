@@ -17,6 +17,7 @@ export interface ObjectProps {
   position: Position | null;
   opacity?: number;
   anchor: Anchor;
+  mask?: string;
 }
 
 export class SlideObject<Props extends ObjectProps> {
@@ -65,7 +66,10 @@ export class SlideObject<Props extends ObjectProps> {
    * @returns Object with attribute names and values.
    */
   attributes(): Partial<Record<string, string>> {
-    return {};
+    const { mask } = this.props;
+    return {
+      ...(mask !== undefined ? { mask: `url(#${mask})` } : {}),
+    };
   }
 
   /**
