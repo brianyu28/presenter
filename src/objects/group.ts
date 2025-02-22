@@ -10,6 +10,7 @@ export interface GroupProps extends ObjectProps {
   objects: SlideObject<any>[];
   rotation: number;
   rotationOrigin: Position;
+  transformOrigin: Position | string | null;
   scale: number;
   skewX: number;
   skewY: number;
@@ -27,6 +28,7 @@ export class Group extends SlideObject<GroupProps> {
       positioned: positioned === null ? "position" in props : positioned,
       rotation: 0,
       rotationOrigin: { x: 0, y: 0 },
+      transformOrigin: null,
       scale: 1,
       skewX: 0,
       skewY: 0,
@@ -39,8 +41,17 @@ export class Group extends SlideObject<GroupProps> {
   }
 
   attributes(): Partial<Record<string, string>> {
+    const { transformOrigin } = this.props;
     return {
       ...super.attributes(),
+      ...(transformOrigin !== null
+        ? {
+            "transform-origin":
+              typeof transformOrigin === "string"
+                ? transformOrigin
+                : `${transformOrigin.x} ${transformOrigin.y}`,
+          }
+        : {}),
     };
   }
 
