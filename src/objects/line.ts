@@ -1,4 +1,5 @@
 import { ObjectProps, SlideObject } from "../presentation/object";
+import { Animator, BuildFunction } from "../util/animation";
 import { Position } from "../util/position";
 
 export interface LineProps extends ObjectProps {
@@ -56,7 +57,29 @@ export class Line extends SlideObject<LineProps> {
       y2,
       stroke: color,
       "stroke-width": width.toString(),
-      ...(linecap !== null ? { "stroke-linecap": linecap } : {}),
+      ...(linecap !== null && drawn ? { "stroke-linecap": linecap } : {}),
+    };
+  }
+
+  animate(
+    props: Partial<LineProps>,
+    animationParams: anime.AnimeParams = {},
+    delay: number | null = null,
+    animate: boolean = true,
+  ): BuildFunction {
+    return (run: Animator) => {
+      const { drawn, linecap } = { ...this.props, ...props };
+
+      if (drawn && linecap !== null) {
+        // Anime.js can't animate the linecap, so we need to set it manually.
+        this.element().setAttribute("stroke-linecap", linecap);
+      } else if (!drawn) {
+        // Non-drawn lines need to have linecap set to "butt",
+        // otherwise their 0-length lines will be visible.
+        this.element().setAttribute("stroke-linecap", "butt");
+      }
+
+      super.animate(props, animationParams, delay, animate)(run);
     };
   }
 }
