@@ -1,6 +1,6 @@
 {
   "name": "create-presenter",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Create a Presenter.js presentation",
   "main": "dist/index.js",
   "scripts": {
