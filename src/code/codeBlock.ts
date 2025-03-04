@@ -424,6 +424,9 @@ export class CodeBlock extends Group {
       const line: RichTextSpan[] = [];
 
       for (const highlight of highlightLine) {
+        if (highlight.start - 1 === highlight.end) {
+          continue;
+        }
         line.push([
           lines[textContentLines.length].substring(
             highlight.start - 1,
