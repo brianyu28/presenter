@@ -15,6 +15,7 @@ export * from "./objects/mask";
 export * from "./objects/paragraph";
 export * from "./objects/polygon";
 export * from "./objects/path";
+export * from "./objects/rotator";
 export * from "./objects/screenCapture";
 export * from "./objects/text";
 export * from "./objects/rectangle";
