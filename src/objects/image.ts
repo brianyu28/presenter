@@ -6,6 +6,7 @@ export interface ImageProps extends ObjectProps {
   width: number;
   height: number;
   rounding: number;
+  rendering: "crisp-edges" | "pixelated" | null;
 }
 
 export class Image extends SlideObject<ImageProps> {
@@ -16,6 +17,7 @@ export class Image extends SlideObject<ImageProps> {
       width: 100,
       height: 100,
       rounding: 0,
+      rendering: null,
       ...props,
     });
   }
@@ -41,12 +43,17 @@ export class Image extends SlideObject<ImageProps> {
   }
 
   styles(): Partial<Record<string, string>> {
-    const { rounding } = this.props;
+    const { rendering, rounding } = this.props;
     return {
       ...super.styles(),
       ...(rounding !== 0
         ? {
             "clip-path": `inset(0px round ${rounding}px)`,
+          }
+        : {}),
+      ...(rendering !== null
+        ? {
+            "image-rendering": rendering,
           }
         : {}),
     };
