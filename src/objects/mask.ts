@@ -1,38 +1,34 @@
-import { ObjectProps, SlideObject } from "../presentation/object";
+import { Anchor, DEFAULT_ANCHOR } from "../types/Anchor";
+import { ObjectType } from "../types/ObjectType";
+import { SlideObject } from "../types/SlideObject";
 
-export interface MaskProps extends ObjectProps {
-  id: string;
-  objects: SlideObject<any>[];
+export interface Mask extends SlideObject {
+  readonly objectType: typeof ObjectType.MASK;
+  readonly anchor: Anchor;
+  readonly height: number;
+  readonly objects: SlideObject[];
+
+  /** A debugging flag that allows previewing the mask shape. */
+  readonly preview: boolean;
+
+  readonly width: number;
+  readonly x: number;
+  readonly y: number;
 }
 
-export class Mask extends SlideObject<MaskProps> {
-  id: string;
-
-  static maskIndex = 0;
-
-  constructor(objects: SlideObject<any>[], props: Partial<MaskProps> = {}) {
-    super({
-      id: `mask-${Mask.maskIndex++}`,
-      objects,
-      ...props,
-    });
-    this.id = this.props.id;
-  }
-
-  tagName(): string {
-    return "mask";
-  }
-
-  attributes(): Partial<Record<string, string>> {
-    return {
-      id: this.id,
-    };
-  }
-
-  children(): Node[] {
-    return this.props.objects.map((object) => {
-      object.generate(this._presentation);
-      return object._element;
-    });
-  }
+export function Mask(
+  objects: SlideObject[],
+  props: Partial<Omit<Mask, "objects">> | null = null,
+): Mask {
+  return SlideObject({
+    objectType: ObjectType.MASK,
+    anchor: DEFAULT_ANCHOR,
+    height: 100,
+    objects,
+    preview: false,
+    width: 100,
+    x: 0,
+    y: 0,
+    ...props,
+  });
 }

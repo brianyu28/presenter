@@ -1,37 +1,17 @@
 const path = require("path");
 
+const mode = process.env.NODE_ENV || "development";
+const isDevelopment = mode === "development";
+
 module.exports = {
-  mode: process.env.NODE_ENV || "development",
+  mode,
+  devtool: isDevelopment ? "eval-source-map" : false,
   entry: {
     presenter: {
       import: "./src/index.ts",
       filename: "presenter.js",
       library: {
         name: "Presenter",
-        type: "umd",
-      },
-    },
-    export: {
-      import: "./src/export/index.ts",
-      filename: "presenter-export.js",
-      library: {
-        name: "PresenterExport",
-        type: "umd",
-      },
-    },
-    morph: {
-      import: "./src/morph/index.ts",
-      filename: "presenter-morph.js",
-      library: {
-        name: "PresenterMorph",
-        type: "umd",
-      },
-    },
-    code: {
-      import: "./src/code/index.ts",
-      filename: "presenter-code.js",
-      library: {
-        name: "PresenterCode",
         type: "umd",
       },
     },

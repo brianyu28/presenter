@@ -1,25 +1,13 @@
 {
   "name": "presenter",
-  "version": "0.5.5",
+  "version": "0.6.0",
   "description": "A JavaScript presentation library",
   "main": "dist/presenter.js",
-  "types": "dist/src/index.d.ts",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "require": "./dist/presenter.js",
       "types": "./dist/src/index.d.ts"
-    },
-    "./export": {
-      "require": "./dist/presenter-export.js",
-      "types": "./dist/src/export/index.d.ts"
-    },
-    "./morph": {
-      "require": "./dist/presenter-morph.js",
-      "types": "./dist/src/morph/index.d.ts"
-    },
-    "./code": {
-      "require": "./dist/presenter-code.js",
-      "types": "./dist/src/code/index.d.ts"
     }
   },
   "files": [
@@ -29,9 +17,7 @@
     "build": "NODE_ENV=production webpack",
     "watch": "NODE_ENV=development webpack --watch",
     "prettier": "prettier . --write --ignore-unknown",
-    "prepare": "husky",
-    "test": "jest",
-    "coverage": "jest --coverage"
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -44,30 +30,30 @@
   "homepage": "https://github.com/brianyu28/presenter#readme",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "animejs": "^3.2.2",
-    "flubber": "^0.4.2",
-    "html-to-image": "^1.11.11",
-    "jspdf": "^3.0.0",
-    "svg2pdf.js": "^2.2.4"
+    "@types/flubber": "^0.4.0",
+    "d3-ease": "^3.0.1",
+    "flubber": "^0.4.2"
   },
   "devDependencies": {
-    "@types/animejs": "^3.1.12",
-    "@types/flubber": "^0.4.0",
-    "@types/jest": "^29.5.14",
+    "@eslint/js": "^9.35.0",
+    "@types/d3-ease": "^3.0.2",
+    "eslint": "^9.35.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^16.3.0",
     "husky": "^9.1.7",
     "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "lint-staged": "^15.2.10",
-    "prettier": "^3.4.2",
-    "ts-jest": "^29.2.5",
+    "jiti": "^2.5.1",
+    "prettier": "^3.6.2",
     "ts-loader": "^9.5.1",
-    "typescript": "^5.7.2",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.43.0",
     "webpack": "^5.96.1",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^6.0.1"
   },
   "lint-staged": {
     "**/*": [
-      "prettier --write --ignore-unknown",
+      "prettier --ignore-unknown",
+      "eslint",
       "jest --findRelatedTests --passWithNoTests"
     ]
   }

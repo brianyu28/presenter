@@ -1,33 +1,38 @@
-// Presentation
-export * from "./presentation/presentation";
-export * from "./presentation/slide";
-export * from "./presentation/object";
-
-// Objects
-export * from "./objects/arrow";
-export * from "./objects/circle";
-export * from "./objects/grid";
-export * from "./objects/group";
-export * from "./objects/iframe";
-export * from "./objects/image";
-export * from "./objects/line";
-export * from "./objects/mask";
-export * from "./objects/paragraph";
-export * from "./objects/polygon";
-export * from "./objects/path";
-export * from "./objects/rotator";
-export * from "./objects/screenCapture";
-export * from "./objects/text";
-export * from "./objects/rectangle";
-export * from "./objects/vectorGraphic";
-
-// Library
-export * from "./library/bullets";
-export * from "./library/mainTitle";
-export * from "./library/slideTitle";
-
-// Util
-export * from "./util/animation";
-export * from "./util/easing";
-export * from "./util/position";
-export * from "./util/richText";
+export { Grid } from "./constructors/Grid";
+export { Circle } from "./objects/Circle";
+export { Group } from "./objects/Group";
+export { Image } from "./objects/Image";
+export { Line } from "./objects/Line";
+export { Mask } from "./objects/Mask";
+export { Path } from "./objects/Path";
+export { Rectangle } from "./objects/Rectangle";
+export { Text } from "./objects/Text";
+export { BrowserCanvasRenderer } from "./renderer/browser-canvas/BrowserCanvasRenderer";
+export { BrowserCanvasRendererProps } from "./renderer/browser-canvas/types/BrowserCanvasRendererProps";
+export { Alignment } from "./types/Alignment";
+export { Anchor } from "./types/Anchor";
+export { Animate, AnimationParams } from "./types/Animate";
+export { Color } from "./types/Color";
+export { Easing } from "./types/Easing";
+export { EasingFunction } from "./types/EasingFunction";
+export { FontStyle } from "./types/FontStyle";
+export { FontWeight } from "./types/FontWeight";
+export { Interpolator } from "./types/Interpolator";
+export { ObjectType } from "./types/ObjectType";
+export { Pause } from "./types/Pause";
+export { Position } from "./types/Position";
+export { Presentation } from "./types/Presentation";
+export { Resources } from "./types/Resources";
+export { Size } from "./types/Size";
+export { Slide } from "./types/Slide";
+export { SlideObject } from "./types/SlideObject";
+export { TextContent } from "./types/TextContent";
+export { TextUnit } from "./types/TextUnit";
+export { Update } from "./types/Update";
+export { Opaque } from "./utils/color/Opaque";
+export { Transparent } from "./utils/color/Transparent";
+export { getSmoothPathInterpolator } from "./utils/interpolate/getSmoothPathInterpolator";
+export { interpolateColor } from "./utils/interpolate/interpolateColor";
+export { interpolateNumber } from "./utils/interpolate/interpolateNumber";
+export { getSizingFunctions } from "./utils/layout/getSizingFunctions";
+export { getTextContentLength } from "./utils/objects/text/getTextContentLength";

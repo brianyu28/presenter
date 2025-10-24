@@ -1,137 +1,46 @@
-import { ObjectProps, SlideObject } from "../presentation/object";
-import { Animator, BuildFunction } from "../util/animation";
-import { Position } from "../util/position";
+import { Anchor, DEFAULT_ANCHOR } from "../types/Anchor";
+import { Color, DEFAULT_COLOR } from "../types/Color";
+import { ObjectType } from "../types/ObjectType";
+import { SlideObject } from "../types/SlideObject";
+import { Transparent } from "../utils/color/Transparent";
 
-export interface PathProps extends ObjectProps {
-  points: Position[];
-  color: string;
-  fill: string;
-  width: number;
-  linecap: "butt" | "round" | "square" | null;
-  drawn: boolean;
+export interface Path extends SlideObject {
+  readonly objectType: typeof ObjectType.PATH;
+  readonly anchor: Anchor;
+  readonly color: Color;
+  readonly drawn: number;
+  readonly fill: Color;
+  readonly height: number;
+  readonly path: string;
+  readonly pathLength: number;
+  readonly strokeWidth: number;
+  readonly width: number;
+  readonly x: number;
+  readonly y: number;
 }
 
-interface PathDrawOnProps {
-  drawDuration: number;
-  fillDuration: number;
-  easing: string;
-}
+export function Path(props: Partial<Path> | null = null): Path {
+  const { path, ...rest } = props ?? {};
+  const pathDescription = path ?? "M 0 0 L 100 100";
 
-export class Path extends SlideObject<PathProps> {
-  constructor(props: Partial<PathProps> = {}) {
-    super({
-      points: [],
-      color: "#000000",
-      fill: "none",
-      width: 10,
-      linecap: null,
-      drawn: true,
-      ...props,
-    });
-  }
+  // Compute path length
+  const pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  pathElement.setAttribute("d", pathDescription);
+  const pathLength = pathElement.getTotalLength();
 
-  tagName(): string {
-    return "path";
-  }
-
-  attributes(): Partial<Record<string, string>> {
-    const { color, drawn, fill, width, linecap } = this.props;
-    const points = this.props.points.map((point) =>
-      this.positionInPresentation(point),
-    );
-
-    const d = points
-      .map((point, i) => {
-        const prefix = i === 0 ? "M" : "L";
-        const x = point.x;
-        const y = point.y;
-        return `${prefix} ${x} ${y}`;
-      })
-      .join(" ");
-
-    return {
-      ...super.attributes(),
-      d,
-      fill: drawn ? fill : "none",
-      stroke: color,
-      "stroke-width": drawn ? width.toString() : "0",
-      ...(linecap !== null ? { "stroke-linecap": linecap } : {}),
-    };
-  }
-
-  animate(
-    props: Partial<PathProps>,
-    animationParams: anime.AnimeParams & { fillDuration?: number } = {},
-    delay: number | null = null,
-    animate: boolean = true,
-  ): BuildFunction {
-    const { drawn, ...rest } = props;
-
-    // If no change in drawn status, animate normally.
-    if (drawn === undefined) {
-      return super.animate(rest, animationParams, delay, animate);
-    }
-
-    // Otherwise, we need to animate a drawing.
-    return (run: Animator) => {
-      this.drawOn({
-        drawDuration: (animationParams.duration ?? 1000) as number,
-        fillDuration: (animationParams.fillDuration ?? 300) as number,
-        easing: (animationParams.easing ?? "linear") as string,
-      })(run);
-
-      // Animate other properties if needed
-      if (Object.keys(rest).length > 0) {
-        super.animate(rest, animationParams, delay, animate)(run);
-      }
-    };
-  }
-
-  /**
-   * Animates drawing of SVG path.
-   */
-  drawOn(props: Partial<PathDrawOnProps> = {}): BuildFunction {
-    return (run) => {
-      this.props.drawn = true;
-      const element = this.element() as SVGPathElement;
-      const pathLength = element.getTotalLength();
-      const drawDuration = props.drawDuration ?? 1000;
-
-      // Set initial path attributes for drawing stroke.
-      element.setAttribute("stroke-dashoffset", `${pathLength}`);
-      element.setAttribute("stroke-dasharray", `${pathLength}`);
-      element.setAttribute("stroke-width", `${this.props.width}`);
-
-      run({
-        animate: true,
-        element,
-        attributes: {
-          "stroke-dashoffset": "0",
-        },
-        animationParams: {
-          duration: drawDuration,
-          easing: props.easing ?? "linear",
-        },
-      });
-
-      // If we're not proceeding with fill, return early.
-      if (this.props.fill === "none") {
-        return;
-      }
-
-      run({
-        animate: true,
-        delay: drawDuration,
-        element,
-        attributes: {
-          fill: this.props.fill,
-          "stroke-dasharray": "none",
-        },
-        animationParams: {
-          duration: props.fillDuration ?? 1000,
-          easing: props.easing ?? "linear",
-        },
-      });
-    };
-  }
+  return SlideObject({
+    objectType: ObjectType.PATH,
+    anchor: DEFAULT_ANCHOR,
+    color: DEFAULT_COLOR,
+    drawn: 1,
+    fill: Transparent(),
+    height: 100,
+    path: pathDescription,
+    pathLength,
+    strokeWidth: 4,
+    width: 100,
+    x: 0,
+    y: 0,
+    ...rest,
+  });
 }

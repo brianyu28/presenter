@@ -1,12 +1,17 @@
 {
   "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "declaration": true,
-    "outDir": "./dist/",
-    "noImplicitAny": true,
     "module": "es6",
     "moduleResolution": "node",
-    "target": "es5",
-    "allowJs": true
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "strictPropertyInitialization": true,
+    "strictNullChecks": true,
+    "target": "es5"
   },
-  "exclude": ["./examples", "./packages", "./dist"]
+  "exclude": ["./examples", "./packages", "./dist", "./webpack.config.js"]
 }
