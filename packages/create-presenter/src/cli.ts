@@ -41,10 +41,7 @@ export async function writeTemplateFile(
 ): Promise<void> {
   // Replace variables in template with params
   Object.keys(params).forEach((key) => {
-    template = template.replace(
-      new RegExp(`{{\\s*${key}\\s*}}`, "g"),
-      params[key],
-    );
+    template = template.replace(new RegExp(`{{\\s*${key}\\s*}}`, "g"), params[key]);
   });
 
   return new Promise((resolve, reject) => {

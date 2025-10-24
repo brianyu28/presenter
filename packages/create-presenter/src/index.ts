@@ -11,9 +11,7 @@ import customDTsTemplate from "./templates/typescript/src/custom.d.ts.template?s
 async function main() {
   try {
     const cwd = process.cwd();
-    print(
-      "This utility will help you create a new Presenter.js presentation.\n",
-    );
+    print("This utility will help you create a new Presenter.js presentation.\n");
 
     let projectName = (await input("presentation name: (presentation) "))
       .replace(/\s+/g, "-")
@@ -27,33 +25,17 @@ async function main() {
     await createDirectory(path.join(projectName, "public"));
     await createDirectory(path.join(projectName, "src"));
 
-    await writeTemplateFile(
-      path.join(cwd, projectName, "package.json"),
-      packageTemplate,
-      {
-        projectName,
-      },
-    );
-    await writeTemplateFile(
-      path.join(cwd, projectName, "tsconfig.json"),
-      tsConfigTemplate,
-      {},
-    );
+    await writeTemplateFile(path.join(cwd, projectName, "package.json"), packageTemplate, {
+      projectName,
+    });
+    await writeTemplateFile(path.join(cwd, projectName, "tsconfig.json"), tsConfigTemplate, {});
     await writeTemplateFile(
       path.join(cwd, projectName, "webpack.config.js"),
       webpackConfigTemplate,
       {},
     );
-    await writeTemplateFile(
-      path.join(cwd, projectName, "public", "index.html"),
-      htmlTemplate,
-      {},
-    );
-    await writeTemplateFile(
-      path.join(cwd, projectName, "src", "index.ts"),
-      srcTemplate,
-      {},
-    );
+    await writeTemplateFile(path.join(cwd, projectName, "public", "index.html"), htmlTemplate, {});
+    await writeTemplateFile(path.join(cwd, projectName, "src", "index.ts"), srcTemplate, {});
     await writeTemplateFile(
       path.join(cwd, projectName, "src", "custom.d.ts"),
       customDTsTemplate,
@@ -61,10 +43,9 @@ async function main() {
     );
 
     print("Installing dependencies...");
-    await require("child_process").execSync(
-      `cd ${projectName} && npm install`,
-      { stdio: "inherit" },
-    );
+    await require("child_process").execSync(`cd ${projectName} && npm install`, {
+      stdio: "inherit",
+    });
 
     print(
       `\n\x1b[32mSuccess! Created project "${projectName}" at ${path.join(cwd, projectName)}\x1b[0m`,

@@ -61,12 +61,10 @@ app.whenReady().then(() => {
    */
   session.defaultSession.setDisplayMediaRequestHandler(
     (request, callback) => {
-      desktopCapturer
-        .getSources({ types: ["window", "screen"] })
-        .then((sources) => {
-          // Grant access to the first source found.
-          callback({ video: sources[0] });
-        });
+      desktopCapturer.getSources({ types: ["window", "screen"] }).then((sources) => {
+        // Grant access to the first source found.
+        callback({ video: sources[0] });
+      });
     },
     { useSystemPicker: true },
   );

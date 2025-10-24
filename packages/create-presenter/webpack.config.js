@@ -27,7 +27,5 @@ module.exports = {
       },
     ],
   },
-  plugins: [
-    new webpack.BannerPlugin({ banner: "#!/usr/bin/env node", raw: true }),
-  ],
+  plugins: [new webpack.BannerPlugin({ banner: "#!/usr/bin/env node", raw: true })],
 };
