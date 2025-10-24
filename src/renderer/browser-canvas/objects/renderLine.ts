@@ -10,7 +10,7 @@ export const renderLine: BrowserCanvasObjectRenderer<Line> = ({ ctx, object: lin
     color: line.color,
     ctx,
     drawn: line.drawn,
-    growFromCenter: line.growFromCenter,
+    isDrawnFromCenter: line.isDrawnFromCenter,
     path,
     pathLength: length,
     opacity: line.opacity * opacity,

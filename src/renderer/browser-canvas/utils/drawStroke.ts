@@ -5,7 +5,7 @@ interface Args {
   readonly color: Color;
   readonly ctx: CanvasRenderingContext2D;
   readonly drawn?: number | null;
-  readonly growFromCenter?: boolean;
+  readonly isDrawnFromCenter?: boolean;
   readonly opacity?: number | null;
   readonly path: Path2D | undefined;
   readonly pathLength?: number | null;
@@ -16,7 +16,7 @@ export function drawStroke({
   ctx,
   color,
   drawn = null,
-  growFromCenter = false,
+  isDrawnFromCenter = false,
   opacity = null,
   path,
   pathLength = null,
@@ -28,7 +28,7 @@ export function drawStroke({
 
   if (drawn !== null && pathLength !== null && drawn !== 1) {
     const drawnLength = pathLength * drawn;
-    if (!growFromCenter) {
+    if (!isDrawnFromCenter) {
       ctx.setLineDash([drawnLength, pathLength - drawnLength]);
     } else {
       ctx.setLineDash([

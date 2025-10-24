@@ -1,4 +1,5 @@
 export const ObjectType = {
+  ARROW: "Arrow",
   CIRCLE: "Circle",
   GROUP: "Group",
   IMAGE: "Image",

@@ -1,4 +1,5 @@
 export { Grid } from "./constructors/Grid";
+export { Arrow } from "./objects/Arrow";
 export { Circle } from "./objects/Circle";
 export { Group } from "./objects/Group";
 export { Image } from "./objects/Image";

@@ -1,5 +1,6 @@
 import { ObjectType } from "../../../types/ObjectType";
 import { SlideObject } from "../../../types/SlideObject";
+import { renderArrow } from "../objects/renderArrow";
 import { renderCircle } from "../objects/renderCircle";
 import { renderGroup } from "../objects/renderGroup";
 import { renderImage } from "../objects/renderImage";
@@ -15,6 +16,7 @@ type ObjectRendererMap = {
 };
 
 export const DEFAULT_OBJECT_RENDERERS: ObjectRendererMap = {
+  [ObjectType.ARROW]: renderArrow,
   [ObjectType.CIRCLE]: renderCircle,
   [ObjectType.GROUP]: renderGroup,
   [ObjectType.IMAGE]: renderImage,
