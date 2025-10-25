@@ -71,6 +71,7 @@ Color.BLACK = Color(0, 0, 0);
 Color.BLUE = Color(0, 0, 255);
 Color.GREEN = Color(0, 255, 0);
 Color.RED = Color(255, 0, 0);
+Color.TRANSPARENT = Color(0, 0, 0, 0);
 Color.WHITE = Color(255, 255, 255);
 
 export const DEFAULT_COLOR: Color = { red: 0, green: 0, blue: 0, alpha: 1 };

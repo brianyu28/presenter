@@ -38,3 +38,4 @@ export { interpolateColor } from "./utils/interpolate/interpolateColor";
 export { interpolateNumber } from "./utils/interpolate/interpolateNumber";
 export { getSizingFunctions } from "./utils/layout/getSizingFunctions";
 export { getTextContentLength } from "./utils/objects/text/getTextContentLength";
+export { getKeySlideBuildIndices } from "./utils/slide/getKeySlideBuildIndices";
