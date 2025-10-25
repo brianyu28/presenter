@@ -19,6 +19,9 @@ export function createPresentationContainer(
   container.style.marginRight = "auto";
 
   if (isFullBodyPresentation(root)) {
+    // Don't allow scrolling of container
+    container.style.overflowY = "clip";
+
     // Set document title to title of presentation.
     document.title = presentation.title;
 

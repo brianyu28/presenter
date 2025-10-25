@@ -1,3 +1,4 @@
+import { openNavigator } from "../../navigator/openNavigator";
 import { Presentation } from "../../types/Presentation";
 import { SlideObject } from "../../types/SlideObject";
 import { getSlideAnimationDuration } from "../../utils/animate/getSlideAnimationDuration";
@@ -61,6 +62,11 @@ export class BrowserCanvasRenderer {
 
         this.renderSlide(slideIndex ?? this.state.slideIndex, buildIndex);
       },
+      onShowNavigator: () =>
+        openNavigator({
+          presentation,
+          onNavigateToSlide: (slideIndex) => this.renderSlide(slideIndex),
+        }),
     });
 
     element.replaceChildren();

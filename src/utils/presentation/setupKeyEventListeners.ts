@@ -6,17 +6,24 @@ interface Callbacks {
   readonly onNext: (skipIntermediateBuilds: boolean) => void;
   readonly onPrevious: (skipIntermediateBuilds: boolean) => void;
   readonly onRenderSlide: (slideIndex: number | null, buildIndex: number) => void;
+  readonly onShowNavigator: () => void;
 }
 
 export function setupKeyEventListeners(
   presentation: Presentation,
   element: HTMLElement,
   shortcutState: ShortcutState,
-  { onNext, onPrevious, onRenderSlide }: Callbacks,
+  { onNext, onPrevious, onRenderSlide, onShowNavigator }: Callbacks,
 ) {
   shortcutState.shortcuts = getPresentationShortcuts(presentation);
 
   element.addEventListener("keyup", (event) => {
+    // Reset command
+    if (event.code === "Escape") {
+      shortcutState.textCommand = null;
+      return;
+    }
+
     // Next slide
     if (event.code === "ArrowRight" || event.code === "Space") {
       onNext(event.shiftKey);
@@ -59,6 +66,13 @@ export function setupKeyEventListeners(
     // Start a new text command
     if (event.key === "g") {
       shortcutState.textCommand = "";
+      return;
+    }
+
+    // Show navigator
+    if (event.key === "`") {
+      onShowNavigator();
+      return;
     }
   });
 }
