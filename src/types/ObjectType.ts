@@ -6,6 +6,7 @@ export const ObjectType = {
   LINE: "Line",
   MASK: "Mask",
   PATH: "Path",
+  POLYGON: "Polygon",
   RECTANGLE: "Rectangle",
   SLIDE_OBJECT: "SlideObject",
   TEXT: "Text",
