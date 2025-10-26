@@ -11,7 +11,7 @@ export default defineConfig([
     extends: ["js/recommended"],
     languageOptions: { globals: globals.browser },
   },
-  globalIgnores(["dist/**", "packages/**", "webpack.config.js"]),
+  globalIgnores(["dist/**", "packages/**", "jest.config.js", "webpack.config.js"]),
   tseslint.configs.recommended,
   {
     rules: {
