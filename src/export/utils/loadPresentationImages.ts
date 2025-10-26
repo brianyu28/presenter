@@ -2,7 +2,7 @@ import { readFile } from "fs";
 import path from "path";
 import { Image } from "skia-canvas";
 
-import { ImageType, UnifiedImage } from "../../../renderer/browser-canvas/types/UnifiedImage";
+import { ImageType, UnifiedImage } from "../../renderer/browser-canvas/types/UnifiedImage";
 
 export async function loadPresentationImages(
   imagePathById: Record<string, string>,

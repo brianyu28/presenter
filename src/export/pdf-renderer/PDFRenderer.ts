@@ -10,11 +10,11 @@ import { SlideObject } from "../../types/SlideObject";
 import { getRgbStringForColor } from "../../utils/color/getRgbStringForColor";
 import { getObjectState } from "../../utils/presentation/getObjectState";
 import { getKeySlideBuildIndices } from "../../utils/slide/getKeySlideBuildIndices";
+import { createCanvasElement } from "../utils/createCanvasElement";
+import { createPath2D } from "../utils/createPath2D";
+import { loadPresentationImages } from "../utils/loadPresentationImages";
 import { PDFRendererProps } from "./types/PDFRendererProps";
 import { PDF_RENDERER_DEFAULT_STATE, PDFRendererState } from "./types/PDFRendererState";
-import { createCanvasElement } from "./utils/createCanvasElement";
-import { createPath2D } from "./utils/createPath2D";
-import { loadPresentationImages } from "./utils/loadPresentationImages";
 
 export class PDFRenderer {
   props: PDFRendererProps;
