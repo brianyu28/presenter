@@ -9,6 +9,7 @@ export const renderArrow: BrowserCanvasObjectRenderer<Arrow> = ({
   ctx,
   object: arrow,
   opacity,
+  createPath2D,
 }) => {
   if (arrow.drawn === 0) {
     return;
@@ -16,8 +17,8 @@ export const renderArrow: BrowserCanvasObjectRenderer<Arrow> = ({
 
   const { arrowPoints, arrowheadPoints, doubledArrowheadPoints } = getArrowPoints(arrow);
 
-  const { path: arrowPath } = getPathFromPositions(arrowPoints);
-  const { path: arrowheadPath } = getPathFromPositions(arrowheadPoints);
+  const { path: arrowPath } = getPathFromPositions(arrowPoints, createPath2D);
+  const { path: arrowheadPath } = getPathFromPositions(arrowheadPoints, createPath2D);
 
   // Draw main arrow line
   drawStroke({
@@ -30,7 +31,7 @@ export const renderArrow: BrowserCanvasObjectRenderer<Arrow> = ({
 
   // Draw arrowhead
   if (arrow.isArrowheadFilled) {
-    arrowheadPath.closePath();
+    arrowheadPath.path.closePath();
     fillPath({
       ctx,
       path: arrowheadPath,
@@ -48,9 +49,12 @@ export const renderArrow: BrowserCanvasObjectRenderer<Arrow> = ({
 
   if (arrow.isArrowheadDoubled) {
     // Draw doubled arrowhead
-    const { path: doubledArrowheadPath } = getPathFromPositions(doubledArrowheadPoints);
+    const { path: doubledArrowheadPath } = getPathFromPositions(
+      doubledArrowheadPoints,
+      createPath2D,
+    );
     if (arrow.isArrowheadFilled) {
-      doubledArrowheadPath.closePath();
+      doubledArrowheadPath.path.closePath();
       fillPath({
         ctx,
         path: doubledArrowheadPath,

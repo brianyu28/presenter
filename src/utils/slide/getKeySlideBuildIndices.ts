@@ -6,6 +6,14 @@ import { Slide } from "../../types/Slide";
 export function getKeySlideBuildIndices(slide: Slide): number[] {
   const buildIndices: number[] = [];
 
+  // If every build is key, include all build indices
+  if (slide.isAllKey) {
+    for (let i = 0; i <= slide.animations.length; i++) {
+      buildIndices.push(i);
+    }
+    return buildIndices;
+  }
+
   // Slide can configure its own starting state to be key
   if (slide.isStartKey) {
     buildIndices.push(0);

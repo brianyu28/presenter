@@ -1,15 +1,19 @@
 import { PathWithLength } from "../../../types/PathWithLength";
 import { Position } from "../../../types/Position";
+import { UnifiedPath2D } from "../types/UnifiedPath2D";
 
-export function getPathFromPositions(positions: Position[]): PathWithLength {
-  const path = new Path2D();
+export function getPathFromPositions(
+  positions: Position[],
+  createPath: () => UnifiedPath2D,
+): PathWithLength {
+  const path = createPath();
 
   const firstPosition = positions[0];
   if (firstPosition === undefined) {
     return { path, length: 0 };
   }
 
-  path.moveTo(firstPosition.x, firstPosition.y);
+  path.path.moveTo(firstPosition.x, firstPosition.y);
 
   let length = 0;
 
@@ -24,7 +28,7 @@ export function getPathFromPositions(positions: Position[]): PathWithLength {
     const dx = position.x - prevPosition.x;
     const dy = position.y - prevPosition.y;
     length += Math.hypot(dx, dy);
-    path.lineTo(position.x, position.y);
+    path.path.lineTo(position.x, position.y);
   }
 
   return { path, length };

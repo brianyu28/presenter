@@ -11,6 +11,16 @@ export { Rectangle } from "./objects/Rectangle";
 export { Text } from "./objects/Text";
 export { BrowserCanvasRenderer } from "./renderer/browser-canvas/BrowserCanvasRenderer";
 export { BrowserCanvasRendererProps } from "./renderer/browser-canvas/types/BrowserCanvasRendererProps";
+export {
+  type BrowserCanvasContext,
+  type NodeCanvasContext,
+  type UnifiedCanvasContext,
+} from "./renderer/browser-canvas/types/UnifiedCanvasContext";
+export {
+  type BrowserPath2D,
+  type NodePath2D,
+  type UnifiedPath2D,
+} from "./renderer/browser-canvas/types/UnifiedPath2D";
 export { Alignment } from "./types/Alignment";
 export { Anchor } from "./types/Anchor";
 export { Animate, AnimationParams } from "./types/Animate";

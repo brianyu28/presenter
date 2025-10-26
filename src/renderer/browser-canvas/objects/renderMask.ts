@@ -12,7 +12,7 @@ export const renderMask: BrowserCanvasObjectRenderer<Mask> = ({
   opacity,
   renderObject,
 }) => {
-  ctx.save();
+  ctx.context.save();
 
   const bbox = getBoundingBox(
     Position({ x: mask.x, y: mask.y }),
@@ -21,20 +21,20 @@ export const renderMask: BrowserCanvasObjectRenderer<Mask> = ({
   );
 
   if (mask.preview) {
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = getHexStringForColor(Color.RED);
-    ctx.rect(bbox.origin.x, bbox.origin.y, bbox.size.width, bbox.size.height);
-    ctx.stroke();
+    ctx.context.lineWidth = 4;
+    ctx.context.strokeStyle = getHexStringForColor(Color.RED);
+    ctx.context.rect(bbox.origin.x, bbox.origin.y, bbox.size.width, bbox.size.height);
+    ctx.context.stroke();
   }
 
-  ctx.beginPath();
-  ctx.rect(bbox.origin.x, bbox.origin.y, bbox.size.width, bbox.size.height);
-  ctx.closePath();
-  ctx.clip();
+  ctx.context.beginPath();
+  ctx.context.rect(bbox.origin.x, bbox.origin.y, bbox.size.width, bbox.size.height);
+  ctx.context.closePath();
+  ctx.context.clip();
 
   for (const child of mask.objects) {
     renderObject(child, opacity * mask.opacity);
   }
 
-  ctx.restore();
+  ctx.context.restore();
 };

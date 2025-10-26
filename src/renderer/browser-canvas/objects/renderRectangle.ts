@@ -8,8 +8,9 @@ export const renderRectangle: BrowserCanvasObjectRenderer<Rectangle> = ({
   ctx,
   object: rectangle,
   opacity,
+  createPath2D,
 }) => {
-  const { path, length } = getRectanglePath(rectangle);
+  const { path, length } = getRectanglePath(rectangle, createPath2D);
 
   fillPath({
     ctx,

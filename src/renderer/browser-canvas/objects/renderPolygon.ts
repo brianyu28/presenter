@@ -8,8 +8,9 @@ export const renderPolygon: BrowserCanvasObjectRenderer<Polygon> = ({
   ctx,
   object: polygon,
   opacity,
+  createPath2D,
 }) => {
-  const { path, length } = getPolygonPath(polygon);
+  const { path, length } = getPolygonPath(polygon, createPath2D);
 
   fillPath({
     ctx,

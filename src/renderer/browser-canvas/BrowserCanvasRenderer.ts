@@ -2,10 +2,9 @@ import { openNavigator } from "../../navigator/openNavigator";
 import { Presentation } from "../../types/Presentation";
 import { SlideObject } from "../../types/SlideObject";
 import { getSlideAnimationDuration } from "../../utils/animate/getSlideAnimationDuration";
-import { updateObjectStateWithAnimation } from "../../utils/animate/updateObjectStateWithAnimation";
 import { getRgbStringForColor } from "../../utils/color/getRgbStringForColor";
 import { createPresentationContainer } from "../../utils/presentation/createPresentationContainer";
-import { getObjectChildren } from "../../utils/presentation/getObjectChildren";
+import { getObjectState } from "../../utils/presentation/getObjectState";
 import { setupKeyEventListeners } from "../../utils/presentation/setupKeyEventListeners";
 import { loadPresentationState } from "../../utils/storage/loadPresentationState";
 import { storePresentationState } from "../../utils/storage/storePresentationState";
@@ -14,8 +13,10 @@ import {
   BROWSER_CANVAS_RENDERER_DEFAULT_STATE,
   BrowserCanvasRendererState,
 } from "./types/BrowserCanvasRendererState";
+import { CanvasContextType, UnifiedCanvasContext } from "./types/UnifiedCanvasContext";
 import { clearCanvas } from "./utils/clearCanvas";
 import { createCanvasElement } from "./utils/createCanvasElement";
+import { createPath2D } from "./utils/createPath2D";
 import { DEFAULT_OBJECT_RENDERERS } from "./utils/defaultObjectRenderers";
 import { loadPresentationImages } from "./utils/loadPresentationImages";
 
@@ -103,51 +104,36 @@ export class BrowserCanvasRenderer {
       return;
     }
 
-    clearCanvas(canvas, ctx);
+    const context: UnifiedCanvasContext = {
+      type: CanvasContextType.Browser,
+      context: ctx,
+    };
 
-    // Maps original objects defined in the slide to its current state.
-    const objectState: Map<SlideObject, SlideObject> = new Map();
+    clearCanvas(canvas, context);
 
-    function addObjectToState(object: SlideObject) {
-      objectState.set(object, object);
-      for (const childObject of getObjectChildren(object)) {
-        addObjectToState(childObject);
-      }
-    }
-
-    for (const object of slide.objects) {
-      addObjectToState(object);
-    }
-
-    // Process animations that have already completed.
-    const completedBuildCount = buildTime === null ? buildIndex : buildIndex - 1;
-    for (let i = 0; i < completedBuildCount; i++) {
-      const animation = slide.animations[i] ?? null;
-      updateObjectStateWithAnimation(objectState, animation);
-    }
-
-    // Process the current animation, if any.
-    if (buildTime !== null && buildIndex > 0) {
-      const animation = slide.animations[buildIndex - 1] ?? null;
-      updateObjectStateWithAnimation(objectState, animation, buildTime);
-    }
+    const objectState = getObjectState({
+      slide,
+      buildIndex,
+      buildTime,
+    });
 
     // Render background color.
-    ctx.fillStyle = getRgbStringForColor(presentation.backgroundColor);
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    context.context.fillStyle = getRgbStringForColor(presentation.backgroundColor);
+    context.context.fillRect(0, 0, canvas.width, canvas.height);
 
     function renderObject(object: SlideObject, opacity: number) {
       const objectRenderer = objectRenderers[object.objectType];
       const currentObject = objectState.get(object);
-      if (objectRenderer === undefined || currentObject === undefined || ctx === null) {
+      if (objectRenderer === undefined || currentObject === undefined) {
         return;
       }
       objectRenderer({
-        ctx,
+        ctx: context,
         imageById,
         object: currentObject,
         opacity,
         renderObject,
+        createPath2D,
       });
     }
 

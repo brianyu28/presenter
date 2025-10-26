@@ -80,7 +80,7 @@ export const renderText: BrowserCanvasObjectRenderer<Text> = ({ ctx, object: tex
 
       const combinedStyle: TextStyle = { ...style, ...unitStyle };
       setContextWithTextStyle(ctx, combinedStyle, text.opacity * opacity);
-      ctx.fillText(targetUnitText, x, y);
+      ctx.context.fillText(targetUnitText, x, y);
       x += unitSize.width;
     }
   }

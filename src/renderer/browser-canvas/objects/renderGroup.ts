@@ -27,21 +27,21 @@ export const renderGroup: BrowserCanvasObjectRenderer<Group> = ({
   }
 
   // Apply translation and scale transformations
-  ctx.translate(boundingBox.origin.x, boundingBox.origin.y);
-  ctx.scale(group.scale, group.scale);
+  ctx.context.translate(boundingBox.origin.x, boundingBox.origin.y);
+  ctx.context.scale(group.scale, group.scale);
   // Apply rotation transformation
-  ctx.translate(rotateOriginX, rotateOriginY);
-  ctx.rotate((rotation * Math.PI) / 180);
-  ctx.translate(-rotateOriginX, -rotateOriginY);
+  ctx.context.translate(rotateOriginX, rotateOriginY);
+  ctx.context.rotate((rotation * Math.PI) / 180);
+  ctx.context.translate(-rotateOriginX, -rotateOriginY);
 
   for (const child of group.objects) {
     renderObject(child, opacity * group.opacity);
   }
 
   // Undo transformations in reverse order
-  ctx.translate(rotateOriginX, rotateOriginY);
-  ctx.rotate((-rotation * Math.PI) / 180);
-  ctx.translate(-rotateOriginX, -rotateOriginY);
-  ctx.scale(1 / group.scale, 1 / group.scale);
-  ctx.translate(-boundingBox.origin.x, -boundingBox.origin.y);
+  ctx.context.translate(rotateOriginX, rotateOriginY);
+  ctx.context.rotate((-rotation * Math.PI) / 180);
+  ctx.context.translate(-rotateOriginX, -rotateOriginY);
+  ctx.context.scale(1 / group.scale, 1 / group.scale);
+  ctx.context.translate(-boundingBox.origin.x, -boundingBox.origin.y);
 };

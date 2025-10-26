@@ -6,16 +6,21 @@ import { BrowserCanvasObjectRenderer } from "../types/BrowserCanvasObjectRendere
 import { drawStroke } from "../utils/drawStroke";
 import { fillPath } from "../utils/fillPath";
 
-export const renderPath: BrowserCanvasObjectRenderer<Path> = ({ ctx, object: path, opacity }) => {
+export const renderPath: BrowserCanvasObjectRenderer<Path> = ({
+  ctx,
+  object: path,
+  opacity,
+  createPath2D,
+}) => {
   const { origin } = getBoundingBox(
     Position({ x: path.x, y: path.y }),
     path.anchor,
     Size({ width: path.width, height: path.height }),
   );
-  const path2D = new Path2D(path.path);
+  const path2D = createPath2D(path.path);
 
-  ctx.save();
-  ctx.translate(origin.x, origin.y);
+  ctx.context.save();
+  ctx.context.translate(origin.x, origin.y);
 
   fillPath({
     ctx,
@@ -35,5 +40,5 @@ export const renderPath: BrowserCanvasObjectRenderer<Path> = ({ ctx, object: pat
   });
 
   // Undo transformations
-  ctx.restore();
+  ctx.context.restore();
 };

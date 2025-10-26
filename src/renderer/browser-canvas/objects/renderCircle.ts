@@ -8,8 +8,9 @@ export const renderCircle: BrowserCanvasObjectRenderer<Circle> = ({
   ctx,
   object: circle,
   opacity,
+  createPath2D,
 }) => {
-  const { path, length } = getCirclePath(circle);
+  const { path, length } = getCirclePath(circle, createPath2D);
 
   fillPath({
     ctx,

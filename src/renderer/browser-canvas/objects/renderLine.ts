@@ -3,8 +3,13 @@ import { getLinePath } from "../../../utils/objects/line/getLinePath";
 import { BrowserCanvasObjectRenderer } from "../types/BrowserCanvasObjectRenderer";
 import { drawStroke } from "../utils/drawStroke";
 
-export const renderLine: BrowserCanvasObjectRenderer<Line> = ({ ctx, object: line, opacity }) => {
-  const { path, length } = getLinePath(line);
+export const renderLine: BrowserCanvasObjectRenderer<Line> = ({
+  ctx,
+  object: line,
+  opacity,
+  createPath2D,
+}) => {
+  const { path, length } = getLinePath(line, createPath2D);
 
   drawStroke({
     color: line.color,

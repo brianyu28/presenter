@@ -1,4 +1,5 @@
 import { ShortcutState } from "../../../types/ShortcutState";
+import { UnifiedImage } from "./UnifiedImage";
 
 export interface BrowserCanvasRendererState {
   canvas: HTMLCanvasElement | null;
@@ -14,7 +15,7 @@ export interface BrowserCanvasRendererState {
   /** The ID of the currently running animation, if any. */
   currentAnimationId: number | null;
 
-  imageById: Record<string, HTMLImageElement>;
+  imageById: Record<string, UnifiedImage>;
 
   shortcutState: ShortcutState;
 }
