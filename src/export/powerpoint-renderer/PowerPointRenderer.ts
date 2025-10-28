@@ -33,7 +33,7 @@ export class PowerPointRenderer {
         ...objectRenderers,
       },
       pixelsPerInch: 384,
-      resourcePathPrefix: "public",
+      resourcePathPrefix: "",
       ...rest,
     };
     this.state = { ...POWERPOINT_RENDERER_DEFAULT_STATE };

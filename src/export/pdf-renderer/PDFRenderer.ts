@@ -28,7 +28,7 @@ export class PDFRenderer {
         ...DEFAULT_OBJECT_RENDERERS,
         ...objectRenderers,
       },
-      resourcePathPrefix: "public",
+      resourcePathPrefix: "",
       ...rest,
     };
     this.state = { ...PDF_RENDERER_DEFAULT_STATE };

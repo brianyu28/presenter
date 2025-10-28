@@ -36,7 +36,7 @@ export class ImageRenderer {
         ...DEFAULT_OBJECT_RENDERERS,
         ...objectRenderers,
       },
-      resourcePathPrefix: "public",
+      resourcePathPrefix: "",
       ...rest,
     };
     this.state = { ...IMAGE_RENDERER_DEFAULT_STATE };

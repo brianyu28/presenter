@@ -4,14 +4,36 @@ import { SlideObject } from "../types/SlideObject";
 
 export interface GridProps {
   readonly anchor: Anchor;
+
+  /** Number of columns in the grid. */
   readonly cols: number;
-  // Height of each individual object
+
+  /** Pixels of horizontal space between objects in the grid. */
   readonly gapX: number;
+
+  /** Pixels of vertical space between objects in the grid. */
   readonly gapY: number;
+
+  /**
+   * Height, in pixels, of each object in the grid.
+   *
+   * If height is variable, a function can be provided that maps the row/col indices to a height.
+   */
   readonly height: number | ((row: number, col: number) => number);
+
+  /** Function mapping row/col indices to the object in the grid at that index. */
   readonly objects: (row: number, col: number) => SlideObject | null;
+
+  /** Number of rows in the grid. */
   readonly rows: number;
+
+  /**
+   * Width, in pixels, of each object in the grid.
+   *
+   * If width is variable, a function can be provided that maps the row/col indices to a width.
+   */
   readonly width: number | ((row: number, col: number) => number);
+
   readonly x: number;
   readonly y: number;
 }
