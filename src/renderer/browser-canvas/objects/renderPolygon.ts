@@ -10,13 +10,18 @@ export const renderPolygon: BrowserCanvasObjectRenderer<Polygon> = ({
   opacity,
   createPath2D,
 }) => {
+  const targetOpacity = polygon.opacity * opacity;
+  if (targetOpacity === 0 || (polygon.drawn === 0 && polygon.fill.alpha === 0)) {
+    return;
+  }
+
   const { path, length } = getPolygonPath(polygon, createPath2D);
 
   fillPath({
     ctx,
     path,
     color: polygon.fill,
-    opacity: polygon.opacity * opacity,
+    opacity: targetOpacity,
   });
 
   drawStroke({
@@ -25,7 +30,7 @@ export const renderPolygon: BrowserCanvasObjectRenderer<Polygon> = ({
     drawn: polygon.drawn,
     path,
     pathLength: length,
-    opacity: polygon.opacity * opacity,
+    opacity: targetOpacity,
     width: polygon.borderWidth,
   });
 };

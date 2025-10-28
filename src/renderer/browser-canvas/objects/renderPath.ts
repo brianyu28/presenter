@@ -12,6 +12,11 @@ export const renderPath: BrowserCanvasObjectRenderer<Path> = ({
   opacity,
   createPath2D,
 }) => {
+  const targetOpacity = path.opacity * opacity;
+  if (targetOpacity === 0 || (path.drawn === 0 && path.fill.alpha === 0)) {
+    return;
+  }
+
   const { origin } = getBoundingBox(
     Position({ x: path.x, y: path.y }),
     path.anchor,
@@ -26,7 +31,7 @@ export const renderPath: BrowserCanvasObjectRenderer<Path> = ({
     ctx,
     path: path2D,
     color: path.fill,
-    opacity: path.opacity * opacity,
+    opacity: targetOpacity,
   });
 
   drawStroke({
@@ -35,7 +40,7 @@ export const renderPath: BrowserCanvasObjectRenderer<Path> = ({
     drawn: path.drawn,
     path: path2D,
     pathLength: path.pathLength,
-    opacity: path.opacity * opacity,
+    opacity: targetOpacity,
     width: path.strokeWidth,
   });
 

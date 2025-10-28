@@ -11,7 +11,8 @@ export const renderArrow: BrowserCanvasObjectRenderer<Arrow> = ({
   opacity,
   createPath2D,
 }) => {
-  if (arrow.drawn === 0) {
+  const targetOpacity = arrow.opacity * opacity;
+  if (targetOpacity === 0 || arrow.drawn === 0) {
     return;
   }
 
@@ -25,7 +26,7 @@ export const renderArrow: BrowserCanvasObjectRenderer<Arrow> = ({
     color: arrow.color,
     ctx,
     path: arrowPath,
-    opacity: arrow.opacity * opacity,
+    opacity: targetOpacity,
     width: arrow.width,
   });
 
@@ -36,14 +37,14 @@ export const renderArrow: BrowserCanvasObjectRenderer<Arrow> = ({
       ctx,
       path: arrowheadPath,
       color: arrow.color,
-      opacity: arrow.opacity * opacity,
+      opacity: targetOpacity,
     });
   }
   drawStroke({
     color: arrow.color,
     ctx,
     path: arrowheadPath,
-    opacity: arrow.opacity * opacity,
+    opacity: targetOpacity,
     width: arrow.width,
   });
 
@@ -59,14 +60,14 @@ export const renderArrow: BrowserCanvasObjectRenderer<Arrow> = ({
         ctx,
         path: doubledArrowheadPath,
         color: arrow.color,
-        opacity: arrow.opacity * opacity,
+        opacity: targetOpacity,
       });
     }
     drawStroke({
       color: arrow.color,
       ctx,
       path: doubledArrowheadPath,
-      opacity: arrow.opacity * opacity,
+      opacity: targetOpacity,
       width: arrow.width,
     });
   }

@@ -7,11 +7,11 @@
   "exports": {
     ".": {
       "require": "./dist/presenter.js",
-      "types": "./dist/src/index.d.ts"
+      "types": "./dist/index.d.ts"
     },
     "./export": {
       "require": "./dist/export.js",
-      "types": "./dist/src/export/index.d.ts"
+      "types": "./dist/export/index.d.ts"
     }
   },
   "files": [
@@ -38,7 +38,9 @@
     "@types/flubber": "^0.4.0",
     "d3-ease": "^3.0.1",
     "flubber": "^0.4.2",
-    "skia-canvas": "^3.0.8"
+    "pptxgenjs": "^4.0.1",
+    "skia-canvas": "^3.0.8",
+    "svg-path-properties": "^2.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",

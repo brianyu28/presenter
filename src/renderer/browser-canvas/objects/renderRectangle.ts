@@ -10,13 +10,18 @@ export const renderRectangle: BrowserCanvasObjectRenderer<Rectangle> = ({
   opacity,
   createPath2D,
 }) => {
+  const targetOpacity = rectangle.opacity * opacity;
+  if (targetOpacity === 0 || (rectangle.drawn === 0 && rectangle.fill.alpha === 0)) {
+    return;
+  }
+
   const { path, length } = getRectanglePath(rectangle, createPath2D);
 
   fillPath({
     ctx,
     path,
     color: rectangle.fill,
-    opacity: rectangle.opacity * opacity,
+    opacity: targetOpacity,
   });
 
   drawStroke({
@@ -25,7 +30,7 @@ export const renderRectangle: BrowserCanvasObjectRenderer<Rectangle> = ({
     drawn: rectangle.drawn,
     path,
     pathLength: length,
-    opacity: rectangle.opacity * opacity,
+    opacity: targetOpacity,
     width: rectangle.borderWidth,
   });
 };

@@ -1,3 +1,5 @@
+import { svgPathProperties } from "svg-path-properties";
+
 import { Anchor, DEFAULT_ANCHOR } from "../types/Anchor";
 import { Color, DEFAULT_COLOR } from "../types/Color";
 import { ObjectType } from "../types/ObjectType";
@@ -23,10 +25,8 @@ export function Path(props: Partial<Path> | null = null): Path {
   const { path, ...rest } = props ?? {};
   const pathDescription = path ?? "M 0 0 L 100 100";
 
-  // Compute path length
-  const pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  pathElement.setAttribute("d", pathDescription);
-  const pathLength = pathElement.getTotalLength();
+  const pathProperties = new svgPathProperties(pathDescription);
+  const pathLength = pathProperties.getTotalLength();
 
   return SlideObject({
     objectType: ObjectType.PATH,

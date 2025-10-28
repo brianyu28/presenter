@@ -9,6 +9,11 @@ export const renderLine: BrowserCanvasObjectRenderer<Line> = ({
   opacity,
   createPath2D,
 }) => {
+  const targetOpacity = line.opacity * opacity;
+  if (targetOpacity === 0 || line.drawn === 0) {
+    return;
+  }
+
   const { path, length } = getLinePath(line, createPath2D);
 
   drawStroke({
@@ -18,7 +23,7 @@ export const renderLine: BrowserCanvasObjectRenderer<Line> = ({
     isDrawnFromCenter: line.isDrawnFromCenter,
     path,
     pathLength: length,
-    opacity: line.opacity * opacity,
+    opacity: targetOpacity,
     width: line.width,
   });
 };

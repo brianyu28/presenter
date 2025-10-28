@@ -10,13 +10,18 @@ export const renderCircle: BrowserCanvasObjectRenderer<Circle> = ({
   opacity,
   createPath2D,
 }) => {
+  const targetOpacity = circle.opacity * opacity;
+  if (targetOpacity === 0 || (circle.drawn === 0 && circle.fill.alpha === 0)) {
+    return;
+  }
+
   const { path, length } = getCirclePath(circle, createPath2D);
 
   fillPath({
     ctx,
     path,
     color: circle.fill,
-    opacity: circle.opacity * opacity,
+    opacity: targetOpacity,
   });
 
   drawStroke({
@@ -25,7 +30,7 @@ export const renderCircle: BrowserCanvasObjectRenderer<Circle> = ({
     drawn: circle.drawn,
     path,
     pathLength: length,
-    opacity: circle.opacity * opacity,
+    opacity: targetOpacity,
     width: circle.borderWidth,
   });
 };

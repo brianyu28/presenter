@@ -12,6 +12,11 @@ import { getTextUnitMeasurements } from "../utils/text/getTextUnitMeasurements";
 import { setContextWithTextStyle } from "../utils/text/setContextWithTextStyle";
 
 export const renderText: BrowserCanvasObjectRenderer<Text> = ({ ctx, object: text, opacity }) => {
+  const targetOpacity = text.opacity * opacity;
+  if (targetOpacity === 0) {
+    return;
+  }
+
   const { length } = text;
   const textUnits = getTextUnitsFromTextContent(text.text);
   const style = getTextStyleFromText(text);
@@ -56,7 +61,7 @@ export const renderText: BrowserCanvasObjectRenderer<Text> = ({ ctx, object: tex
 
     for (let unitIndex = 0; unitIndex < line.length; unitIndex++) {
       if (length !== null && consumedLength >= length) {
-        // break;
+        break;
       }
 
       const unit = line[unitIndex];
@@ -74,12 +79,11 @@ export const renderText: BrowserCanvasObjectRenderer<Text> = ({ ctx, object: tex
         const remainingLength = length - consumedLength;
         truncatedUnitText = unitText.slice(0, remainingLength);
       }
-
       const targetUnitText = truncatedUnitText ?? unitText;
       consumedLength += targetUnitText.length;
 
       const combinedStyle: TextStyle = { ...style, ...unitStyle };
-      setContextWithTextStyle(ctx, combinedStyle, text.opacity * opacity);
+      setContextWithTextStyle(ctx, combinedStyle, targetOpacity);
       ctx.context.fillText(targetUnitText, x, y);
       x += unitSize.width;
     }

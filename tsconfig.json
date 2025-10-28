@@ -13,5 +13,12 @@
     "strictNullChecks": true,
     "target": "es5"
   },
-  "exclude": ["./examples", "./packages", "./dist", "./webpack.config.js"]
+  "exclude": [
+    "./examples",
+    "./packages",
+    "./dist",
+    "./eslint.config.mts",
+    "./jest.config.js",
+    "./webpack.config.js"
+  ]
 }
