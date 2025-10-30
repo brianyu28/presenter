@@ -12,12 +12,10 @@ export interface Color {
   alpha: number;
 }
 
-type HexColor = `#${string}`;
-
-export function Color(color: Partial<Color> | HexColor): Color;
+export function Color(color: Partial<Color> | string): Color;
 export function Color(red: number, green: number, blue: number, alpha?: number): Color;
 export function Color(
-  color: Partial<Color> | HexColor | number,
+  color: Partial<Color> | string | number,
   green: number = 0,
   blue: number = 0,
   alpha: number = 1,

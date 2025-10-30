@@ -40,7 +40,10 @@ export const renderText: BrowserCanvasObjectRenderer<Text> = ({ ctx, object: tex
     }
 
     const lineWidth = lineSizes.reduce((acc, curr) => acc + curr.width, 0);
-    const lineHeight = lineSizes.reduce((acc, curr) => Math.max(acc, curr.height), 0);
+    const lineHeight =
+      lineSizes.length === 0
+        ? previousLineHeight
+        : lineSizes.reduce((acc, curr) => Math.max(acc, curr.height), 0);
 
     switch (text.alignment) {
       case Alignment.LEFT:
