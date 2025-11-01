@@ -2,11 +2,10 @@ import * as path from "path";
 import { createDirectory, input, print, writeTemplateFile } from "./cli";
 
 import packageTemplate from "./templates/typescript/package.json?source";
-import tsConfigTemplate from "./templates/typescript/tsconfig.json?source";
-import webpackConfigTemplate from "./templates/typescript/webpack.config.js?source";
 import htmlTemplate from "./templates/typescript/public/index.html?source";
 import srcTemplate from "./templates/typescript/src/index.ts.template?source";
-import customDTsTemplate from "./templates/typescript/src/custom.d.ts.template?source";
+import tsConfigTemplate from "./templates/typescript/tsconfig.json?source";
+import webpackConfigTemplate from "./templates/typescript/webpack.config.js?source";
 
 async function main() {
   try {
@@ -36,11 +35,6 @@ async function main() {
     );
     await writeTemplateFile(path.join(cwd, projectName, "public", "index.html"), htmlTemplate, {});
     await writeTemplateFile(path.join(cwd, projectName, "src", "index.ts"), srcTemplate, {});
-    await writeTemplateFile(
-      path.join(cwd, projectName, "src", "custom.d.ts"),
-      customDTsTemplate,
-      {},
-    );
 
     print("Installing dependencies...");
     await require("child_process").execSync(`cd ${projectName} && npm install`, {

@@ -1,19 +1,24 @@
-import { Presentation, Slide, Text } from "presenter";
+import { Anchor, BrowserCanvasRenderer, Presentation, Slide, Text } from "presenter";
 
-const slide = new Slide([
-  new Text("Welcome to Presenter.js!", {
-    position: { x: 0.5, y: 0.5 },
-    anchor: "center",
-    fontSize: 150,
-  }),
-]);
+const presentationSize = { width: 3840, height: 2160 };
+
+const text = Text("Welcome to Presenter.js!", {
+  x: presentationSize.width / 2,
+  y: presentationSize.height / 2,
+  anchor: Anchor.CENTER,
+  fontSize: 150,
+});
+
+const slide = Slide({
+  objects: [text],
+});
 
 document.addEventListener("DOMContentLoaded", () => {
-  const presentation = new Presentation(
-    "Presentation",
-    [slide],
-    document.body,
-  );
+  const presentation = Presentation({
+    size: presentationSize,
+    slides: [slide],
+  });
 
-  presentation.present();
+  const renderer = new BrowserCanvasRenderer({ presentation });
+  renderer.present();
 });
