@@ -1,9 +1,11 @@
 import { SlideAnimation } from "./SlideAnimation";
 import { SlideObject } from "./SlideObject";
+import { SlideWebExtra } from "./SlideWebExtra";
 
 export interface Slide {
   readonly objects: SlideObject[];
   readonly animations: SlideAnimation[];
+  readonly extras: SlideWebExtra[];
 
   readonly isAllKey: boolean;
   readonly isEndKey: boolean;
@@ -16,6 +18,7 @@ export function Slide(props: Partial<Slide> | null = null): Slide {
   return {
     objects: [],
     animations: [],
+    extras: [],
     isAllKey: false,
     isEndKey: true,
     isStartKey: false,

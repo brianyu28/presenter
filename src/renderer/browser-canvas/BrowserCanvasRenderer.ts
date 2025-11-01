@@ -18,6 +18,8 @@ import { clearCanvas } from "./utils/clearCanvas";
 import { createCanvasElement } from "./utils/createCanvasElement";
 import { createPath2D } from "./utils/createPath2D";
 import { DEFAULT_OBJECT_RENDERERS } from "./utils/defaultObjectRenderers";
+import { createExtrasElement } from "./utils/extras/createExtrasElement";
+import { mountWebExtra } from "./utils/extras/mountWebExtra";
 import { loadPresentationImages } from "./utils/loadPresentationImages";
 
 export class BrowserCanvasRenderer {
@@ -43,10 +45,13 @@ export class BrowserCanvasRenderer {
   async present(): Promise<void> {
     const { presentation, element } = this.props;
     const canvas = createCanvasElement(presentation.size);
+    const extrasContainer = createExtrasElement(presentation.size);
+
     this.state = {
       ...BROWSER_CANVAS_RENDERER_DEFAULT_STATE,
       imageById: await loadPresentationImages(presentation.resources.images),
       canvas,
+      extrasContainer,
     };
 
     const container = createPresentationContainer(presentation, element);
@@ -72,6 +77,7 @@ export class BrowserCanvasRenderer {
 
     element.replaceChildren();
     container.appendChild(canvas);
+    container.appendChild(extrasContainer);
     element.appendChild(container);
 
     const loadedState = loadPresentationState(presentation, this.props.cacheDurationMinutes);
@@ -86,6 +92,7 @@ export class BrowserCanvasRenderer {
     const { objectRenderers, presentation } = this.props;
     const { canvas, imageById } = this.state;
 
+    const didSlideIndexChange = this.state.slideIndex !== slideIndex;
     this.state.slideIndex = slideIndex;
     this.state.buildIndex = buildIndex;
 
@@ -97,6 +104,28 @@ export class BrowserCanvasRenderer {
     const slide = presentation.slides[slideIndex];
     if (slide === undefined || canvas === null) {
       return;
+    }
+
+    // Handle mounting/unmounting web extras when slide index changes.
+    // Also handle it if there are no mounted extras but the slide has extras to mount
+    // (e.g. on a presentation's first slide, where slide index will have stayed 0).
+    if (
+      didSlideIndexChange ||
+      (this.state.mountedExtrasCleanups.length === 0 && slide.extras.length > 0)
+    ) {
+      // Clean up any existing extras
+      for (const cleanup of this.state.mountedExtrasCleanups) {
+        cleanup();
+      }
+      this.state.mountedExtrasCleanups = [];
+
+      // Mount new extras
+      for (const extra of slide.extras) {
+        const cleanup = mountWebExtra(this.state.extrasContainer, extra);
+        if (cleanup !== null) {
+          this.state.mountedExtrasCleanups.push(cleanup);
+        }
+      }
     }
 
     const ctx = canvas.getContext("2d");

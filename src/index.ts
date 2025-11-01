@@ -1,4 +1,6 @@
 export { Grid } from "./constructors/Grid";
+export { IFrame } from "./extras/IFrame";
+export { ScreenCapture } from "./extras/ScreenCapture";
 export { Arrow } from "./objects/Arrow";
 export { Circle } from "./objects/Circle";
 export { Group } from "./objects/Group";
@@ -38,6 +40,7 @@ export { Resources } from "./types/Resources";
 export { Size } from "./types/Size";
 export { Slide } from "./types/Slide";
 export { SlideObject } from "./types/SlideObject";
+export { SlideWebExtra } from "./types/SlideWebExtra";
 export { TextContent } from "./types/TextContent";
 export { TextUnit } from "./types/TextUnit";
 export { Update } from "./types/Update";
