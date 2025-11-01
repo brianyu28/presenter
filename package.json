@@ -35,7 +35,6 @@
   "homepage": "https://github.com/brianyu28/presenter#readme",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "@types/flubber": "^0.4.0",
     "d3-ease": "^3.0.1",
     "flubber": "^0.4.2",
     "pptxgenjs": "^4.0.1",
@@ -45,6 +44,7 @@
   "devDependencies": {
     "@eslint/js": "^9.35.0",
     "@types/d3-ease": "^3.0.2",
+    "@types/flubber": "^0.4.0",
     "@types/jest": "^30.0.0",
     "eslint": "^9.35.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
@@ -52,7 +52,7 @@
     "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "jiti": "^2.5.1",
+    "jiti": "^2.6.1",
     "prettier": "^3.6.2",
     "ts-jest": "^29.4.5",
     "ts-loader": "^9.5.1",
