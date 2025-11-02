@@ -29,6 +29,7 @@ export const renderGroup: BrowserCanvasObjectRenderer<Group> = ({
   // Apply translation and scale transformations
   ctx.context.translate(boundingBox.origin.x, boundingBox.origin.y);
   ctx.context.scale(group.scale, group.scale);
+
   // Apply rotation transformation
   ctx.context.translate(rotateOriginX, rotateOriginY);
   ctx.context.rotate((rotation * Math.PI) / 180);
@@ -38,10 +39,20 @@ export const renderGroup: BrowserCanvasObjectRenderer<Group> = ({
     renderObject(child, opacity * group.opacity);
   }
 
-  // Undo transformations in reverse order
+  // Undo transformations in reverse order, starting with rotation transformation
   ctx.context.translate(rotateOriginX, rotateOriginY);
   ctx.context.rotate((-rotation * Math.PI) / 180);
   ctx.context.translate(-rotateOriginX, -rotateOriginY);
+
+  // Show indicator for rotation origin, to help with developing and debugging rotation
+  if (group.rotateOriginPreviewSize > 0) {
+    ctx.context.fillStyle = "red";
+    ctx.context.beginPath();
+    ctx.context.arc(rotateOriginX, rotateOriginY, group.rotateOriginPreviewSize, 0, 2 * Math.PI);
+    ctx.context.fill();
+  }
+
+  // Undo translation and scale transformations
   ctx.context.scale(1 / group.scale, 1 / group.scale);
   ctx.context.translate(-boundingBox.origin.x, -boundingBox.origin.y);
 };

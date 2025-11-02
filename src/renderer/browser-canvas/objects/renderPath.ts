@@ -26,6 +26,7 @@ export const renderPath: BrowserCanvasObjectRenderer<Path> = ({
 
   ctx.context.save();
   ctx.context.translate(origin.x, origin.y);
+  ctx.context.scale(path.width / path.viewboxWidth, path.height / path.viewboxHeight);
 
   fillPath({
     ctx,

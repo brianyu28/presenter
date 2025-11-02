@@ -17,6 +17,11 @@ export function setupKeyEventListeners(
 ) {
   shortcutState.shortcuts = getPresentationShortcuts(presentation);
 
+  // Show cursor when mouse moves
+  element.addEventListener("mousemove", () => {
+    element.style.cursor = "auto";
+  });
+
   element.addEventListener("keyup", (event) => {
     // Reset command
     if (event.code === "Escape") {

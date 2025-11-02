@@ -7,6 +7,7 @@ export interface Group extends SlideObject {
   readonly anchor: Anchor;
   readonly height: number;
   readonly objects: SlideObject[];
+  readonly rotateOriginPreviewSize: number;
   readonly rotateOriginX: number;
   readonly rotateOriginY: number;
   readonly rotation: number;
@@ -25,6 +26,7 @@ export function Group(
     anchor: DEFAULT_ANCHOR,
     height: 0,
     objects,
+    rotateOriginPreviewSize: 0,
     rotateOriginX: 0,
     rotateOriginY: 0,
     rotation: 0,

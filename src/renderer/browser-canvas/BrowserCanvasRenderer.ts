@@ -176,6 +176,8 @@ export class BrowserCanvasRenderer {
     const { presentation } = this.props;
     const { currentAnimationId, slideIndex, buildIndex } = this.state;
 
+    this.props.element.style.cursor = "none";
+
     if (currentAnimationId !== null) {
       cancelAnimationFrame(currentAnimationId);
     }
@@ -210,6 +212,8 @@ export class BrowserCanvasRenderer {
 
   previous(skipIntermediateBuilds: boolean = false) {
     const { currentAnimationId, slideIndex, buildIndex } = this.state;
+
+    this.props.element.style.cursor = "none";
 
     if (currentAnimationId !== null) {
       cancelAnimationFrame(currentAnimationId);

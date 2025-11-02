@@ -21,6 +21,7 @@ export const renderLine: BrowserCanvasObjectRenderer<Line> = ({
     ctx,
     drawn: line.drawn,
     isDrawnFromCenter: line.isDrawnFromCenter,
+    isRounded: line.isRounded,
     path,
     pathLength: length,
     opacity: targetOpacity,

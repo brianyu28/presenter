@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
+    "exactOptionalPropertyTypes": true,
     "declaration": true,
     "module": "es6",
     "moduleResolution": "node",

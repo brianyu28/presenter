@@ -1,8 +1,8 @@
-export { Grid } from "./constructors/Grid";
 export { IFrame } from "./extras/IFrame";
 export { ScreenCapture } from "./extras/ScreenCapture";
 export { Arrow } from "./objects/Arrow";
 export { Circle } from "./objects/Circle";
+export { Grid } from "./objects/Grid";
 export { Group } from "./objects/Group";
 export { Image } from "./objects/Image";
 export { Line } from "./objects/Line";

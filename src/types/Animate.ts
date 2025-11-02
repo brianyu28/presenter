@@ -19,14 +19,12 @@ export interface Animate<T extends SlideObject> extends BaseUnitSlideAnimation {
   readonly interpolators: Interpolator<any>[] | null;
 }
 
-export type AnimationParams<T extends SlideObject> =
-  | number
-  | Partial<Omit<Animate<T>, "object" | "props">>;
+export type AnimationParams<T extends SlideObject> = Partial<Omit<Animate<T>, "object" | "props">>;
 
 export function Animate<T extends SlideObject>(
   object: T,
   props: Partial<Omit<T, "objectType">>,
-  animationParams: AnimationParams<T> = {},
+  animationParams: AnimationParams<T> | number = {},
 ): Animate<T> {
   return {
     type: AnimationType.ANIMATE,

@@ -16,13 +16,15 @@ export interface Path extends SlideObject {
   readonly path: string;
   readonly pathLength: number;
   readonly strokeWidth: number;
+  readonly viewboxHeight: number;
+  readonly viewboxWidth: number;
   readonly width: number;
   readonly x: number;
   readonly y: number;
 }
 
 export function Path(props: Partial<Path> | null = null): Path {
-  const { path, ...rest } = props ?? {};
+  const { path, height = 100, width = 100, viewboxHeight, viewboxWidth, ...rest } = props ?? {};
   const pathDescription = path ?? "M 0 0 L 100 100";
 
   const pathProperties = new svgPathProperties(pathDescription);
@@ -34,11 +36,13 @@ export function Path(props: Partial<Path> | null = null): Path {
     color: DEFAULT_COLOR,
     drawn: 1,
     fill: Transparent(),
-    height: 100,
+    height,
     path: pathDescription,
     pathLength,
     strokeWidth: 4,
-    width: 100,
+    viewboxHeight: viewboxHeight ?? height,
+    viewboxWidth: viewboxWidth ?? width,
+    width,
     x: 0,
     y: 0,
     ...rest,

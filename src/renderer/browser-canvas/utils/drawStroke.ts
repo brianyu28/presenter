@@ -9,6 +9,7 @@ interface Args {
   readonly ctx: UnifiedCanvasContext;
   readonly drawn?: number | null;
   readonly isDrawnFromCenter?: boolean;
+  readonly isRounded?: boolean;
   readonly opacity?: number | null;
   readonly path: UnifiedPath2D | undefined;
   readonly pathLength?: number | null;
@@ -20,6 +21,7 @@ export function drawStroke({
   color,
   drawn = null,
   isDrawnFromCenter = false,
+  isRounded = false,
   opacity = null,
   path,
   pathLength = null,
@@ -47,6 +49,7 @@ export function drawStroke({
 
   ctx.context.lineWidth = width;
   ctx.context.strokeStyle = getHexStringForColor(color, opacity);
+  ctx.context.lineCap = isRounded ? "round" : "butt";
 
   if (path === undefined) {
     ctx.context.stroke();

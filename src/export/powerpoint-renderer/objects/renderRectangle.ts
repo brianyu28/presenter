@@ -43,7 +43,7 @@ export const renderRectangle: PowerPointObjectRenderer<Rectangle> = ({
                 pixelsPerInch,
               ),
             }
-          : undefined,
+          : {},
       rectRadius:
         rectangle.rounding > 0 ? (transform.scale * rectangle.rounding) / rectangle.height : 0,
     },

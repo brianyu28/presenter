@@ -38,6 +38,6 @@ export const renderCircle: PowerPointObjectRenderer<Circle> = ({
             ...getPptxFillColor(circle.borderColor, targetOpacity),
             width: getPptxPixelsFromPixels(transform.scale * circle.borderWidth, pixelsPerInch),
           }
-        : undefined,
+        : {},
   });
 };

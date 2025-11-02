@@ -1,6 +1,6 @@
-import { Group } from "../objects/Group";
 import { Anchor, DEFAULT_ANCHOR } from "../types/Anchor";
 import { SlideObject } from "../types/SlideObject";
+import { Group } from "./Group";
 
 export interface GridProps {
   readonly anchor: Anchor;

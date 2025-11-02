@@ -9,6 +9,7 @@ export interface Line extends SlideObject {
   readonly endX: number;
   readonly endY: number;
   readonly isDrawnFromCenter: boolean;
+  readonly isRounded: boolean;
   readonly startX: number;
   readonly startY: number;
   readonly width: number;
@@ -22,6 +23,7 @@ export function Line(props: Partial<Line> | null = null): Line {
     endX: 100,
     endY: 100,
     isDrawnFromCenter: false,
+    isRounded: false,
     startX: 0,
     startY: 0,
     width: 10,
