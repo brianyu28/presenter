@@ -32,15 +32,16 @@ export function drawStroke({
   }
 
   if (drawn !== null && pathLength !== null && drawn !== 1) {
+    const fullPathLength = pathLength + (isRounded ? width : 0);
     const drawnLength = pathLength * drawn;
     if (!isDrawnFromCenter) {
-      ctx.context.setLineDash([drawnLength, pathLength - drawnLength]);
+      ctx.context.setLineDash([drawnLength, fullPathLength - drawnLength]);
     } else {
       ctx.context.setLineDash([
         0,
-        (pathLength - drawnLength) / 2,
+        (fullPathLength - drawnLength) / 2,
         drawnLength,
-        (pathLength - drawnLength) / 2,
+        (fullPathLength - drawnLength) / 2,
       ]);
     }
   } else {

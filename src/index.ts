@@ -1,3 +1,7 @@
+export { FadeIn } from "./animations/FadeIn";
+export { FadeOut } from "./animations/FadeOut";
+export { Hide } from "./animations/Hide";
+export { Show } from "./animations/Show";
 export { IFrame } from "./extras/IFrame";
 export { ScreenCapture } from "./extras/ScreenCapture";
 export { Arrow } from "./objects/Arrow";
@@ -39,6 +43,7 @@ export { Presentation } from "./types/Presentation";
 export { Resources } from "./types/Resources";
 export { Size } from "./types/Size";
 export { Slide } from "./types/Slide";
+export { SlideAnimation, UnitSlideAnimation } from "./types/SlideAnimation";
 export { SlideObject } from "./types/SlideObject";
 export { SlideWebExtra } from "./types/SlideWebExtra";
 export { TextContent } from "./types/TextContent";

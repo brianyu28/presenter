@@ -40,7 +40,10 @@ export function updateObjectStateWithAnimation(
         }
 
         const timeIntoAnimation = buildTime !== null ? buildTime - elapsedTime : null;
-        const proportion = timeIntoAnimation !== null ? timeIntoAnimation / animation.duration : 1;
+        const proportion = Math.min(
+          timeIntoAnimation !== null ? timeIntoAnimation / animation.duration : 1,
+          1,
+        );
 
         objectState.set(animation.object, {
           ...currentObject,
