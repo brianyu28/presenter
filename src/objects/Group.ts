@@ -1,4 +1,5 @@
 import { Anchor, DEFAULT_ANCHOR } from "../types/Anchor";
+import { Color } from "../types/Color";
 import { ObjectType } from "../types/ObjectType";
 import { SlideObject } from "../types/SlideObject";
 
@@ -11,6 +12,7 @@ export interface Group extends SlideObject {
   readonly rotateOriginX: number;
   readonly rotateOriginY: number;
   readonly rotation: number;
+  readonly previewColor: Color | null;
   readonly scale: number;
   readonly width: number;
   readonly x: number;
@@ -26,6 +28,7 @@ export function Group(
     anchor: DEFAULT_ANCHOR,
     height: 0,
     objects,
+    previewColor: null,
     rotateOriginPreviewSize: 0,
     rotateOriginX: 0,
     rotateOriginY: 0,

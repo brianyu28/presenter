@@ -1,6 +1,7 @@
 import { Group } from "../../../objects/Group";
 import { Position } from "../../../types/Position";
 import { Size } from "../../../types/Size";
+import { getHexStringForColor } from "../../../utils/color/getHexStringForColor";
 import { getBoundingBox } from "../../../utils/layout/getBoundingBox";
 import { BrowserCanvasObjectRenderer } from "../types/BrowserCanvasObjectRenderer";
 
@@ -37,6 +38,12 @@ export const renderGroup: BrowserCanvasObjectRenderer<Group> = ({
 
   for (const child of group.objects) {
     renderObject(child, opacity * group.opacity);
+  }
+
+  // If there's a preview color, render it to help with debugging group size/position
+  if (group.previewColor !== null) {
+    ctx.context.fillStyle = getHexStringForColor(group.previewColor);
+    ctx.context.fillRect(0, 0, group.width, group.height);
   }
 
   // Undo transformations in reverse order, starting with rotation transformation
