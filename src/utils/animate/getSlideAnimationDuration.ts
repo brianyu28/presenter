@@ -13,9 +13,9 @@ export function getSlideAnimationDuration(slideAnimation: SlideAnimation): numbe
         startTime += animation.duration;
         break;
       case AnimationType.ANIMATE:
-        duration = Math.max(duration, startTime + animation.duration);
+        duration = Math.max(duration, startTime + animation.delay + animation.duration);
         if (animation.block) {
-          startTime += animation.duration;
+          startTime += animation.delay + animation.duration;
         }
         break;
       case AnimationType.UPDATE:

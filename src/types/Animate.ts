@@ -9,6 +9,7 @@ export interface Animate<T extends SlideObject> extends BaseUnitSlideAnimation {
   readonly type: typeof AnimationType.ANIMATE;
   readonly object: T;
   readonly props: Partial<Omit<T, "objectType">>;
+  readonly delay: number;
   readonly duration: number;
   readonly easing: EasingFunction;
 
@@ -30,6 +31,7 @@ export function Animate<T extends SlideObject>(
     type: AnimationType.ANIMATE,
     object,
     props,
+    delay: 0,
     duration: 1000,
     easing: DEFAULT_EASING,
     block: false,

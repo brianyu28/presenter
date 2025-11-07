@@ -39,6 +39,7 @@ export const renderPath: BrowserCanvasObjectRenderer<Path> = ({
     color: path.color,
     ctx,
     drawn: path.drawn,
+    isRounded: path.isRounded,
     path: path2D,
     pathLength: path.pathLength,
     opacity: targetOpacity,

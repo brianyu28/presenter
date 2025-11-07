@@ -13,6 +13,7 @@ export interface Path extends SlideObject {
   readonly drawn: number;
   readonly fill: Color;
   readonly height: number;
+  readonly isRounded: boolean;
   readonly path: string;
   readonly pathLength: number;
   readonly strokeWidth: number;
@@ -36,6 +37,7 @@ export function Path(props: Partial<Path> | null = null): Path {
     color: DEFAULT_COLOR,
     drawn: 1,
     fill: Transparent(),
+    isRounded: false,
     height,
     path: pathDescription,
     pathLength,

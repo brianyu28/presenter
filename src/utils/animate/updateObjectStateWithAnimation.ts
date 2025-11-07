@@ -40,9 +40,14 @@ export function updateObjectStateWithAnimation(
         }
 
         const timeIntoAnimation = buildTime !== null ? buildTime - elapsedTime : null;
-        const proportion = Math.min(
-          timeIntoAnimation !== null ? timeIntoAnimation / animation.duration : 1,
-          1,
+        const proportion = Math.max(
+          Math.min(
+            timeIntoAnimation !== null
+              ? (timeIntoAnimation - animation.delay) / animation.duration
+              : 1,
+            1,
+          ),
+          0,
         );
 
         objectState.set(animation.object, {
@@ -56,7 +61,7 @@ export function updateObjectStateWithAnimation(
         });
 
         if (animation.block) {
-          elapsedTime += animation.duration;
+          elapsedTime += animation.delay + animation.duration;
         }
         break;
       }
