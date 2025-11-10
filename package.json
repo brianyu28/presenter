@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/brianyu28/presenter#readme",
   "license": "GPL-3.0-or-later",
+  "sideEffects": false,
   "dependencies": {
     "d3-ease": "^3.0.1",
     "flubber": "^0.4.2",
