@@ -20,6 +20,7 @@
     "./dist",
     "./eslint.config.mts",
     "./jest.config.js",
-    "./webpack.config.js"
+    "./vite.config.ts",
+    "./vite.config.export.ts"
   ]
 }

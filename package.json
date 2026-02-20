@@ -1,25 +1,27 @@
 {
   "name": "presenter",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "A JavaScript presentation library",
   "main": "dist/presenter.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/presenter.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/presenter.mjs",
+      "require": "./dist/presenter.js"
     },
     "./export": {
-      "require": "./dist/export.js",
-      "types": "./dist/export/index.d.ts"
+      "types": "./dist/export/index.d.ts",
+      "import": "./dist/export.mjs",
+      "require": "./dist/export.js"
     }
   },
   "files": [
     "./dist/"
   ],
   "scripts": {
-    "build": "NODE_ENV=production webpack",
-    "watch": "NODE_ENV=development webpack --watch",
+    "build": "vite build && vite build --config vite.config.export.ts",
+    "watch": "vite build --watch",
     "prettier": "prettier . --write --ignore-unknown",
     "prepare": "husky",
     "test": "jest"
@@ -47,6 +49,7 @@
     "@types/d3-ease": "^3.0.2",
     "@types/flubber": "^0.4.0",
     "@types/jest": "^30.0.0",
+    "ajv": "^8.18.0",
     "eslint": "^9.35.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "globals": "^16.3.0",
@@ -56,11 +59,10 @@
     "jiti": "^2.6.1",
     "prettier": "^3.6.2",
     "ts-jest": "^29.4.5",
-    "ts-loader": "^9.5.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.43.0",
-    "webpack": "^5.96.1",
-    "webpack-cli": "^6.0.1"
+    "vite": "^6.1.0",
+    "vite-plugin-dts": "^4.5.4"
   },
   "lint-staged": {
     "**/*": [

@@ -16,7 +16,7 @@ export { Polygon } from "./objects/Polygon";
 export { Rectangle } from "./objects/Rectangle";
 export { Text } from "./objects/Text";
 export { BrowserCanvasRenderer } from "./renderer/browser-canvas/BrowserCanvasRenderer";
-export { BrowserCanvasRendererProps } from "./renderer/browser-canvas/types/BrowserCanvasRendererProps";
+export type { BrowserCanvasRendererProps } from "./renderer/browser-canvas/types/BrowserCanvasRendererProps";
 export {
   type BrowserCanvasContext,
   type NodeCanvasContext,
@@ -29,24 +29,24 @@ export {
 } from "./renderer/browser-canvas/types/UnifiedPath2D";
 export { Alignment } from "./types/Alignment";
 export { Anchor } from "./types/Anchor";
-export { Animate, AnimationParams } from "./types/Animate";
+export { Animate, type AnimationParams } from "./types/Animate";
 export { Color } from "./types/Color";
 export { Easing } from "./types/Easing";
-export { EasingFunction } from "./types/EasingFunction";
+export type { EasingFunction } from "./types/EasingFunction";
 export { FontStyle } from "./types/FontStyle";
 export { FontWeight } from "./types/FontWeight";
-export { Interpolator } from "./types/Interpolator";
+export type { Interpolator } from "./types/Interpolator";
 export { ObjectType } from "./types/ObjectType";
 export { Pause } from "./types/Pause";
 export { Position } from "./types/Position";
 export { Presentation } from "./types/Presentation";
-export { Resources } from "./types/Resources";
+export type { Resources } from "./types/Resources";
 export { Size } from "./types/Size";
 export { Slide } from "./types/Slide";
-export { SlideAnimation, UnitSlideAnimation } from "./types/SlideAnimation";
+export type { SlideAnimation, UnitSlideAnimation } from "./types/SlideAnimation";
 export { SlideObject } from "./types/SlideObject";
 export { SlideWebExtra } from "./types/SlideWebExtra";
-export { TextContent } from "./types/TextContent";
+export type { TextContent } from "./types/TextContent";
 export { TextUnit } from "./types/TextUnit";
 export { Update } from "./types/Update";
 export { Opaque } from "./utils/color/Opaque";

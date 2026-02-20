@@ -1,10 +1,10 @@
 {
   "name": "create-presenter",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "Create a Presenter.js presentation",
   "main": "dist/index.js",
   "scripts": {
-    "build": "NODE_ENV=production webpack",
+    "build": "vite build",
     "start": "node dist/index.js",
     "dev": "NODE_ENV=production webpack && node dist/index.js"
   },
@@ -26,9 +26,7 @@
   },
   "homepage": "https://github.com/brianyu28/presenter#readme",
   "devDependencies": {
-    "ts-loader": "^9.5.1",
     "typescript": "^5.7.2",
-    "webpack": "^5.97.1",
-    "webpack-cli": "^5.1.4"
+    "vite": "^6.1.0"
   }
 }
