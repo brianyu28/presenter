@@ -13,13 +13,16 @@ export default defineConfig({
     sourcemap: false,
     target: "node18",
     rollupOptions: {
-      external: ["skia-canvas", "sharp", "fs", "path"],
+      external: ["skia-canvas", "sharp", "fs", "node:fs", "path", "node:path", "node:https"],
       output: {
         globals: {
           "skia-canvas": "skia-canvas",
           sharp: "sharp",
           fs: "fs",
+          "node:fs": "fs",
           path: "path",
+          "node:path": "path",
+          "node:https": "https",
         },
       },
     },
