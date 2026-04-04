@@ -11,7 +11,7 @@ export default defineConfig({
     },
     outDir: "dist",
     emptyOutDir: false,
-    sourcemap: false,
+    sourcemap: true,
   },
   plugins: [dts()],
 });

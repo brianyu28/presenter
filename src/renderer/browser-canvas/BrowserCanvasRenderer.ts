@@ -5,6 +5,7 @@ import { getSlideAnimationDuration } from "../../utils/animate/getSlideAnimation
 import { getRgbStringForColor } from "../../utils/color/getRgbStringForColor";
 import { createPresentationContainer } from "../../utils/presentation/createPresentationContainer";
 import { getObjectState } from "../../utils/presentation/getObjectState";
+import { getSvgImageUrlById } from "../../utils/presentation/getSvgImageUrlById";
 import { setupKeyEventListeners } from "../../utils/presentation/setupKeyEventListeners";
 import { loadPresentationState } from "../../utils/storage/loadPresentationState";
 import { storePresentationState } from "../../utils/storage/storePresentationState";
@@ -49,7 +50,10 @@ export class BrowserCanvasRenderer {
 
     this.state = {
       ...BROWSER_CANVAS_RENDERER_DEFAULT_STATE,
-      imageById: await loadPresentationImages(presentation.resources.images),
+      imageById: await loadPresentationImages({
+        ...presentation.resources.images,
+        ...getSvgImageUrlById(presentation),
+      }),
       canvas,
       extrasContainer,
     };

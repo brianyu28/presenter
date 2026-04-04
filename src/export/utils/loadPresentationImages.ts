@@ -15,6 +15,16 @@ export async function loadPresentationImages(
   const imageById: Record<string, UnifiedImage> = {};
 
   const loadImage = (src: string): Promise<Image> => {
+    const isSVG = src.includes("</svg>");
+    if (isSVG) {
+      return new Promise((resolve) => {
+        const sanitized = src.replace(/<\?xml[^?]*\?>\s*/g, "");
+        const img = new Image();
+        img.src = Buffer.from(sanitized);
+        resolve(img);
+      });
+    }
+
     return new Promise((resolve, reject) => {
       readFile(path.join(pathPrefix, src), (err, data) => {
         if (err) {

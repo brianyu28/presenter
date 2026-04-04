@@ -14,6 +14,7 @@ export { Mask } from "./objects/Mask";
 export { Path } from "./objects/Path";
 export { Polygon } from "./objects/Polygon";
 export { Rectangle } from "./objects/Rectangle";
+export { SVG } from "./objects/SVG";
 export { Text } from "./objects/Text";
 export { BrowserCanvasRenderer } from "./renderer/browser-canvas/BrowserCanvasRenderer";
 export type { BrowserCanvasRendererProps } from "./renderer/browser-canvas/types/BrowserCanvasRendererProps";

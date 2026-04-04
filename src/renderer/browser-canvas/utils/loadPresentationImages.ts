@@ -15,9 +15,13 @@ export async function loadPresentationImages(
       img.onload = () => resolve(img);
       img.onerror = (err) => reject(err);
 
-      const isSVG = src.includes("</svg>");
-      if (isSVG) {
-        const svgBlob = new Blob([src], { type: "image/svg+xml;charset=utf-8" });
+      // Handle SVGs that aren't already in URL form
+      const isRawSVG = src.includes("</svg>");
+      if (isRawSVG) {
+        // Remove XML header tag, can cause parsing to fail and isn't necessary for SVG rendering
+        const sanitized = src.replace(/<\?xml[^?]*\?>\s*/g, "");
+
+        const svgBlob = new Blob([sanitized], { type: "image/svg+xml;charset=utf-8" });
         const url = URL.createObjectURL(svgBlob);
         img.src = url;
       } else {
@@ -34,6 +38,11 @@ export async function loadPresentationImages(
     };
   });
 
-  await Promise.all(loadPromises);
+  try {
+    await Promise.all(loadPromises);
+  } catch (error) {
+    console.error("Error loading images:", error);
+  }
+
   return imageById;
 }

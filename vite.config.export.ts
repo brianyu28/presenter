@@ -10,7 +10,7 @@ export default defineConfig({
     },
     outDir: "dist",
     emptyOutDir: false,
-    sourcemap: false,
+    sourcemap: true,
     target: "node18",
     rollupOptions: {
       external: ["skia-canvas", "sharp", "fs", "node:fs", "path", "node:path", "node:https"],

@@ -9,6 +9,7 @@ import { renderMask } from "../objects/renderMask";
 import { renderPath } from "../objects/renderPath";
 import { renderPolygon } from "../objects/renderPolygon";
 import { renderRectangle } from "../objects/renderRectangle";
+import { renderSvg } from "../objects/renderSvg";
 import { renderText } from "../objects/renderText";
 import { BrowserCanvasObjectRenderer } from "../types/BrowserCanvasObjectRenderer";
 
@@ -27,5 +28,6 @@ export const DEFAULT_OBJECT_RENDERERS: ObjectRendererMap = {
   [ObjectType.POLYGON]: renderPolygon,
   [ObjectType.RECTANGLE]: renderRectangle,
   [ObjectType.SLIDE_OBJECT]: () => {},
+  [ObjectType.SVG]: renderSvg,
   [ObjectType.TEXT]: renderText,
 };

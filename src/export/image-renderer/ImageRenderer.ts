@@ -10,6 +10,7 @@ import { SlideObject } from "../../types/SlideObject";
 import { getSlideAnimationDuration } from "../../utils/animate/getSlideAnimationDuration";
 import { getRgbStringForColor } from "../../utils/color/getRgbStringForColor";
 import { getObjectState } from "../../utils/presentation/getObjectState";
+import { getSvgImageUrlById } from "../../utils/presentation/getSvgImageUrlById";
 import { getKeySlideBuildIndices } from "../../utils/slide/getKeySlideBuildIndices";
 import { createCanvasElement } from "../utils/createCanvasElement";
 import { createPath2D } from "../utils/createPath2D";
@@ -47,7 +48,7 @@ export class ImageRenderer {
     this.state = {
       ...IMAGE_RENDERER_DEFAULT_STATE,
       imageById: await loadPresentationImages(
-        presentation.resources.images,
+        { ...presentation.resources.images, ...getSvgImageUrlById(presentation) },
         this.props.resourcePathPrefix,
       ),
       directoryName,

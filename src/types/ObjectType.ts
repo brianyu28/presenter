@@ -9,6 +9,7 @@ export const ObjectType = {
   POLYGON: "Polygon",
   RECTANGLE: "Rectangle",
   SLIDE_OBJECT: "SlideObject",
+  SVG: "SVG",
   TEXT: "Text",
 } as const;
 
