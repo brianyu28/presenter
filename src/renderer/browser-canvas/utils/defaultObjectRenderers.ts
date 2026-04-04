@@ -1,5 +1,4 @@
 import { ObjectType } from "../../../types/ObjectType";
-import { SlideObject } from "../../../types/SlideObject";
 import { renderArrow } from "../objects/renderArrow";
 import { renderCircle } from "../objects/renderCircle";
 import { renderGroup } from "../objects/renderGroup";
@@ -13,9 +12,7 @@ import { renderSvg } from "../objects/renderSvg";
 import { renderText } from "../objects/renderText";
 import { BrowserCanvasObjectRenderer } from "../types/BrowserCanvasObjectRenderer";
 
-type ObjectRendererMap = {
-  [T in ObjectType]: BrowserCanvasObjectRenderer<SlideObject & { objectType: T }>;
-};
+type ObjectRendererMap = Record<ObjectType, BrowserCanvasObjectRenderer<any>>;
 
 export const DEFAULT_OBJECT_RENDERERS: ObjectRendererMap = {
   [ObjectType.ARROW]: renderArrow,

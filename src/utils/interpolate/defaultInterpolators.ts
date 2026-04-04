@@ -3,7 +3,7 @@ import { interpolateColor } from "./interpolateColor";
 import { interpolateFallback } from "./interpolateFallback";
 import { interpolateNumber } from "./interpolateNumber";
 
-export const DEFAULT_INTERPOLATORS: Interpolator<unknown>[] = [
+export const DEFAULT_INTERPOLATORS: Interpolator<any>[] = [
   interpolateNumber,
   interpolateColor,
   interpolateFallback,

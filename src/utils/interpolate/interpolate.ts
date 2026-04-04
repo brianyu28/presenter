@@ -6,7 +6,7 @@ export function interpolate<T extends SlideObject>(
   object: T,
   props: Partial<T>,
   proportion: number,
-  customInterpolators: Interpolator<unknown>[] | null = null,
+  customInterpolators: Interpolator<any>[] | null = null,
 ): T {
   if (proportion === 0) {
     return object;

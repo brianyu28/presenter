@@ -12,9 +12,7 @@ import { renderSvg } from "../objects/renderSvg";
 import { renderText } from "../objects/renderText";
 import { PowerPointObjectRenderer } from "../types/PowerPointObjectRenderer";
 
-type ObjectRendererMap = {
-  [T in ObjectType]: PowerPointObjectRenderer<SlideObject & { objectType: T }>;
-};
+type ObjectRendererMap = Record<ObjectType, PowerPointObjectRenderer<any>>;
 
 const notSupported: PowerPointObjectRenderer<SlideObject> = ({ object }) => {
   console.warn("Object type is not supported by PowerPoint renderer", object);

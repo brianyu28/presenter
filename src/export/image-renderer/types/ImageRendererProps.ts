@@ -1,6 +1,5 @@
 import { BrowserCanvasObjectRenderer } from "../../../renderer/browser-canvas/types/BrowserCanvasObjectRenderer";
 import { Presentation } from "../../../types/Presentation";
-import { SlideObject } from "../../../types/SlideObject";
 
 export interface ImageRendererProps {
   readonly presentation: Presentation;
@@ -26,6 +25,6 @@ export interface ImageRendererProps {
   readonly imageFormat: "png" | "jpeg" | "webp" | "svg";
   /** How frequently to log progress frame. */
   readonly logFrequency: number;
-  readonly objectRenderers: Record<string, BrowserCanvasObjectRenderer<SlideObject>>;
+  readonly objectRenderers: Record<string, BrowserCanvasObjectRenderer<any>>;
   readonly resourcePathPrefix: string;
 }

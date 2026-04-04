@@ -4,15 +4,17 @@
     "allowSyntheticDefaultImports": true,
     "exactOptionalPropertyTypes": true,
     "declaration": true,
-    "module": "es6",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "noImplicitAny": true,
     "noUncheckedIndexedAccess": true,
     "outDir": "./dist/",
+    "rootDir": "./src/",
     "sourceMap": true,
     "strictPropertyInitialization": true,
     "strictNullChecks": true,
-    "target": "es5"
+    "target": "es6",
+    "types": ["node", "jest"]
   },
   "exclude": [
     "./examples",
