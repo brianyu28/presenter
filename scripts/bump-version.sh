@@ -34,11 +34,13 @@ echo "  Updated packages/create-presenter/package.json"
 (cd "$REPO_ROOT/packages/create-presenter" && npm install --package-lock-only)
 echo "  Updated package-lock.json in packages/create-presenter"
 
-# Update presenter dependency in all templates
-for template_pkg in "$REPO_ROOT"/packages/create-presenter/src/templates/*/package.json; do
-  tmp=$(mktemp)
-  jq --arg v "^$VERSION" '.dependencies.presenter = $v' "$template_pkg" > "$tmp" && mv "$tmp" "$template_pkg"
-  echo "  Updated $template_pkg"
-done
+# Update presenter dependency in templates
+tmp=$(mktemp)
+jq --arg v "^$VERSION" '.dependencies.presenter = $v' "$REPO_ROOT/packages/create-presenter/src/templates/presentation/package.json" > "$tmp" && mv "$tmp" "$REPO_ROOT/packages/create-presenter/src/templates/presentation/package.json"
+echo "  Updated packages/create-presenter/src/templates/presentation/package.json"
+
+tmp=$(mktemp)
+jq --arg v "^$VERSION" '.peerDependencies.presenter = $v' "$REPO_ROOT/packages/create-presenter/src/templates/lib/package.json" > "$tmp" && mv "$tmp" "$REPO_ROOT/packages/create-presenter/src/templates/lib/package.json"
+echo "  Updated packages/create-presenter/src/templates/lib/package.json"
 
 echo "Done. Version bumped to $VERSION."

@@ -1,12 +1,11 @@
 {
   "name": "create-presenter",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Create a Presenter.js presentation",
   "main": "dist/index.js",
   "scripts": {
     "build": "vite build",
-    "start": "node dist/index.js",
-    "dev": "NODE_ENV=production webpack && node dist/index.js"
+    "create": "node dist/index.js"
   },
   "bin": {
     "create-presenter": "dist/index.js"

@@ -1,0 +1,16 @@
+{
+  "name": "{{ projectName }}",
+  "version": "0.1.0",
+  "description": "A Presenter.js presentation",
+  "scripts": {
+    "serve": "vite",
+    "build": "tsc && vite build"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2",
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "presenter": "^0.7.3"
+  }
+}

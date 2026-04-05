@@ -1,47 +1,72 @@
 import * as path from "path";
-import { createDirectory, input, print, writeTemplateFile } from "./cli";
+import * as fs from "fs";
+import { input, print, writeTemplateFile } from "./cli";
 
-import packageTemplate from "./templates/typescript/package.json?raw";
-import htmlTemplate from "./templates/typescript/index.html?raw";
-import srcTemplate from "./templates/typescript/src/index.ts.template?raw";
-import tsConfigTemplate from "./templates/typescript/tsconfig.json?raw";
-import viteConfigTemplate from "./templates/typescript/vite.config.ts?raw";
+const presentationTemplates = import.meta.glob("./templates/presentation/**/*", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
+
+const libTemplates = import.meta.glob("./templates/lib/**/*", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
+
+async function writeTemplates(
+  templates: Record<string, string>,
+  templateRoot: string,
+  projectDir: string,
+  params: Record<string, string>,
+) {
+  for (const [templatePath, content] of Object.entries(templates)) {
+    const relativePath = templatePath
+      .slice(templateRoot.length + 1);
+    const outputPath = path.join(projectDir, relativePath);
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+    await writeTemplateFile(outputPath, content, params);
+  }
+}
 
 async function main() {
   try {
-    const cwd = process.cwd();
-    print("This utility will help you create a new Presenter.js presentation.\n");
+    const isLib = process.argv.includes("--lib");
+    const typeLabel = isLib ? "library" : "presentation";
 
-    let projectName = (await input("presentation name: (presentation) "))
+    print(`This utility will help you create a new Presenter.js ${typeLabel}.\n`);
+
+    let projectName = (await input(`${typeLabel} name: (${typeLabel}) `))
       .replace(/\s+/g, "-")
       .toLowerCase();
     if (projectName === "") {
-      projectName = "presentation";
+      projectName = typeLabel;
     }
 
-    print(`Creating a new Presenter.js presentation in ${projectName}...`);
-    await createDirectory(projectName);
-    await createDirectory(path.join(projectName, "src"));
+    const cwd = process.cwd();
+    const projectDir = path.join(cwd, projectName);
 
-    await writeTemplateFile(path.join(cwd, projectName, "package.json"), packageTemplate, {
-      projectName,
-    });
-    await writeTemplateFile(path.join(cwd, projectName, "tsconfig.json"), tsConfigTemplate, {});
-    await writeTemplateFile(path.join(cwd, projectName, "vite.config.ts"), viteConfigTemplate, {});
-    await writeTemplateFile(path.join(cwd, projectName, "index.html"), htmlTemplate, {});
-    await writeTemplateFile(path.join(cwd, projectName, "src", "index.ts"), srcTemplate, {});
+    if (fs.existsSync(projectDir)) {
+      throw new Error(`Directory '${projectName}' already exists.`);
+    }
+
+    print(`Creating a new Presenter.js ${typeLabel} in ${projectName}...`);
+
+    const templates = isLib ? libTemplates : presentationTemplates;
+    const templateRoot = isLib ? "./templates/lib" : "./templates/presentation";
+    await writeTemplates(templates, templateRoot, projectDir, { projectName });
 
     print("Installing dependencies...");
-    await require("child_process").execSync(`cd ${projectName} && npm install`, {
+    require("child_process").execSync(`cd ${projectName} && npm install`, {
       stdio: "inherit",
     });
 
     print(
-      `\n\x1b[32mSuccess! Created project "${projectName}" at ${path.join(cwd, projectName)}\x1b[0m`,
+      `\n\x1b[32mSuccess! Created ${typeLabel} "${projectName}" at ${projectDir}\x1b[0m`,
     );
-    print("\nTo run your presentation, run:");
+    print(`\nTo run your ${typeLabel}, run:`);
     print(`\n  $ cd ${projectName}`);
-    print("\n  $ npm run serve");
+    print(isLib ? "\n  $ npm run build" : "\n  $ npm run serve");
     print("\n");
   } catch (error) {
     console.error();
@@ -49,5 +74,4 @@ async function main() {
   }
 }
 
-// Execute the main function
 main();
