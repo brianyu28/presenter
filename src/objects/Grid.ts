@@ -14,6 +14,9 @@ export interface GridProps {
   /** Pixels of vertical space between objects in the grid. */
   readonly gapY: number;
 
+  /** Additional properties to apply to the grid's backing Group. */
+  readonly groupProps: Partial<Group>;
+
   /**
    * Height, in pixels, of each object in the grid.
    *
@@ -50,6 +53,7 @@ export function Grid(props: Partial<GridProps>): Return {
     rows = 1,
     gapX = 0,
     gapY = 0,
+    groupProps = {},
     width = 0,
     height = 0,
     x: originX = 0,
@@ -95,6 +99,7 @@ export function Grid(props: Partial<GridProps>): Return {
     height: y - gapY,
     width: x - gapX,
     anchor,
+    ...groupProps,
   });
 
   return {

@@ -12,8 +12,15 @@ export interface Group extends SlideObject {
   readonly rotateOriginX: number;
   readonly rotateOriginY: number;
   readonly rotation: number;
+  readonly skewOriginPreviewSize: number;
+  readonly skewOriginX: number;
+  readonly skewOriginY: number;
+  readonly skewX: number;
+  readonly skewY: number;
   readonly previewColor: Color | null;
   readonly scale: number;
+  readonly scaleX: number;
+  readonly scaleY: number;
   readonly width: number;
   readonly x: number;
   readonly y: number;
@@ -33,7 +40,14 @@ export function Group(
     rotateOriginX: 0,
     rotateOriginY: 0,
     rotation: 0,
+    skewOriginPreviewSize: 0,
+    skewOriginX: 0,
+    skewOriginY: 0,
+    skewX: 0,
+    skewY: 0,
     scale: 1,
+    scaleX: 1,
+    scaleY: 1,
     width: 0,
     x: 0,
     y: 0,
