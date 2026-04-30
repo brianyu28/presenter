@@ -1,6 +1,6 @@
 {
   "name": "presenter",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "A JavaScript presentation library",
   "main": "dist/presenter.js",
   "types": "dist/index.d.ts",
