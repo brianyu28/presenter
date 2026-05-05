@@ -28,7 +28,7 @@ export class BrowserCanvasRenderer {
   state: BrowserCanvasRendererState;
 
   constructor(props: Partial<BrowserCanvasRendererProps>) {
-    const { objectRenderers, ...rest } = props;
+    const { objectRenderers, scale = 1, ...rest } = props;
     this.props = {
       presentation: Presentation(),
       element: document.body,
@@ -37,6 +37,7 @@ export class BrowserCanvasRenderer {
         ...objectRenderers,
       },
       cacheDurationMinutes: 15,
+      scale: getValidScale(scale),
       ...rest,
     };
     this.state = { ...BROWSER_CANVAS_RENDERER_DEFAULT_STATE };
@@ -44,9 +45,11 @@ export class BrowserCanvasRenderer {
 
   /** Starts the presentation. */
   async present(): Promise<void> {
-    const { presentation, element } = this.props;
+    const { presentation, element, scale } = this.props;
     const canvas = createCanvasElement(presentation.size);
     const extrasContainer = createExtrasElement(presentation.size);
+    extrasContainer.style.transformOrigin = "center center";
+    extrasContainer.style.transform = `scale(${scale})`;
 
     this.state = {
       ...BROWSER_CANVAS_RENDERER_DEFAULT_STATE,
@@ -93,7 +96,7 @@ export class BrowserCanvasRenderer {
   }
 
   renderSlide(slideIndex: number, buildIndex: number = 0, buildTime: number | null = null): void {
-    const { objectRenderers, presentation } = this.props;
+    const { objectRenderers, presentation, scale } = this.props;
     const { canvas, imageById } = this.state;
 
     const didSlideIndexChange = this.state.slideIndex !== slideIndex;
@@ -170,9 +173,23 @@ export class BrowserCanvasRenderer {
       });
     }
 
+    const needsScaleTransformation = scale !== 1;
+    if (needsScaleTransformation) {
+      context.context.save();
+      context.context.translate(
+        (canvas.width * (1 - scale)) / 2,
+        (canvas.height * (1 - scale)) / 2,
+      );
+      context.context.scale(scale, scale);
+    }
+
     // Render all objects in the slide.
     for (const object of slide.objects) {
       renderObject(object, 1.0);
+    }
+
+    if (needsScaleTransformation) {
+      context.context.restore();
     }
   }
 
@@ -238,4 +255,15 @@ export class BrowserCanvasRenderer {
       this.renderSlide(0, 0);
     }
   }
+}
+
+function getValidScale(scale: number): number {
+  if (scale <= 0 || scale > 1) {
+    console.warn(
+      `BrowserCanvasRenderer scale must be positive and no greater than 1. Received ${scale}; using 1 instead.`,
+    );
+    return 1;
+  }
+
+  return scale;
 }

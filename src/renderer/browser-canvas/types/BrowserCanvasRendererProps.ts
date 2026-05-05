@@ -8,4 +8,5 @@ export interface BrowserCanvasRendererProps {
   readonly objectRenderers: Record<string, BrowserCanvasObjectRenderer<SlideObject>>;
 
   readonly cacheDurationMinutes: number;
+  readonly scale: number;
 }

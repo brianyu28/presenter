@@ -22,6 +22,6 @@
     "vite-plugin-dts": "^4.5.0"
   },
   "peerDependencies": {
-    "presenter": "^0.7.4"
+    "presenter": "^0.7.5"
   }
 }
