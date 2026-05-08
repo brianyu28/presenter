@@ -7,7 +7,7 @@ export interface Image extends SlideObject {
   readonly anchor: Anchor;
   readonly height: number;
   readonly imageId: string;
-  readonly rounding: number;
+  readonly cornerRadius: number;
   readonly smooth: boolean;
   readonly width: number;
   readonly x: number;
@@ -18,9 +18,9 @@ export function Image(props: Partial<Image> | null = null): Image {
   return SlideObject({
     objectType: ObjectType.IMAGE,
     anchor: DEFAULT_ANCHOR,
+    cornerRadius: 0,
     height: 100,
     imageId: "",
-    rounding: 0,
     smooth: true,
     width: 100,
     x: 0,

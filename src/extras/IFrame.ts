@@ -6,8 +6,8 @@ import { getHexStringForColor } from "../utils/color/getHexStringForColor";
 export interface IFrame {
   readonly url: string;
   readonly backgroundColor: Color;
-  readonly borderColor: Color;
-  readonly borderWidth: number;
+  readonly strokeColor: Color;
+  readonly strokeWidth: number;
   readonly pointerEvents: string;
   readonly scale: number;
 
@@ -22,8 +22,8 @@ export function IFrame(props: Partial<IFrame> | null = null): SlideWebExtra {
   const {
     url = "https://wikipedia.org/",
     backgroundColor = Color.TRANSPARENT,
-    borderColor = DEFAULT_COLOR,
-    borderWidth = 0,
+    strokeColor = DEFAULT_COLOR,
+    strokeWidth = 0,
     pointerEvents = "auto",
     scale = 1,
     anchor = DEFAULT_ANCHOR,
@@ -37,14 +37,14 @@ export function IFrame(props: Partial<IFrame> | null = null): SlideWebExtra {
   iframe.src = url;
   iframe.style.backgroundColor = getHexStringForColor(backgroundColor);
   iframe.style.border =
-    borderWidth > 0 ? `${borderWidth}px solid ${getHexStringForColor(borderColor)}` : "none";
+    strokeWidth > 0 ? `${strokeWidth}px solid ${getHexStringForColor(strokeColor)}` : "none";
   iframe.style.pointerEvents = pointerEvents;
 
   const scaledSize = (100 / scale).toFixed(3) + "%";
   iframe.style.height =
-    borderWidth === 0 ? scaledSize : `calc(${scaledSize} - ${borderWidth * 2}px)`;
+    strokeWidth === 0 ? scaledSize : `calc(${scaledSize} - ${strokeWidth * 2}px)`;
   iframe.style.width =
-    borderWidth === 0 ? scaledSize : `calc(${scaledSize} - ${borderWidth * 2}px)`;
+    strokeWidth === 0 ? scaledSize : `calc(${scaledSize} - ${strokeWidth * 2}px)`;
   iframe.style.transform = `scale(${scale})`;
   iframe.style.transformOrigin = "top left";
 

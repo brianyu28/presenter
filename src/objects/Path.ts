@@ -9,9 +9,9 @@ import { Transparent } from "../utils/color/Transparent";
 export interface Path extends SlideObject {
   readonly objectType: typeof ObjectType.PATH;
   readonly anchor: Anchor;
-  readonly color: Color;
+  readonly strokeColor: Color;
   readonly drawn: number;
-  readonly fill: Color;
+  readonly fillColor: Color;
   readonly height: number;
   readonly isRounded: boolean;
   readonly path: string;
@@ -34,9 +34,9 @@ export function Path(props: Partial<Path> | null = null): Path {
   return SlideObject({
     objectType: ObjectType.PATH,
     anchor: DEFAULT_ANCHOR,
-    color: DEFAULT_COLOR,
+    strokeColor: DEFAULT_COLOR,
     drawn: 1,
-    fill: Transparent(),
+    fillColor: Transparent(),
     isRounded: false,
     height,
     path: pathDescription,

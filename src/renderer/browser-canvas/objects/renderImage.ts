@@ -29,11 +29,11 @@ export const renderImage: BrowserCanvasObjectRenderer<Image> = ({
 
   ctx.context.save();
 
-  if (image.rounding > 0) {
+  if (image.cornerRadius > 0) {
     const roundedRectPath = getRoundedRectanglePath(
       boundingBox.origin,
       boundingBox.size,
-      image.rounding,
+      image.cornerRadius,
       createPath2D,
     );
 

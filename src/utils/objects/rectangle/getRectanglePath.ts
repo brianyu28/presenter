@@ -16,13 +16,16 @@ export function getRectanglePath(
     Size({ width: rectangle.width, height: rectangle.height }),
   );
 
-  const rounding = Math.max(0, Math.min(rectangle.rounding, Math.min(size.width, size.height) / 2));
+  const cornerRadius = Math.max(
+    0,
+    Math.min(rectangle.cornerRadius, Math.min(size.width, size.height) / 2),
+  );
 
   // Overshoot needed so that when path is drawn, the line caps cover the corners fully
-  const overshoot = Math.min(rectangle.borderWidth * 2, size.width - rounding);
+  const overshoot = Math.min(rectangle.strokeWidth * 2, size.width - cornerRadius);
 
-  if (rounding > 0) {
-    return getRoundedRectanglePath(origin, size, rounding, createPath, overshoot);
+  if (cornerRadius > 0) {
+    return getRoundedRectanglePath(origin, size, cornerRadius, createPath, overshoot);
   } else {
     const path = createPath();
     path.path.moveTo(origin.x, origin.y);

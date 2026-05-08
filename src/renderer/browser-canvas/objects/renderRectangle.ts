@@ -13,32 +13,32 @@ export const renderRectangle: BrowserCanvasObjectRenderer<Rectangle> = ({
   createPath2D,
 }) => {
   const targetOpacity = rectangle.opacity * opacity;
-  if (targetOpacity === 0 || (rectangle.drawn === 0 && rectangle.fill.alpha === 0)) {
+  if (targetOpacity === 0 || (rectangle.drawn === 0 && rectangle.fillColor.alpha === 0)) {
     return;
   }
 
   const { path, length } = getRectanglePath(rectangle, createPath2D);
 
-  if (targetOpacity < 1 && rectangle.borderWidth > 0) {
+  if (targetOpacity < 1 && rectangle.strokeWidth > 0) {
     // Clip fill to an inset path so it doesn't extend under the stroke.
     const insetFillPath = getRectangleInsetFillPath(rectangle, createPath2D);
     if (insetFillPath !== undefined) {
       ctx.context.save();
       clipToPath(ctx, insetFillPath);
-      fillPath({ ctx, path, color: rectangle.fill, opacity: targetOpacity });
+      fillPath({ ctx, path, color: rectangle.fillColor, opacity: targetOpacity });
       ctx.context.restore();
     }
   } else {
-    fillPath({ ctx, path, color: rectangle.fill, opacity: targetOpacity });
+    fillPath({ ctx, path, color: rectangle.fillColor, opacity: targetOpacity });
   }
 
   drawStroke({
-    color: rectangle.borderColor,
+    color: rectangle.strokeColor,
     ctx,
     drawn: rectangle.drawn,
     path,
     pathLength: length,
     opacity: targetOpacity,
-    width: rectangle.borderWidth,
+    width: rectangle.strokeWidth,
   });
 };

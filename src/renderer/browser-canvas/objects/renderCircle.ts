@@ -13,33 +13,33 @@ export const renderCircle: BrowserCanvasObjectRenderer<Circle> = ({
   createPath2D,
 }) => {
   const targetOpacity = circle.opacity * opacity;
-  if (targetOpacity === 0 || (circle.drawn === 0 && circle.fill.alpha === 0)) {
+  if (targetOpacity === 0 || (circle.drawn === 0 && circle.fillColor.alpha === 0)) {
     return;
   }
 
   const { path, length } = getCirclePath(circle, createPath2D);
 
-  if (targetOpacity < 1 && circle.borderWidth > 0) {
+  if (targetOpacity < 1 && circle.strokeWidth > 0) {
     // Clip fill to an inset path so it doesn't extend under the stroke,
     // avoiding the visual artifact on semi-transparent circles.
     const insetFillPath = getCircleInsetFillPath(circle, createPath2D);
     if (insetFillPath !== undefined) {
       ctx.context.save();
       clipToPath(ctx, insetFillPath);
-      fillPath({ ctx, path, color: circle.fill, opacity: targetOpacity });
+      fillPath({ ctx, path, color: circle.fillColor, opacity: targetOpacity });
       ctx.context.restore();
     }
   } else {
-    fillPath({ ctx, path, color: circle.fill, opacity: targetOpacity });
+    fillPath({ ctx, path, color: circle.fillColor, opacity: targetOpacity });
   }
 
   drawStroke({
-    color: circle.borderColor,
+    color: circle.strokeColor,
     ctx,
     drawn: circle.drawn,
     path,
     pathLength: length,
     opacity: targetOpacity,
-    width: circle.borderWidth,
+    width: circle.strokeWidth,
   });
 };

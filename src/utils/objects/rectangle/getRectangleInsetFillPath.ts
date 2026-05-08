@@ -6,14 +6,14 @@ import { getBoundingBox } from "../../layout/getBoundingBox";
 import { getRoundedRectanglePath } from "./getRoundedRectanglePath";
 
 /**
- * Returns a rectangle path that is smaller than the original by half the border width
+ * Returns a rectangle path that is smaller than the original by half the stroke width
  * on each side. This is used as a clip region when drawing semi-transparent shapes.
  */
 export function getRectangleInsetFillPath(
   rectangle: Rectangle,
   createPath: () => UnifiedPath2D,
 ): UnifiedPath2D | undefined {
-  const inset = rectangle.borderWidth / 2;
+  const inset = rectangle.strokeWidth / 2;
 
   const { origin, size } = getBoundingBox(
     Position({ x: rectangle.x, y: rectangle.y }),
@@ -21,8 +21,8 @@ export function getRectangleInsetFillPath(
     Size({ width: rectangle.width, height: rectangle.height }),
   );
 
-  const insetWidth = size.width - rectangle.borderWidth;
-  const insetHeight = size.height - rectangle.borderWidth;
+  const insetWidth = size.width - rectangle.strokeWidth;
+  const insetHeight = size.height - rectangle.strokeWidth;
   if (insetWidth <= 0 || insetHeight <= 0) {
     return undefined;
   }
@@ -30,13 +30,13 @@ export function getRectangleInsetFillPath(
   const insetOrigin = Position({ x: origin.x + inset, y: origin.y + inset });
   const insetSize = Size({ width: insetWidth, height: insetHeight });
 
-  const rounding = Math.max(
+  const cornerRadius = Math.max(
     0,
-    Math.min(rectangle.rounding - inset, Math.min(insetWidth, insetHeight) / 2),
+    Math.min(rectangle.cornerRadius - inset, Math.min(insetWidth, insetHeight) / 2),
   );
 
-  if (rounding > 0) {
-    return getRoundedRectanglePath(insetOrigin, insetSize, rounding, createPath).path;
+  if (cornerRadius > 0) {
+    return getRoundedRectanglePath(insetOrigin, insetSize, cornerRadius, createPath).path;
   }
 
   const path = createPath();

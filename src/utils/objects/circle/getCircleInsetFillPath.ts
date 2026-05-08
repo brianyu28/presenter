@@ -2,14 +2,14 @@ import { Circle } from "../../../objects/Circle";
 import { UnifiedPath2D } from "../../../renderer/browser-canvas/types/UnifiedPath2D";
 
 /**
- * Returns a circle path that is smaller than the original by half the border width.
+ * Returns a circle path that is smaller than the original by half the stroke width.
  * This is used as a clip region when drawing semi-transparent shapes.
  */
 export function getCircleInsetFillPath(
   circle: Circle,
   createPath: () => UnifiedPath2D,
 ): UnifiedPath2D | undefined {
-  const insetRadius = circle.radius - circle.borderWidth / 2;
+  const insetRadius = circle.radius - circle.strokeWidth / 2;
   if (insetRadius <= 0) {
     return undefined;
   }

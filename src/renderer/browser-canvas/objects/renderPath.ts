@@ -13,7 +13,7 @@ export const renderPath: BrowserCanvasObjectRenderer<Path> = ({
   createPath2D,
 }) => {
   const targetOpacity = path.opacity * opacity;
-  if (targetOpacity === 0 || (path.drawn === 0 && path.fill.alpha === 0)) {
+  if (targetOpacity === 0 || (path.drawn === 0 && path.fillColor.alpha === 0)) {
     return;
   }
 
@@ -31,12 +31,12 @@ export const renderPath: BrowserCanvasObjectRenderer<Path> = ({
   fillPath({
     ctx,
     path: path2D,
-    color: path.fill,
+    color: path.fillColor,
     opacity: targetOpacity,
   });
 
   drawStroke({
-    color: path.color,
+    color: path.strokeColor,
     ctx,
     drawn: path.drawn,
     isRounded: path.isRounded,

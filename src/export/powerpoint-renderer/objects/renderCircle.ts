@@ -27,16 +27,16 @@ export const renderCircle: PowerPointObjectRenderer<Circle> = ({
   );
 
   slide.addShape(powerpoint.ShapeType.ellipse, {
-    fill: getPptxFillColor(circle.fill, targetOpacity),
+    fill: getPptxFillColor(circle.fillColor, targetOpacity),
     x: getInchesFromPixels(origin.x, pixelsPerInch),
     y: getInchesFromPixels(origin.y, pixelsPerInch),
     w: getInchesFromPixels(size.width, pixelsPerInch),
     h: getInchesFromPixels(size.height, pixelsPerInch),
     line:
-      circle.borderWidth > 0
+      circle.strokeWidth > 0
         ? {
-            ...getPptxFillColor(circle.borderColor, targetOpacity),
-            width: getPptxPixelsFromPixels(transform.scale * circle.borderWidth, pixelsPerInch),
+            ...getPptxFillColor(circle.strokeColor, targetOpacity),
+            width: getPptxPixelsFromPixels(transform.scale * circle.strokeWidth, pixelsPerInch),
           }
         : {},
   });

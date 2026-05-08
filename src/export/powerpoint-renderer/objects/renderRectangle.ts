@@ -27,25 +27,27 @@ export const renderRectangle: PowerPointObjectRenderer<Rectangle> = ({
   );
 
   slide.addShape(
-    rectangle.rounding > 0 ? powerpoint.ShapeType.roundRect : powerpoint.ShapeType.rect,
+    rectangle.cornerRadius > 0 ? powerpoint.ShapeType.roundRect : powerpoint.ShapeType.rect,
     {
-      fill: getPptxFillColor(rectangle.fill, targetOpacity),
+      fill: getPptxFillColor(rectangle.fillColor, targetOpacity),
       x: getInchesFromPixels(origin.x, pixelsPerInch),
       y: getInchesFromPixels(origin.y, pixelsPerInch),
       w: getInchesFromPixels(size.width, pixelsPerInch),
       h: getInchesFromPixels(size.height, pixelsPerInch),
       line:
-        rectangle.borderWidth > 0
+        rectangle.strokeWidth > 0
           ? {
-              ...getPptxFillColor(rectangle.borderColor, targetOpacity),
+              ...getPptxFillColor(rectangle.strokeColor, targetOpacity),
               width: getPptxPixelsFromPixels(
-                rectangle.borderWidth * transform.scale,
+                rectangle.strokeWidth * transform.scale,
                 pixelsPerInch,
               ),
             }
           : {},
       rectRadius:
-        rectangle.rounding > 0 ? (transform.scale * rectangle.rounding) / rectangle.height : 0,
+        rectangle.cornerRadius > 0
+          ? (transform.scale * rectangle.cornerRadius) / rectangle.height
+          : 0,
     },
   );
 };
