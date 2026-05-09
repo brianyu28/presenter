@@ -40,10 +40,15 @@ export const renderText: BrowserCanvasObjectRenderer<Text> = ({ ctx, object: tex
     }
 
     const lineWidth = lineSizes.reduce((acc, curr) => acc + curr.width, 0);
-    const lineHeight =
+    const lineTop =
       lineSizes.length === 0
         ? previousLineHeight
-        : lineSizes.reduce((acc, curr) => Math.max(acc, curr.height), 0);
+        : lineSizes.reduce((acc, curr) => Math.max(acc, curr.top), 0);
+    const lineBottom =
+      lineSizes.length === 0
+        ? 0
+        : lineSizes.reduce((acc, curr) => Math.max(acc, curr.bottom), 0);
+    const lineHeight = lineTop + lineBottom;
 
     switch (text.alignment) {
       case Alignment.LEFT:
@@ -59,7 +64,8 @@ export const renderText: BrowserCanvasObjectRenderer<Text> = ({ ctx, object: tex
         assertNever(text.alignment);
         break;
     }
-    y += lineHeight + previousLineHeight * (text.lineSpacing - 1);
+    y += previousLineHeight * (text.lineSpacing - 1);
+    const baselineY = y + lineTop;
     previousLineHeight = lineHeight;
 
     for (let unitIndex = 0; unitIndex < line.length; unitIndex++) {
@@ -87,8 +93,10 @@ export const renderText: BrowserCanvasObjectRenderer<Text> = ({ ctx, object: tex
 
       const combinedStyle: TextStyle = { ...style, ...unitStyle };
       setContextWithTextStyle(ctx, combinedStyle, targetOpacity);
-      ctx.context.fillText(targetUnitText, x, y);
+      ctx.context.fillText(targetUnitText, x, baselineY + unitSize.baselineShift);
       x += unitSize.width;
     }
+
+    y += lineHeight;
   }
 };

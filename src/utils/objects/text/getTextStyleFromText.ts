@@ -9,5 +9,7 @@ export function getTextStyleFromText(text: Text): TextStyle {
     fontStyle: text.fontStyle,
     fontWeight: text.fontWeight,
     ligatures: text.ligatures,
+    subscript: text.subscript,
+    superscript: text.superscript,
   };
 }

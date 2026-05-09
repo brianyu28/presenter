@@ -4,6 +4,7 @@ import { FontStyle } from "../../../types/FontStyle";
 import { FontWeight } from "../../../types/FontWeight";
 import { TextStyle } from "../../../types/TextStyle";
 import { TextUnit } from "../../../types/TextUnit";
+import { getTextScriptVariant } from "../../../utils/objects/text/getTextScriptVariant";
 import { getPptxFillColor } from "./getPptxFillColor";
 import { getPptxFontSizeFromPixels } from "./getUnitsFromPixels";
 
@@ -49,16 +50,19 @@ export function getPptxText({
       consumedLength += targetUnitText.length;
 
       const combinedStyle: TextStyle = { ...style, ...unitStyle };
+      const scriptVariant = getTextScriptVariant(combinedStyle);
       textProps.push({
-        text: unitText,
+        text: targetUnitText,
         options: {
           bold: combinedStyle.fontWeight >= FontWeight.BOLD,
           fontFace: combinedStyle.fontFamily,
-          fontSize: scale * getPptxFontSizeFromPixels(combinedStyle.fontSize, pixelsPerInch),
+          fontSize: scale * getPptxFontSizeFromPixels(scriptVariant.fontSize, pixelsPerInch),
           ...getPptxFillColor(combinedStyle.color, opacity),
           italic:
             combinedStyle.fontStyle === FontStyle.ITALIC ||
             combinedStyle.fontStyle === FontStyle.OBLIQUE,
+          subscript: scriptVariant.isSubscript,
+          superscript: scriptVariant.isSuperscript,
         },
       });
     }
