@@ -8,17 +8,17 @@ export function createPresentationContainer(
   const container = document.createElement("div");
   container.style.width = "100%";
   container.style.aspectRatio = `${presentation.size.width} / ${presentation.size.height}`;
-
-  // Set container to be vertically centered.
   container.style.position = "relative";
-  container.style.top = "50%";
-  container.style.transform = "translateY(-50%)";
-
-  // Set container to be horizontally centered.
-  container.style.marginLeft = "auto";
-  container.style.marginRight = "auto";
 
   if (isFullBodyPresentation(root)) {
+    // Set container to be vertically centered.
+    container.style.top = "50%";
+    container.style.transform = "translateY(-50%)";
+
+    // Set container to be horizontally centered.
+    container.style.marginLeft = "auto";
+    container.style.marginRight = "auto";
+
     // Don't allow scrolling of container
     container.style.overflowY = "clip";
 

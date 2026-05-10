@@ -255,6 +255,30 @@ export class BrowserCanvasRenderer {
       this.renderSlide(0, 0);
     }
   }
+
+  hasNext(): boolean {
+    const { presentation } = this.props;
+    const { slideIndex, buildIndex } = this.state;
+
+    const currentSlide = presentation.slides[slideIndex];
+    if (currentSlide === undefined) {
+      return false;
+    }
+
+    const nextAnimation = currentSlide.animations[buildIndex];
+    if (nextAnimation !== undefined) {
+      return true;
+    } else if (slideIndex + 1 < presentation.slides.length) {
+      return true;
+    }
+
+    return false;
+  }
+
+  hasPrevious(): boolean {
+    const { slideIndex, buildIndex } = this.state;
+    return buildIndex > 0 || slideIndex > 0;
+  }
 }
 
 function getValidScale(scale: number): number {
