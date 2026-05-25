@@ -36,16 +36,15 @@ export function drawStroke({
     const drawnLength = pathLength * drawn;
     if (!isDrawnFromCenter) {
       ctx.context.setLineDash([drawnLength, fullPathLength - drawnLength]);
+      ctx.context.lineDashOffset = 0;
     } else {
-      ctx.context.setLineDash([
-        0,
-        (fullPathLength - drawnLength) / 2,
-        drawnLength,
-        (fullPathLength - drawnLength) / 2,
-      ]);
+      const gapLength = fullPathLength - drawnLength;
+      ctx.context.setLineDash([drawnLength, gapLength]);
+      ctx.context.lineDashOffset = -gapLength / 2;
     }
   } else {
     ctx.context.setLineDash([]);
+    ctx.context.lineDashOffset = 0;
   }
 
   ctx.context.lineWidth = width;
