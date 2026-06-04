@@ -1,4 +1,4 @@
-import { openNavigator } from "../../navigator/openNavigator";
+import { NavigatorApi, openNavigator } from "../../navigator/openNavigator";
 import { Presentation } from "../../types/Presentation";
 import { SlideObject } from "../../types/SlideObject";
 import { getSlideAnimationDuration } from "../../utils/animate/getSlideAnimationDuration";
@@ -26,6 +26,7 @@ import { loadPresentationImages } from "./utils/loadPresentationImages";
 export class BrowserCanvasRenderer {
   props: BrowserCanvasRendererProps;
   state: BrowserCanvasRendererState;
+  navigator: NavigatorApi | null = null;
 
   constructor(props: Partial<BrowserCanvasRendererProps>) {
     const { objectRenderers, scale = 1, ...rest } = props;
@@ -75,11 +76,14 @@ export class BrowserCanvasRenderer {
 
         this.renderSlide(slideIndex ?? this.state.slideIndex, buildIndex);
       },
-      onShowNavigator: () =>
-        openNavigator({
+      onShowNavigator: () => {
+        this.navigator = openNavigator({
           presentation,
           onNavigateToSlide: (slideIndex) => this.renderSlide(slideIndex),
-        }),
+          onNext: () => this.next(),
+        });
+        this.updateNavigator();
+      },
     });
 
     element.replaceChildren();
@@ -96,8 +100,8 @@ export class BrowserCanvasRenderer {
   }
 
   renderSlide(slideIndex: number, buildIndex: number = 0, buildTime: number | null = null): void {
-    const { objectRenderers, presentation, scale } = this.props;
-    const { canvas, imageById } = this.state;
+    const { presentation } = this.props;
+    const { canvas } = this.state;
 
     const didSlideIndexChange = this.state.slideIndex !== slideIndex;
     this.state.slideIndex = slideIndex;
@@ -135,6 +139,26 @@ export class BrowserCanvasRenderer {
       }
     }
 
+    this.renderCanvas(canvas, slideIndex, buildIndex, buildTime, this.props.scale);
+
+    if (buildTime === null) {
+      this.updateNavigator();
+    }
+  }
+
+  renderCanvas(
+    canvas: HTMLCanvasElement,
+    slideIndex: number,
+    buildIndex: number = 0,
+    buildTime: number | null = null,
+    scale: number = 1,
+  ): void {
+    const { objectRenderers, presentation } = this.props;
+    const { imageById } = this.state;
+
+    canvas.width = presentation.size.width;
+    canvas.height = presentation.size.height;
+
     const ctx = canvas.getContext("2d");
     if (ctx === null) {
       return;
@@ -146,6 +170,11 @@ export class BrowserCanvasRenderer {
     };
 
     clearCanvas(canvas, context);
+
+    const slide = presentation.slides[slideIndex];
+    if (slide === undefined) {
+      return;
+    }
 
     const objectState = getObjectState({
       slide,
@@ -191,6 +220,59 @@ export class BrowserCanvasRenderer {
     if (needsScaleTransformation) {
       context.context.restore();
     }
+  }
+
+  updateNavigator(): void {
+    const { navigator } = this;
+    if (navigator === null) {
+      return;
+    }
+    if (!navigator.isOpen()) {
+      this.navigator = null;
+      return;
+    }
+
+    const { slideIndex, buildIndex } = this.state;
+    const next = this.getNextSlideBuild(slideIndex, buildIndex);
+    navigator.update(slideIndex, buildIndex, next.slideIndex, next.buildIndex);
+    this.renderCanvas(navigator.currentCanvas, slideIndex, buildIndex);
+    if (next.slideIndex === null) {
+      this.renderEndCanvas(navigator.nextCanvas);
+    } else {
+      this.renderCanvas(navigator.nextCanvas, next.slideIndex, next.buildIndex);
+    }
+  }
+
+  getNextSlideBuild(
+    slideIndex: number,
+    buildIndex: number,
+  ): { slideIndex: number | null; buildIndex: number } {
+    const { presentation } = this.props;
+    const currentSlide = presentation.slides[slideIndex];
+    if (currentSlide === undefined) {
+      return { slideIndex, buildIndex };
+    }
+    if (buildIndex < currentSlide.animations.length) {
+      return { slideIndex, buildIndex: buildIndex + 1 };
+    }
+    if (slideIndex + 1 < presentation.slides.length) {
+      return { slideIndex: slideIndex + 1, buildIndex: 0 };
+    }
+    return { slideIndex: null, buildIndex: 0 };
+  }
+
+  renderEndCanvas(canvas: HTMLCanvasElement): void {
+    const { presentation } = this.props;
+    canvas.width = presentation.size.width;
+    canvas.height = presentation.size.height;
+
+    const ctx = canvas.getContext("2d");
+    if (ctx === null) {
+      return;
+    }
+
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
   next(skipIntermediateBuilds: boolean = false) {
