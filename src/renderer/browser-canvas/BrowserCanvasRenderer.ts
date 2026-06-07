@@ -6,6 +6,7 @@ import { getRgbStringForColor } from "../../utils/color/getRgbStringForColor";
 import { createPresentationContainer } from "../../utils/presentation/createPresentationContainer";
 import { getObjectState } from "../../utils/presentation/getObjectState";
 import { getSvgImageUrlById } from "../../utils/presentation/getSvgImageUrlById";
+import { isFullBodyPresentation } from "../../utils/presentation/isFullBodyPresentation";
 import { setupKeyEventListeners } from "../../utils/presentation/setupKeyEventListeners";
 import { loadPresentationState } from "../../utils/storage/loadPresentationState";
 import { storePresentationState } from "../../utils/storage/storePresentationState";
@@ -63,28 +64,46 @@ export class BrowserCanvasRenderer {
     };
 
     const container = createPresentationContainer(presentation, element);
+    const isFullBody = isFullBodyPresentation(element);
+    const renderSlideFromShortcut = (slideIndex: number | null, buildIndex: number) => {
+      // Set up a shortcut for going back to this slide/build
+      this.state.shortcutState.shortcuts.b = {
+        slideIndex: this.state.slideIndex,
+        buildIndex: this.state.buildIndex,
+      };
 
-    setupKeyEventListeners(presentation, element, this.state.shortcutState, {
-      onNext: (skipIntermediateBuilds: boolean) => this.next(skipIntermediateBuilds),
-      onPrevious: (skipIntermediateBuilds: boolean) => this.previous(skipIntermediateBuilds),
-      onRenderSlide: (slideIndex: number | null, buildIndex: number) => {
-        // Set up a shortcut for going back to this slide/build
-        this.state.shortcutState.shortcuts.b = {
-          slideIndex: this.state.slideIndex,
-          buildIndex: this.state.buildIndex,
-        };
+      this.renderSlide(slideIndex ?? this.state.slideIndex, buildIndex);
+    };
 
-        this.renderSlide(slideIndex ?? this.state.slideIndex, buildIndex);
+    setupKeyEventListeners(
+      presentation,
+      container,
+      this.state.shortcutState,
+      {
+        onNext: (skipIntermediateBuilds: boolean) => this.next(skipIntermediateBuilds),
+        onPrevious: (skipIntermediateBuilds: boolean) => this.previous(skipIntermediateBuilds),
+        onRenderSlide: renderSlideFromShortcut,
+        onShowNavigator: () => {
+          if (!isFullBody) {
+            return;
+          }
+
+          this.navigator = openNavigator({
+            presentation,
+            shortcutState: this.state.shortcutState,
+            onNavigateToSlide: (slideIndex) => this.renderSlide(slideIndex),
+            onRenderSlide: renderSlideFromShortcut,
+            onNext: (skipIntermediateBuilds) => this.next(skipIntermediateBuilds),
+            onPrevious: (skipIntermediateBuilds) => this.previous(skipIntermediateBuilds),
+          });
+          this.updateNavigator();
+        },
       },
-      onShowNavigator: () => {
-        this.navigator = openNavigator({
-          presentation,
-          onNavigateToSlide: (slideIndex) => this.renderSlide(slideIndex),
-          onNext: () => this.next(),
-        });
-        this.updateNavigator();
+      {
+        focusOnPointerDown: !isFullBody,
+        keyEventTarget: isFullBody ? window : container,
       },
-    });
+    );
 
     element.replaceChildren();
     container.appendChild(canvas);

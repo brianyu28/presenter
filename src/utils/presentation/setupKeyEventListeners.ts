@@ -1,5 +1,7 @@
 import { Presentation } from "../../types/Presentation";
 import { ShortcutState } from "../../types/ShortcutState";
+import { hasModifierKey } from "../dom/hasModifierKey";
+import { isInteractiveElement } from "../dom/isInteractiveElement";
 import { getPresentationShortcuts } from "./getPresentationShortcuts";
 
 interface Callbacks {
@@ -9,42 +11,67 @@ interface Callbacks {
   readonly onShowNavigator: () => void;
 }
 
+interface Options {
+  // For non-full-screen presentations, click should focus the presentation to accept keyboard events
+  readonly focusOnPointerDown?: boolean;
+  readonly keyEventTarget?: HTMLElement | Window;
+}
+
 export function setupKeyEventListeners(
   presentation: Presentation,
   element: HTMLElement,
   shortcutState: ShortcutState,
   { onNext, onPrevious, onRenderSlide, onShowNavigator }: Callbacks,
+  { focusOnPointerDown = false, keyEventTarget = element }: Options = {},
 ) {
   shortcutState.shortcuts = getPresentationShortcuts(presentation);
+
+  if (focusOnPointerDown) {
+    if (!element.hasAttribute("tabindex")) {
+      element.tabIndex = -1;
+    }
+    element.addEventListener("pointerdown", (event) => {
+      if (isInteractiveElement(event.target)) {
+        return;
+      }
+
+      element.focus({ preventScroll: true });
+    });
+  }
 
   // Show cursor when mouse moves
   element.addEventListener("mousemove", () => {
     element.style.cursor = "auto";
   });
 
-  element.addEventListener("keyup", (event) => {
+  keyEventTarget.addEventListener("keyup", (event) => {
+    const keyEvent = event as KeyboardEvent;
+    if (isInteractiveElement(keyEvent.target)) {
+      return;
+    }
+
     // Reset command
-    if (event.code === "Escape") {
+    if (keyEvent.code === "Escape") {
       shortcutState.textCommand = null;
       return;
     }
 
     // Next slide
-    if (event.code === "ArrowRight" || event.code === "Space") {
-      onNext(event.shiftKey);
+    if (keyEvent.code === "ArrowRight" || keyEvent.code === "Space") {
+      onNext(keyEvent.shiftKey);
       return;
     }
 
     // Previous slide
-    if (event.code === "ArrowLeft") {
-      onPrevious(event.shiftKey);
+    if (keyEvent.code === "ArrowLeft") {
+      onPrevious(keyEvent.shiftKey);
       return;
     }
 
     // Check for an active text command
     if (shortcutState.textCommand !== null) {
       // Submitting a text command
-      if (event.code === "Enter") {
+      if (keyEvent.code === "Enter") {
         const command = shortcutState.textCommand;
         shortcutState.textCommand = null;
 
@@ -58,24 +85,24 @@ export function setupKeyEventListeners(
         }
 
         return;
-      } else if (event.code === "Backspace") {
+      } else if (keyEvent.code === "Backspace") {
         // Backspace to delete last character
         shortcutState.textCommand = shortcutState.textCommand.slice(0, -1);
       } else {
         // Add character to text command
-        shortcutState.textCommand += event.key;
+        shortcutState.textCommand += keyEvent.key;
       }
       return;
     }
 
     // Start a new text command
-    if (event.key === "g") {
+    if (keyEvent.key === "g") {
       shortcutState.textCommand = "";
       return;
     }
 
     // Show navigator
-    if (event.key === "`") {
+    if (keyEvent.key === "`" && !hasModifierKey(keyEvent)) {
       onShowNavigator();
       return;
     }

@@ -1,13 +1,26 @@
 import { Presentation } from "../types/Presentation";
+import { ShortcutState } from "../types/ShortcutState";
 import { Slide } from "../types/Slide";
+import { hasModifierKey } from "../utils/dom/hasModifierKey";
+import { setupKeyEventListeners } from "../utils/presentation/setupKeyEventListeners";
 
 let navigatorWindow: Window | null = null;
 let navigatorApi: NavigatorApi | null = null;
 
+export let navigatorWindowBounds = {
+  width: 700,
+  height: 680,
+  left: 20,
+  top: 50,
+};
+
 interface Args {
   readonly presentation: Presentation;
+  readonly shortcutState: ShortcutState;
   readonly onNavigateToSlide: (slideIndex: number) => void;
-  readonly onNext: () => void;
+  readonly onRenderSlide: (slideIndex: number | null, buildIndex: number) => void;
+  readonly onNext: (skipIntermediateBuilds?: boolean) => void;
+  readonly onPrevious: (skipIntermediateBuilds?: boolean) => void;
 }
 
 export interface NavigatorApi {
@@ -28,15 +41,19 @@ type NavigatorElementApi = NavigatorApi & { readonly element: HTMLDivElement };
 
 export function openNavigator({
   presentation,
+  shortcutState,
   onNavigateToSlide,
+  onRenderSlide,
   onNext,
+  onPrevious,
 }: Args): NavigatorApi | null {
   if (navigatorWindow !== null && !navigatorWindow.closed) {
+    saveNavigatorWindowBounds(navigatorWindow);
     navigatorWindow.focus();
     return navigatorApi;
   }
 
-  navigatorWindow = window.open("", "Navigator", "width=1100,height=680,left=20,top=50");
+  navigatorWindow = window.open("", "Navigator", getNavigatorWindowFeatures());
   if (navigatorWindow === null) {
     console.error("Failed to open navigator window.");
     return null;
@@ -48,11 +65,29 @@ export function openNavigator({
   navigatorWindow.document.title = presentation.title;
   navigatorWindow.document.body.replaceChildren(elementApi.element);
 
+  setupKeyEventListeners(
+    presentation,
+    elementApi.element,
+    shortcutState,
+    {
+      onNext: (skipIntermediateBuilds: boolean) => onNext(skipIntermediateBuilds),
+      onPrevious,
+      onRenderSlide,
+      onShowNavigator: () => closeNavigatorWindow(),
+    },
+    {
+      keyEventTarget: navigatorWindow,
+    },
+  );
+
+  navigatorWindow.addEventListener("resize", () => saveNavigatorWindowBounds(navigatorWindow));
+  navigatorWindow.addEventListener("beforeunload", () => {
+    saveNavigatorWindowBounds(navigatorWindow);
+  });
+
   navigatorWindow.addEventListener("keyup", (event) => {
-    if (event.key === "Escape" || event.key === "`") {
-      navigatorWindow?.close();
-      navigatorWindow = null;
-      navigatorApi = null;
+    if (event.key === "Escape" || (event.key === "`" && !hasModifierKey(event))) {
+      closeNavigatorWindow();
     }
   });
 
@@ -128,7 +163,7 @@ export function createNavigatorElement(
     slideElement.addEventListener("click", (event) => {
       // If shift key is pressed, close window
       if (event.shiftKey) {
-        navigatorWindow?.close();
+        closeNavigatorWindow();
       }
       onNavigateToSlide(index);
     });
@@ -371,4 +406,29 @@ function scrollSlideIntoView(slideElement: HTMLDivElement | undefined, slideList
   if (slideTop < listTop || slideBottom > listBottom) {
     slideElement.scrollIntoView({ block: "nearest" });
   }
+}
+
+function closeNavigatorWindow(): void {
+  saveNavigatorWindowBounds(navigatorWindow);
+  navigatorWindow?.close();
+  navigatorWindow = null;
+  navigatorApi = null;
+}
+
+function getNavigatorWindowFeatures(): string {
+  const { width, height, left, top } = navigatorWindowBounds;
+  return `width=${width},height=${height},left=${left},top=${top}`;
+}
+
+function saveNavigatorWindowBounds(win: Window | null): void {
+  if (win === null || win.closed) {
+    return;
+  }
+
+  navigatorWindowBounds = {
+    width: win.outerWidth,
+    height: win.outerHeight,
+    left: win.screenX,
+    top: win.screenY,
+  };
 }
