@@ -298,7 +298,7 @@ export class BrowserCanvasRenderer {
     const { presentation } = this.props;
     const { currentAnimationId, slideIndex, buildIndex } = this.state;
 
-    this.props.element.style.cursor = "none";
+    this.hideCursor();
 
     if (currentAnimationId !== null) {
       cancelAnimationFrame(currentAnimationId);
@@ -335,7 +335,7 @@ export class BrowserCanvasRenderer {
   previous(skipIntermediateBuilds: boolean = false) {
     const { currentAnimationId, slideIndex, buildIndex } = this.state;
 
-    this.props.element.style.cursor = "none";
+    this.hideCursor();
 
     if (currentAnimationId !== null) {
       cancelAnimationFrame(currentAnimationId);
@@ -379,6 +379,11 @@ export class BrowserCanvasRenderer {
   hasPrevious(): boolean {
     const { slideIndex, buildIndex } = this.state;
     return buildIndex > 0 || slideIndex > 0;
+  }
+
+  hideCursor(): void {
+    this.props.element.style.cursor = "none";
+    this.state.canvas?.parentElement?.style.setProperty("cursor", "none");
   }
 }
 
