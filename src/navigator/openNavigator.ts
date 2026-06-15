@@ -3,9 +3,17 @@ import { ShortcutState } from "../types/ShortcutState";
 import { Slide } from "../types/Slide";
 import { hasModifierKey } from "../utils/dom/hasModifierKey";
 import { setupKeyEventListeners } from "../utils/presentation/setupKeyEventListeners";
+import {
+  markNavigatorClosedForHotReload,
+  markNavigatorOpenForHotReload,
+} from "./navigatorHotReload";
 
 let navigatorWindow: Window | null = null;
 let navigatorApi: NavigatorApi | null = null;
+// Aborts listeners from the current navigator instance before replacing or closing it.
+let navigatorCleanup: (() => void) | null = null;
+// Stored on the navigator window to tell fresh callbacks apart from stale HMR callbacks.
+const NAVIGATOR_INSTANCE_ID_KEY = "__presenterNavigatorInstanceId";
 
 export let navigatorWindowBounds = {
   width: 700,
@@ -21,6 +29,8 @@ interface Args {
   readonly onRenderSlide: (slideIndex: number | null, buildIndex: number) => void;
   readonly onNext: (skipIntermediateBuilds?: boolean) => void;
   readonly onPrevious: (skipIntermediateBuilds?: boolean) => void;
+  // Rebuilds an already-open navigator instead of focusing and reusing it.
+  readonly forceRefresh?: boolean;
 }
 
 export interface NavigatorApi {
@@ -46,21 +56,40 @@ export function openNavigator({
   onRenderSlide,
   onNext,
   onPrevious,
+  forceRefresh = false,
 }: Args): NavigatorApi | null {
   if (navigatorWindow !== null && !navigatorWindow.closed) {
     saveNavigatorWindowBounds(navigatorWindow);
-    navigatorWindow.focus();
-    return navigatorApi;
+
+    if (!forceRefresh) {
+      navigatorWindow.focus();
+      return navigatorApi;
+    }
   }
 
-  navigatorWindow = window.open("", "Navigator", getNavigatorWindowFeatures());
+  if (navigatorWindow === null || navigatorWindow.closed) {
+    navigatorWindow = window.open("", "Navigator", getNavigatorWindowFeatures());
+  }
+
   if (navigatorWindow === null) {
     console.error("Failed to open navigator window.");
     return null;
   }
 
-  const elementApi = createNavigatorElement(presentation, onNavigateToSlide, onNext);
+  navigatorCleanup?.();
+
+  const navigatorInstance = createNavigatorInstance(navigatorWindow);
+  // Lets a refreshed navigator detach the previous instance's window listeners.
+  const abortController = new AbortController();
+  navigatorCleanup = () => abortController.abort();
+  const elementApi = createNavigatorElement(
+    presentation,
+    onNavigateToSlide,
+    onNext,
+    navigatorInstance.isActive,
+  );
   navigatorApi = elementApi;
+  markNavigatorOpenForHotReload();
 
   navigatorWindow.document.title = presentation.title;
   navigatorWindow.document.body.replaceChildren(elementApi.element);
@@ -70,26 +99,62 @@ export function openNavigator({
     elementApi.element,
     shortcutState,
     {
-      onNext: (skipIntermediateBuilds: boolean) => onNext(skipIntermediateBuilds),
-      onPrevious,
-      onRenderSlide,
-      onShowNavigator: () => closeNavigatorWindow(),
+      onNext: (skipIntermediateBuilds: boolean) => {
+        if (navigatorInstance.isActive()) {
+          onNext(skipIntermediateBuilds);
+        }
+      },
+      onPrevious: (skipIntermediateBuilds: boolean) => {
+        if (navigatorInstance.isActive()) {
+          onPrevious(skipIntermediateBuilds);
+        }
+      },
+      onRenderSlide: (slideIndex, buildIndex) => {
+        if (navigatorInstance.isActive()) {
+          onRenderSlide(slideIndex, buildIndex);
+        }
+      },
+      onShowNavigator: () => {
+        if (navigatorInstance.isActive()) {
+          closeNavigatorWindow();
+        }
+      },
     },
     {
       keyEventTarget: navigatorWindow,
+      signal: abortController.signal,
     },
   );
 
-  navigatorWindow.addEventListener("resize", () => saveNavigatorWindowBounds(navigatorWindow));
-  navigatorWindow.addEventListener("beforeunload", () => {
-    saveNavigatorWindowBounds(navigatorWindow);
+  navigatorWindow.addEventListener("resize", () => saveNavigatorWindowBounds(navigatorWindow), {
+    signal: abortController.signal,
   });
+  navigatorWindow.addEventListener(
+    "beforeunload",
+    () => {
+      saveNavigatorWindowBounds(navigatorWindow);
+      markNavigatorClosedForHotReload();
+    },
+    {
+      signal: abortController.signal,
+    },
+  );
 
-  navigatorWindow.addEventListener("keyup", (event) => {
-    if (event.key === "Escape" || (event.key === "`" && !hasModifierKey(event))) {
-      closeNavigatorWindow();
-    }
-  });
+  navigatorWindow.addEventListener(
+    "keyup",
+    (event) => {
+      if (!navigatorInstance.isActive()) {
+        return;
+      }
+
+      if (event.key === "Escape" || (event.key === "`" && !hasModifierKey(event))) {
+        closeNavigatorWindow();
+      }
+    },
+    {
+      signal: abortController.signal,
+    },
+  );
 
   return navigatorApi;
 }
@@ -98,6 +163,7 @@ export function createNavigatorElement(
   presentation: Presentation,
   onNavigateToSlide: (slideIndex: number) => void,
   onNext: () => void,
+  isActive: () => boolean = () => true,
 ): NavigatorElementApi {
   const doc = navigatorWindow?.document ?? document;
 
@@ -155,12 +221,20 @@ export function createNavigatorElement(
   const currentPreview = createPreviewElement("Current", presentation);
   const nextPreview = createPreviewElement("Next", presentation);
   nextPreview.container.style.cursor = "pointer";
-  nextPreview.container.addEventListener("click", onNext);
+  nextPreview.container.addEventListener("click", () => {
+    if (isActive()) {
+      onNext();
+    }
+  });
 
   const slideElements = presentation.slides.map((slide, index) => {
     const slideElement = createSlideElement(slide, index);
     slideElement.style.cursor = "pointer";
     slideElement.addEventListener("click", (event) => {
+      if (!isActive()) {
+        return;
+      }
+
       // If shift key is pressed, close window
       if (event.shiftKey) {
         closeNavigatorWindow();
@@ -209,6 +283,10 @@ export function createNavigatorElement(
     nextSlideIndex: number | null,
     nextBuildIndex: number,
   ) {
+    if (!isActive()) {
+      return;
+    }
+
     slideElements.forEach((element, index) => {
       const isActive = index === slideIndex;
       element.style.backgroundColor = isActive ? "#dbeafe" : "#ffffff";
@@ -410,9 +488,12 @@ function scrollSlideIntoView(slideElement: HTMLDivElement | undefined, slideList
 
 function closeNavigatorWindow(): void {
   saveNavigatorWindowBounds(navigatorWindow);
+  markNavigatorClosedForHotReload();
+  navigatorCleanup?.();
   navigatorWindow?.close();
   navigatorWindow = null;
   navigatorApi = null;
+  navigatorCleanup = null;
 }
 
 function getNavigatorWindowFeatures(): string {
@@ -430,5 +511,19 @@ function saveNavigatorWindowBounds(win: Window | null): void {
     height: win.outerHeight,
     left: win.screenX,
     top: win.screenY,
+  };
+}
+
+// Creates a token that keeps callbacks from older navigator instances inert after a refresh.
+function createNavigatorInstance(win: Window): { readonly isActive: () => boolean } {
+  const instanceId =
+    typeof globalThis.crypto?.randomUUID === "function"
+      ? globalThis.crypto.randomUUID()
+      : `${Date.now()}-${Math.random()}`;
+  const instanceWindow = win as Window & { [NAVIGATOR_INSTANCE_ID_KEY]?: string };
+  instanceWindow[NAVIGATOR_INSTANCE_ID_KEY] = instanceId;
+
+  return {
+    isActive: () => !win.closed && instanceWindow[NAVIGATOR_INSTANCE_ID_KEY] === instanceId,
   };
 }

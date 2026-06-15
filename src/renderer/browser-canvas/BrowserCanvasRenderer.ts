@@ -1,3 +1,4 @@
+import { shouldRestoreNavigatorAfterHotReload } from "../../navigator/navigatorHotReload";
 import { NavigatorApi, openNavigator } from "../../navigator/openNavigator";
 import { Presentation } from "../../types/Presentation";
 import { SlideObject } from "../../types/SlideObject";
@@ -75,6 +76,23 @@ export class BrowserCanvasRenderer {
       this.renderSlide(slideIndex ?? this.state.slideIndex, buildIndex);
     };
 
+    const showNavigator = (forceRefresh: boolean = false) => {
+      if (!isFullBody) {
+        return;
+      }
+
+      this.navigator = openNavigator({
+        presentation,
+        shortcutState: this.state.shortcutState,
+        onNavigateToSlide: (slideIndex) => this.renderSlide(slideIndex),
+        onRenderSlide: renderSlideFromShortcut,
+        onNext: (skipIntermediateBuilds) => this.next(skipIntermediateBuilds),
+        onPrevious: (skipIntermediateBuilds) => this.previous(skipIntermediateBuilds),
+        forceRefresh,
+      });
+      this.updateNavigator();
+    };
+
     setupKeyEventListeners(
       presentation,
       container,
@@ -83,21 +101,7 @@ export class BrowserCanvasRenderer {
         onNext: (skipIntermediateBuilds: boolean) => this.next(skipIntermediateBuilds),
         onPrevious: (skipIntermediateBuilds: boolean) => this.previous(skipIntermediateBuilds),
         onRenderSlide: renderSlideFromShortcut,
-        onShowNavigator: () => {
-          if (!isFullBody) {
-            return;
-          }
-
-          this.navigator = openNavigator({
-            presentation,
-            shortcutState: this.state.shortcutState,
-            onNavigateToSlide: (slideIndex) => this.renderSlide(slideIndex),
-            onRenderSlide: renderSlideFromShortcut,
-            onNext: (skipIntermediateBuilds) => this.next(skipIntermediateBuilds),
-            onPrevious: (skipIntermediateBuilds) => this.previous(skipIntermediateBuilds),
-          });
-          this.updateNavigator();
-        },
+        onShowNavigator: () => showNavigator(),
       },
       {
         focusOnPointerDown: !isFullBody,
@@ -115,6 +119,10 @@ export class BrowserCanvasRenderer {
       this.renderSlide(loadedState.slideIndex, loadedState.buildIndex);
     } else {
       this.renderSlide(0);
+    }
+
+    if (shouldRestoreNavigatorAfterHotReload()) {
+      showNavigator(true);
     }
   }
 
