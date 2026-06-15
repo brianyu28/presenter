@@ -3,6 +3,7 @@ import { ShortcutState } from "../../types/ShortcutState";
 import { hasModifierKey } from "../dom/hasModifierKey";
 import { isInteractiveElement } from "../dom/isInteractiveElement";
 import { getPresentationShortcuts } from "./getPresentationShortcuts";
+import { resolvePresentationShortcutCommand } from "./resolvePresentationShortcutCommand";
 
 interface Callbacks {
   readonly onNext: (skipIntermediateBuilds: boolean) => void;
@@ -81,6 +82,22 @@ export function setupKeyEventListeners(
         return;
       }
 
+      const altCommand = getAltShortcutCommand(keyEvent);
+      if (altCommand !== null) {
+        const shortcutConfig = resolvePresentationShortcutCommand(
+          shortcutState.shortcuts,
+          altCommand,
+        );
+        shortcutState.textCommand = null;
+
+        if (shortcutConfig !== null) {
+          keyEvent.preventDefault();
+          onRenderSlide(shortcutConfig.slideIndex, shortcutConfig.buildIndex);
+        }
+
+        return;
+      }
+
       // Check for an active text command
       if (shortcutState.textCommand !== null) {
         // Submitting a text command
@@ -88,13 +105,12 @@ export function setupKeyEventListeners(
           const command = shortcutState.textCommand;
           shortcutState.textCommand = null;
 
-          // Check for a valid shortcut
-          const shortcutConfig = shortcutState.shortcuts[command];
-          if (shortcutConfig !== undefined) {
+          const shortcutConfig = resolvePresentationShortcutCommand(
+            shortcutState.shortcuts,
+            command,
+          );
+          if (shortcutConfig !== null) {
             onRenderSlide(shortcutConfig.slideIndex, shortcutConfig.buildIndex);
-          } else if (!isNaN(Number(command))) {
-            // Fall back to numbered slide
-            onRenderSlide(Number(command) - 1, 0);
           }
 
           return;
@@ -122,4 +138,24 @@ export function setupKeyEventListeners(
     },
     listenerOptions,
   );
+}
+
+function getAltShortcutCommand(keyEvent: KeyboardEvent): string | null {
+  if (!keyEvent.altKey || keyEvent.ctrlKey || keyEvent.metaKey || keyEvent.shiftKey) {
+    return null;
+  }
+
+  if (keyEvent.code.startsWith("Key") && keyEvent.code.length === 4) {
+    return keyEvent.code.slice(3).toLowerCase();
+  }
+
+  if (keyEvent.code.startsWith("Digit") && keyEvent.code.length === 6) {
+    return keyEvent.code.slice(5);
+  }
+
+  if (keyEvent.code.startsWith("Numpad") && keyEvent.code.length === 7) {
+    return keyEvent.code.slice(6);
+  }
+
+  return null;
 }
