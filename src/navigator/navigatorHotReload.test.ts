@@ -1,7 +1,9 @@
 import {
   isNavigatorHotReloadEnabled,
+  loadNavigatorStateForHotReload,
   markNavigatorClosedForHotReload,
   markNavigatorOpenForHotReload,
+  saveNavigatorStateForHotReload,
   shouldRestoreNavigatorAfterHotReload,
 } from "./navigatorHotReload";
 
@@ -32,5 +34,37 @@ describe("navigatorHotReload", () => {
     markNavigatorClosedForHotReload();
 
     expect(shouldRestoreNavigatorAfterHotReload()).toBe(false);
+  });
+
+  test("preserves navigator visibility state", () => {
+    const viteClientScript = document.createElement("script");
+    viteClientScript.src = "http://localhost:5173/@vite/client";
+    document.head.appendChild(viteClientScript);
+
+    saveNavigatorStateForHotReload({
+      open: true,
+      visibility: {
+        slides: false,
+        current: true,
+        next: false,
+      },
+    });
+
+    expect(loadNavigatorStateForHotReload()).toEqual({
+      open: true,
+      visibility: {
+        slides: false,
+        current: true,
+        next: false,
+      },
+    });
+
+    markNavigatorOpenForHotReload();
+
+    expect(loadNavigatorStateForHotReload().visibility).toEqual({
+      slides: false,
+      current: true,
+      next: false,
+    });
   });
 });

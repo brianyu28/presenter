@@ -4,8 +4,10 @@ import { Slide } from "../types/Slide";
 import { hasModifierKey } from "../utils/dom/hasModifierKey";
 import { setupKeyEventListeners } from "../utils/presentation/setupKeyEventListeners";
 import {
+  loadNavigatorStateForHotReload,
   markNavigatorClosedForHotReload,
   markNavigatorOpenForHotReload,
+  saveNavigatorStateForHotReload,
 } from "./navigatorHotReload";
 
 let navigatorWindow: Window | null = null;
@@ -220,6 +222,7 @@ export function createNavigatorElement(
 
   const currentPreview = createPreviewElement("Current", presentation);
   const nextPreview = createPreviewElement("Next", presentation);
+  const navigatorState = loadNavigatorStateForHotReload();
   nextPreview.container.style.cursor = "pointer";
   nextPreview.container.addEventListener("click", () => {
     if (isActive()) {
@@ -245,9 +248,17 @@ export function createNavigatorElement(
     return slideElement;
   });
 
-  const slidesToggle = createToggleElement("Slides", slideList, true);
-  const currentToggle = createToggleElement("Current", currentPreview.container, true);
-  const nextToggle = createToggleElement("Next", nextPreview.container, true);
+  const slidesToggle = createToggleElement("Slides", slideList, navigatorState.visibility.slides);
+  const currentToggle = createToggleElement(
+    "Current",
+    currentPreview.container,
+    navigatorState.visibility.current,
+  );
+  const nextToggle = createToggleElement(
+    "Next",
+    nextPreview.container,
+    navigatorState.visibility.next,
+  );
 
   const updateLayout = () => {
     const shouldStackPreviews =
@@ -259,6 +270,15 @@ export function createNavigatorElement(
     requestAnimationFrame(() => {
       currentPreview.resize();
       nextPreview.resize();
+    });
+    saveNavigatorStateForHotReload({
+      ...navigatorState,
+      open: true,
+      visibility: {
+        slides: slidesToggle.input.checked,
+        current: currentToggle.input.checked,
+        next: nextToggle.input.checked,
+      },
     });
   };
   slidesToggle.input.addEventListener("change", updateLayout);
@@ -442,6 +462,7 @@ function createToggleElement(
   const checkbox = doc.createElement("input");
   checkbox.type = "checkbox";
   checkbox.checked = checked;
+  target.style.display = checked ? visibleDisplay : "none";
   checkbox.addEventListener("change", () => {
     target.style.display = checkbox.checked ? visibleDisplay : "none";
   });
