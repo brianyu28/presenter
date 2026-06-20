@@ -49,6 +49,8 @@ export class BrowserCanvasRenderer {
   /** Starts the presentation. */
   async present(): Promise<void> {
     const { presentation, element, scale } = this.props;
+    this.hideCursor();
+
     const canvas = createCanvasElement(presentation.size);
     const extrasContainer = createExtrasElement(presentation.size);
     extrasContainer.style.transformOrigin = "center center";
