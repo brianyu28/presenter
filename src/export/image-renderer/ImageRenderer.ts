@@ -143,8 +143,10 @@ export class ImageRenderer {
         imageById,
         object: currentObject,
         opacity,
+        renderScale: 1,
         renderObject,
         createPath2D,
+        slideSize: presentation.size,
       });
     }
 

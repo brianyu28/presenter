@@ -1,3 +1,4 @@
+import { Size } from "../../../types/Size";
 import { SlideObject } from "../../../types/SlideObject";
 import { UnifiedCanvasContext } from "./UnifiedCanvasContext";
 import { UnifiedImage } from "./UnifiedImage";
@@ -7,6 +8,8 @@ export interface BrowserCanvasObjectRendererArgs<T extends SlideObject> {
   readonly ctx: UnifiedCanvasContext;
   readonly object: T;
   readonly opacity: number;
+  readonly renderScale: number;
+  readonly slideSize: Size;
 
   readonly imageById: Record<string, UnifiedImage>;
   readonly createPath2D: (path?: string) => UnifiedPath2D;

@@ -226,8 +226,10 @@ export class BrowserCanvasRenderer {
         imageById,
         object: currentObject,
         opacity,
+        renderScale: scale,
         renderObject,
         createPath2D,
+        slideSize: presentation.size,
       });
     }
 

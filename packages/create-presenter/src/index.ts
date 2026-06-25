@@ -21,8 +21,7 @@ async function writeTemplates(
   params: Record<string, string>,
 ) {
   for (const [templatePath, content] of Object.entries(templates)) {
-    const relativePath = templatePath
-      .slice(templateRoot.length + 1);
+    const relativePath = templatePath.slice(templateRoot.length + 1);
     const outputPath = path.join(projectDir, relativePath);
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     await writeTemplateFile(outputPath, content, params);
@@ -61,9 +60,7 @@ async function main() {
       stdio: "inherit",
     });
 
-    print(
-      `\n\x1b[32mSuccess! Created ${typeLabel} "${projectName}" at ${projectDir}\x1b[0m`,
-    );
+    print(`\n\x1b[32mSuccess! Created ${typeLabel} "${projectName}" at ${projectDir}\x1b[0m`);
     print(`\nTo run your ${typeLabel}, run:`);
     print(`\n  $ cd ${projectName}`);
     print(isLib ? "\n  $ npm run build" : "\n  $ npm run serve");

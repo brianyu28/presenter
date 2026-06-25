@@ -8,6 +8,7 @@ import { renderLine } from "../objects/renderLine";
 import { renderPath } from "../objects/renderPath";
 import { renderPolygon } from "../objects/renderPolygon";
 import { renderRectangle } from "../objects/renderRectangle";
+import { renderSpotlight } from "../objects/renderSpotlight";
 import { renderSvg } from "../objects/renderSvg";
 import { renderText } from "../objects/renderText";
 import { PowerPointObjectRenderer } from "../types/PowerPointObjectRenderer";
@@ -29,6 +30,7 @@ export const DEFAULT_OBJECT_RENDERERS: ObjectRendererMap = {
   [ObjectType.POLYGON]: renderPolygon,
   [ObjectType.RECTANGLE]: renderRectangle,
   [ObjectType.SLIDE_OBJECT]: () => {},
+  [ObjectType.SPOTLIGHT]: renderSpotlight,
   [ObjectType.SVG]: renderSvg,
   [ObjectType.TEXT]: renderText,
 };

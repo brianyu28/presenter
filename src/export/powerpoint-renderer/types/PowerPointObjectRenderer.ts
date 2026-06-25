@@ -1,6 +1,7 @@
 import pptxgenjs from "pptxgenjs";
 
 import { UnifiedCanvasContext } from "../../../renderer/browser-canvas/types/UnifiedCanvasContext";
+import { Size } from "../../../types/Size";
 import { SlideObject } from "../../../types/SlideObject";
 import { ObjectTransform } from "./ObjectTransform";
 
@@ -12,6 +13,7 @@ export interface PowerPointObjectRendererArgs<T extends SlideObject> {
   readonly object: T;
   readonly opacity: number;
   readonly pixelsPerInch: number;
+  readonly slideSize: Size;
   readonly transform: ObjectTransform;
 
   readonly renderObject: (

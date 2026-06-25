@@ -24,8 +24,7 @@ export function getTextScriptVariant(textStyle: TextStyle): TextScriptVariant {
   }
 
   return {
-    baselineShift:
-      textStyle.fontSize * SCRIPT_BASELINE_SHIFT_SCALE * (isSuperscript ? -1 : 1),
+    baselineShift: textStyle.fontSize * SCRIPT_BASELINE_SHIFT_SCALE * (isSuperscript ? -1 : 1),
     fontSize: textStyle.fontSize * SCRIPT_FONT_SIZE_SCALE,
     isSubscript,
     isSuperscript,

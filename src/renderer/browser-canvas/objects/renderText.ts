@@ -45,9 +45,7 @@ export const renderText: BrowserCanvasObjectRenderer<Text> = ({ ctx, object: tex
         ? previousLineHeight
         : lineSizes.reduce((acc, curr) => Math.max(acc, curr.top), 0);
     const lineBottom =
-      lineSizes.length === 0
-        ? 0
-        : lineSizes.reduce((acc, curr) => Math.max(acc, curr.bottom), 0);
+      lineSizes.length === 0 ? 0 : lineSizes.reduce((acc, curr) => Math.max(acc, curr.bottom), 0);
     const lineHeight = lineTop + lineBottom;
 
     switch (text.alignment) {

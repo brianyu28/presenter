@@ -112,6 +112,7 @@ export class PowerPointRenderer {
         powerpoint,
         renderObject,
         slide: pptxSlide,
+        slideSize: presentation.size,
         transform,
       });
     }
