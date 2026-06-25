@@ -24,6 +24,7 @@ import { DEFAULT_OBJECT_RENDERERS } from "./utils/defaultObjectRenderers";
 import { createExtrasElement } from "./utils/extras/createExtrasElement";
 import { mountWebExtra } from "./utils/extras/mountWebExtra";
 import { loadPresentationImages } from "./utils/loadPresentationImages";
+import { mountVariableControls } from "./utils/variables/mountVariableControls";
 
 export class BrowserCanvasRenderer {
   props: BrowserCanvasRendererProps;
@@ -114,6 +115,10 @@ export class BrowserCanvasRenderer {
     element.replaceChildren();
     container.appendChild(canvas);
     container.appendChild(extrasContainer);
+    mountVariableControls({
+      container,
+      onCommit: () => this.reloadAfterVariableChange(),
+    });
     element.appendChild(container);
 
     const loadedState = loadPresentationState(presentation, this.props.cacheDurationMinutes);
@@ -126,6 +131,22 @@ export class BrowserCanvasRenderer {
     if (shouldRestoreNavigatorAfterHotReload()) {
       showNavigator(true);
     }
+  }
+
+  private reloadAfterVariableChange(): void {
+    const { presentation } = this.props;
+
+    if (this.state.currentAnimationId !== null) {
+      cancelAnimationFrame(this.state.currentAnimationId);
+      this.state.currentAnimationId = null;
+    }
+
+    storePresentationState({
+      title: presentation.title,
+      slideIndex: this.state.slideIndex,
+      buildIndex: this.state.buildIndex,
+    });
+    window.location.reload();
   }
 
   renderSlide(slideIndex: number, buildIndex: number = 0, buildTime: number | null = null): void {

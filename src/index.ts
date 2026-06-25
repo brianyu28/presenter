@@ -51,6 +51,7 @@ export { SlideWebExtra } from "./types/SlideWebExtra";
 export type { TextContent } from "./types/TextContent";
 export { TextUnit } from "./types/TextUnit";
 export { Update } from "./types/Update";
+export { Variable, type VariableProps } from "./types/Variable";
 export { Opaque } from "./utils/color/Opaque";
 export { Transparent } from "./utils/color/Transparent";
 export { getSmoothPathInterpolator } from "./utils/interpolate/getSmoothPathInterpolator";

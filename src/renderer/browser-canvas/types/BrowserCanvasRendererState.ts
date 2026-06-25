@@ -26,7 +26,6 @@ export const BROWSER_CANVAS_RENDERER_DEFAULT_STATE: BrowserCanvasRendererState =
   canvas: null,
   extrasContainer: null,
   mountedExtrasCleanups: [],
-  mountedExtrasSlideIndex: null,
   slideIndex: 0,
   buildIndex: 0,
   currentAnimationId: null,
