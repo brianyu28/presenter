@@ -1,9 +1,9 @@
 import { Text } from "../../../objects/Text";
+import { getTextLayout } from "../../../renderer/browser-canvas/utils/text/getTextLayout";
 import { getTextUnitMeasurements } from "../../../renderer/browser-canvas/utils/text/getTextUnitMeasurements";
 import { Position } from "../../../types/Position";
 import { getTextStyleFromText } from "../../../utils/objects/text/getTextStyleFromText";
 import { getTextUnitsFromTextContent } from "../../../utils/objects/text/getTextUnitsFromTextContent";
-import { getCombinedSizes2D } from "../../../utils/size/getCombinedSizes2D";
 import { PowerPointObjectRenderer } from "../types/PowerPointObjectRenderer";
 import { getPptxText } from "../utils/getPptxText";
 import { getTransformedBoundingBox } from "../utils/getTransformedBoundingBox";
@@ -27,7 +27,7 @@ export const renderText: PowerPointObjectRenderer<Text> = ({
   const style = getTextStyleFromText(text);
 
   const sizes = getTextUnitMeasurements(textUnits, style, ctx);
-  const baseSize = getCombinedSizes2D(sizes, text.lineSpacing);
+  const { size: baseSize } = getTextLayout(sizes, text.lineSpacing);
   const { origin, size } = getTransformedBoundingBox(
     Position({ x: text.x, y: text.y }),
     text.anchor,

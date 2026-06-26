@@ -9,6 +9,7 @@ import { setContextWithTextStyle } from "./setContextWithTextStyle";
 export interface TextUnitMeasurement extends Size {
   readonly baselineShift: number;
   readonly bottom: number;
+  readonly lineAdvance: number;
   readonly top: number;
 }
 
@@ -21,7 +22,9 @@ export function getTextUnitMeasurements(
 
   for (const line of textUnits) {
     const lineSizes: TextUnitMeasurement[] = [];
-    for (const unit of line) {
+    const measurementUnits = line.length === 0 ? [{ text: "" }] : line;
+
+    for (const unit of measurementUnits) {
       const { text, ...unitStyle } = unit;
       const combinedStyle: TextStyle = { ...style, ...unitStyle };
       setContextWithTextStyle(ctx, combinedStyle);
@@ -35,6 +38,7 @@ export function getTextUnitMeasurements(
         baselineShift,
         bottom,
         height: top + bottom,
+        lineAdvance: combinedStyle.fontSize,
         top,
       });
     }

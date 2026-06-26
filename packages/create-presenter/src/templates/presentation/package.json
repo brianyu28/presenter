@@ -11,6 +11,6 @@
     "vite": "^7.3.1"
   },
   "dependencies": {
-    "presenter": "^0.9.0"
+    "presenter": "^0.9.1"
   }
 }
