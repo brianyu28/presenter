@@ -28,8 +28,8 @@ export function getTextUnitMeasurements(
       const metrics = ctx.context.measureText(text);
       const size = getSizeFromTextMetrics(metrics);
       const { baselineShift } = getTextScriptVariant(combinedStyle);
-      const top = size.height + Math.max(0, -baselineShift);
-      const bottom = Math.max(0, baselineShift);
+      const top = Math.max(0, size.top - baselineShift);
+      const bottom = Math.max(0, size.bottom + baselineShift);
       lineSizes.push({
         ...size,
         baselineShift,
