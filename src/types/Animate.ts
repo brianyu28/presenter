@@ -37,6 +37,7 @@ export function Animate<T extends SlideObject>(
     block: false,
     interpolators: null,
     isKey: false,
+    notes: null,
     shortcut: null,
     ...(typeof animationParams === "number" ? { duration: animationParams } : animationParams),
   };

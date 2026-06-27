@@ -6,11 +6,15 @@ export interface Pause extends BaseUnitSlideAnimation {
   readonly duration: number;
 }
 
-export function Pause(duration: number = 1000): Pause {
+export type PauseParams = Partial<Omit<Pause, "duration" | "type">>;
+
+export function Pause(duration: number = 1000, pauseParams: PauseParams = {}): Pause {
   return {
     type: AnimationType.PAUSE,
     isKey: false,
     duration,
+    notes: null,
     shortcut: null,
+    ...pauseParams,
   };
 }

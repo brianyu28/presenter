@@ -18,6 +18,7 @@ export function Update<T extends SlideObject>(
   return {
     type: AnimationType.UPDATE,
     isKey: false,
+    notes: null,
     object,
     props,
     shortcut: null,

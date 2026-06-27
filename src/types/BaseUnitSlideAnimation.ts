@@ -6,5 +6,6 @@ export interface BaseUnitSlideAnimation {
   /** Indicates whether this animation is a key animation to be included in exports. */
   readonly isKey: boolean;
 
+  readonly notes: string | null;
   readonly shortcut: string | string[] | null;
 }

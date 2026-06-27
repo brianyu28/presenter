@@ -3,6 +3,7 @@ import { ShortcutState } from "../types/ShortcutState";
 import { Slide } from "../types/Slide";
 import { hasModifierKey } from "../utils/dom/hasModifierKey";
 import { setupKeyEventListeners } from "../utils/presentation/setupKeyEventListeners";
+import { getSpeakerNotes } from "../utils/slide/getSpeakerNotes";
 import {
   loadNavigatorStateForHotReload,
   markNavigatorClosedForHotReload,
@@ -222,6 +223,7 @@ export function createNavigatorElement(
 
   const currentPreview = createPreviewElement("Current", presentation);
   const nextPreview = createPreviewElement("Next", presentation);
+  const notesPanel = createNotesElement();
   const navigatorState = loadNavigatorStateForHotReload();
   nextPreview.container.style.cursor = "pointer";
   nextPreview.container.addEventListener("click", () => {
@@ -259,6 +261,11 @@ export function createNavigatorElement(
     nextPreview.container,
     navigatorState.visibility.next,
   );
+  const notesToggle = createToggleElement(
+    "Notes",
+    notesPanel.container,
+    navigatorState.visibility.notes,
+  );
 
   const updateLayout = () => {
     const shouldStackPreviews =
@@ -278,22 +285,26 @@ export function createNavigatorElement(
         slides: slidesToggle.input.checked,
         current: currentToggle.input.checked,
         next: nextToggle.input.checked,
+        notes: notesToggle.input.checked,
       },
     });
   };
   slidesToggle.input.addEventListener("change", updateLayout);
   currentToggle.input.addEventListener("change", updateLayout);
   nextToggle.input.addEventListener("change", updateLayout);
+  notesToggle.input.addEventListener("change", updateLayout);
   navigatorWindow?.addEventListener("resize", updateLayout);
 
   controls.appendChild(slidesToggle.element);
   controls.appendChild(currentToggle.element);
   controls.appendChild(nextToggle.element);
+  controls.appendChild(notesToggle.element);
 
   previewGrid.appendChild(currentPreview.container);
   previewGrid.appendChild(nextPreview.container);
   previewColumn.appendChild(controls);
   previewColumn.appendChild(previewGrid);
+  previewColumn.appendChild(notesPanel.container);
   navigatorElement.appendChild(slideList);
   navigatorElement.appendChild(previewColumn);
 
@@ -316,6 +327,8 @@ export function createNavigatorElement(
 
     currentPreview.label.textContent = getBuildLabel(presentation, slideIndex, buildIndex);
     nextPreview.label.textContent = getBuildLabel(presentation, nextSlideIndex, nextBuildIndex);
+    notesPanel.content.textContent =
+      getSpeakerNotes(presentation.slides[slideIndex] ?? Slide(), buildIndex) ?? "";
     scrollSlideIntoView(slideElements[slideIndex], slideList);
     updateLayout();
   }
@@ -345,6 +358,46 @@ export function createNavigatorElement(
     isOpen: () => navigatorWindow !== null && !navigatorWindow.closed,
     update,
   };
+}
+
+function createNotesElement(): {
+  readonly container: HTMLDivElement;
+  readonly content: HTMLDivElement;
+} {
+  const doc = navigatorWindow?.document ?? document;
+  const container = doc.createElement("div");
+  container.style.display = "flex";
+  container.style.flex = "0 1 180px";
+  container.style.flexDirection = "column";
+  container.style.minHeight = "100px";
+  container.style.maxHeight = "30vh";
+  container.style.overflow = "hidden";
+  container.style.backgroundColor = "#ffffff";
+  container.style.border = "1px solid #e5e7eb";
+  container.style.borderRadius = "6px";
+  container.style.boxShadow = "0 1px 2px rgba(15, 23, 42, 0.06)";
+
+  const title = doc.createElement("div");
+  title.textContent = "Notes";
+  title.style.padding = "10px 12px 6px";
+  title.style.fontSize = "12px";
+  title.style.fontWeight = "700";
+  title.style.textTransform = "uppercase";
+  title.style.color = "#6b7280";
+
+  const content = doc.createElement("div");
+  content.style.flex = "1 1 auto";
+  content.style.minHeight = "0";
+  content.style.overflowY = "auto";
+  content.style.padding = "4px 12px 12px";
+  content.style.fontSize = "16px";
+  content.style.lineHeight = "1.5";
+  content.style.whiteSpace = "pre-wrap";
+
+  container.appendChild(title);
+  container.appendChild(content);
+
+  return { container, content };
 }
 
 function createSlideElement(slide: Slide, slideIndex: number): HTMLDivElement {

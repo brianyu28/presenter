@@ -7,6 +7,7 @@ export interface NavigatorState {
     readonly slides: boolean;
     readonly current: boolean;
     readonly next: boolean;
+    readonly notes: boolean;
   };
 }
 
@@ -16,6 +17,7 @@ const DEFAULT_NAVIGATOR_STATE: NavigatorState = {
     slides: true,
     current: true,
     next: true,
+    notes: false,
   },
 };
 
@@ -77,6 +79,10 @@ export function loadNavigatorStateForHotReload(): NavigatorState {
           typeof state.visibility?.next === "boolean"
             ? state.visibility.next
             : DEFAULT_NAVIGATOR_STATE.visibility.next,
+        notes:
+          typeof state.visibility?.notes === "boolean"
+            ? state.visibility.notes
+            : DEFAULT_NAVIGATOR_STATE.visibility.notes,
       },
     };
   } catch {

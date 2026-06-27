@@ -47,6 +47,7 @@ describe("navigatorHotReload", () => {
         slides: false,
         current: true,
         next: false,
+        notes: true,
       },
     });
 
@@ -56,6 +57,7 @@ describe("navigatorHotReload", () => {
         slides: false,
         current: true,
         next: false,
+        notes: true,
       },
     });
 
@@ -65,6 +67,26 @@ describe("navigatorHotReload", () => {
       slides: false,
       current: true,
       next: false,
+      notes: true,
     });
+  });
+
+  test("defaults notes to hidden for state saved before notes existed", () => {
+    const viteClientScript = document.createElement("script");
+    viteClientScript.src = "http://localhost:5173/@vite/client";
+    document.head.appendChild(viteClientScript);
+    sessionStorage.setItem(
+      "presenter.navigator.state",
+      JSON.stringify({
+        open: true,
+        visibility: {
+          slides: true,
+          current: true,
+          next: true,
+        },
+      }),
+    );
+
+    expect(loadNavigatorStateForHotReload().visibility.notes).toBe(false);
   });
 });
