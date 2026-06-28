@@ -63,7 +63,7 @@ export class ImageRenderer {
 
       if (isAnimatedExport) {
         for (let i = 0; i < animationHoldFrames; i++) {
-          this.renderImage(slideIndex, 0);
+          await this.renderImage(slideIndex, 0);
         }
 
         for (let animationIndex = 0; animationIndex < slide.animations.length; animationIndex++) {
@@ -76,7 +76,7 @@ export class ImageRenderer {
           const totalFrames = Math.ceil((durationMs / 1000) * this.props.framesPerSecond);
 
           for (let frameIndex = 0; frameIndex < totalFrames; frameIndex++) {
-            this.renderImage(
+            await this.renderImage(
               slideIndex,
               animationIndex + 1,
               frameIndex * (durationMs / totalFrames),
@@ -84,13 +84,13 @@ export class ImageRenderer {
           }
 
           for (let i = 0; i < animationHoldFrames; i++) {
-            this.renderImage(slideIndex, animationIndex + 1);
+            await this.renderImage(slideIndex, animationIndex + 1);
           }
         }
       } else {
         const keyBuildIndices = getKeySlideBuildIndices(slide);
         for (const buildIndex of keyBuildIndices) {
-          this.renderImage(slideIndex, buildIndex);
+          await this.renderImage(slideIndex, buildIndex);
         }
       }
     }
