@@ -4,6 +4,7 @@ export function createCanvasElement(size: Size): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
   canvas.setAttribute("width", size.width.toString());
   canvas.setAttribute("height", size.height.toString());
+  canvas.setAttribute("aria-hidden", "true");
 
   canvas.style.position = "absolute";
   canvas.style.width = "100%";

@@ -2,6 +2,7 @@ import { ShortcutState } from "../../../types/ShortcutState";
 import { UnifiedImage } from "./UnifiedImage";
 
 export interface BrowserCanvasRendererState {
+  accessibleDescriptionElement: HTMLDivElement | null;
   canvas: HTMLCanvasElement | null;
   extrasContainer: SVGSVGElement | null;
   mountedExtrasCleanups: (() => void)[];
@@ -23,6 +24,7 @@ export interface BrowserCanvasRendererState {
 }
 
 export const BROWSER_CANVAS_RENDERER_DEFAULT_STATE: BrowserCanvasRendererState = Object.freeze({
+  accessibleDescriptionElement: null,
   canvas: null,
   extrasContainer: null,
   mountedExtrasCleanups: [],

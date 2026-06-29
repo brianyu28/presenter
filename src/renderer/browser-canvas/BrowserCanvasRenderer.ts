@@ -17,6 +17,11 @@ import {
   BrowserCanvasRendererState,
 } from "./types/BrowserCanvasRendererState";
 import { CanvasContextType, UnifiedCanvasContext } from "./types/UnifiedCanvasContext";
+import {
+  createAccessibleDescriptionElement,
+  getAccessibleDescription,
+  updateAccessibleDescription,
+} from "./utils/accessibility/accessibleDescription";
 import { clearCanvas } from "./utils/clearCanvas";
 import { createCanvasElement } from "./utils/createCanvasElement";
 import { createPath2D } from "./utils/createPath2D";
@@ -52,6 +57,7 @@ export class BrowserCanvasRenderer {
     const { presentation, element, scale } = this.props;
     this.hideCursor();
 
+    const accessibleDescriptionElement = createAccessibleDescriptionElement(presentation.title);
     const canvas = createCanvasElement(presentation.size);
     const extrasContainer = createExtrasElement(presentation.size);
     extrasContainer.style.transformOrigin = "center center";
@@ -59,6 +65,7 @@ export class BrowserCanvasRenderer {
 
     this.state = {
       ...BROWSER_CANVAS_RENDERER_DEFAULT_STATE,
+      accessibleDescriptionElement,
       imageById: await loadPresentationImages({
         ...presentation.resources.images,
         ...getSvgImageUrlById(presentation),
@@ -113,6 +120,7 @@ export class BrowserCanvasRenderer {
     );
 
     element.replaceChildren();
+    container.appendChild(accessibleDescriptionElement);
     container.appendChild(canvas);
     container.appendChild(extrasContainer);
     mountVariableControls({
@@ -192,6 +200,13 @@ export class BrowserCanvasRenderer {
     this.renderCanvas(canvas, slideIndex, buildIndex, buildTime, this.props.scale);
 
     if (buildTime === null) {
+      if (this.state.accessibleDescriptionElement !== null) {
+        const objectState = getObjectState({ slide, buildIndex, buildTime });
+        updateAccessibleDescription(
+          this.state.accessibleDescriptionElement,
+          getAccessibleDescription(slide, objectState),
+        );
+      }
       this.updateNavigator();
     }
   }

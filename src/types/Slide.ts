@@ -6,7 +6,8 @@ export interface Slide {
   readonly objects: SlideObject[];
   readonly animations: SlideAnimation[];
   readonly extras: SlideWebExtra[];
-
+  /** A screen-reader description of the slide. */
+  readonly description: string | null;
   readonly isAllKey: boolean;
   readonly isEndKey: boolean;
   readonly isStartKey: boolean;
@@ -20,6 +21,7 @@ export function Slide(props: Partial<Slide> | null = null): Slide {
     objects: [],
     animations: [],
     extras: [],
+    description: null,
     isAllKey: false,
     isEndKey: true,
     isStartKey: false,

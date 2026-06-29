@@ -2,8 +2,9 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "jsdom",
   transform: {
-    "^.+\\.ts$": ["ts-jest", { diagnostics: { ignoreCodes: ["TS151001"] } }],
+    "^.+\\.[jt]s$": ["ts-jest", { diagnostics: { ignoreCodes: ["TS151001"] } }],
   },
+  transformIgnorePatterns: ["/node_modules/(?!(d3-ease)/)"],
   collectCoverageFrom: ["src/**/*.{js,ts}"],
   coverageReporters: ["text"],
 };
