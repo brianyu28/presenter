@@ -1,26 +1,17 @@
 import { Size } from "../../../../types/Size";
 import { TextUnitMeasurement } from "./getTextUnitMeasurements";
 
-export interface TextLineLayout extends Size {
-  readonly baselineY: number;
-  readonly bottom: number;
-  readonly lineAdvance: number;
-  readonly top: number;
-}
+// Units flow horizontally, so widths add; their vertical extents share a baseline,
+// so the largest ascent, descent, and line advance define the line.
+function getLineLayout(lineMeasurements: readonly TextUnitMeasurement[]) {
+  const bottom = Math.max(...lineMeasurements.map((unit) => unit.bottom), 0);
+  const top = Math.max(...lineMeasurements.map((unit) => unit.top), 0);
 
-export interface TextLayout {
-  readonly lines: readonly TextLineLayout[];
-  readonly size: Size;
-}
-
-function getLineLayout(
-  lineMeasurements: readonly TextUnitMeasurement[],
-): Omit<TextLineLayout, "baselineY"> {
   return {
-    bottom: Math.max(...lineMeasurements.map((unit) => unit.bottom), 0),
-    height: Math.max(...lineMeasurements.map((unit) => unit.height), 0),
+    bottom,
+    height: top + bottom,
     lineAdvance: Math.max(...lineMeasurements.map((unit) => unit.lineAdvance), 0),
-    top: Math.max(...lineMeasurements.map((unit) => unit.top), 0),
+    top,
     width: lineMeasurements.reduce((acc, curr) => acc + curr.width, 0),
   };
 }
@@ -33,53 +24,53 @@ function getLineLayout(
 export function getTextLayout(
   lineMeasurements: readonly (readonly TextUnitMeasurement[])[],
   lineSpacing: number = 1,
-): TextLayout {
+) {
   const lines = lineMeasurements.map(getLineLayout);
 
   if (lines.length === 0) {
     return {
-      lines: [],
+      baselines: [],
       size: Size(),
     };
   }
 
-  let baselineY = lines[0]?.top ?? 0;
-  let previousLineAdvance = 0;
-  const positionedLines: TextLineLayout[] = [];
+  let baselineY = 0;
+  let previousLineBoxBottom: number | undefined;
+  let layoutTop = 0;
+  let layoutBottom = 0;
+  const baselines: number[] = [];
 
-  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-    const line = lines[lineIndex];
+  for (const line of lines) {
+    // lineSpacing scales the nominal font size. Any extra (or negative) leading
+    // is split evenly above and below the measured font bounds.
+    const lineHeight = line.lineAdvance * lineSpacing;
+    const halfLeading = (lineHeight - line.height) / 2;
+    const lineBoxTop = line.top + halfLeading;
 
-    if (line === undefined) {
-      continue;
+    if (previousLineBoxBottom === undefined) {
+      baselineY = lineBoxTop;
+    } else {
+      // Adjacent line boxes meet at the previous descent and current ascent.
+      baselineY += previousLineBoxBottom + lineBoxTop;
     }
 
-    if (lineIndex > 0) {
-      // Line spacing is typographic baseline advance
-      baselineY += previousLineAdvance * lineSpacing;
-    }
+    baselines.push(baselineY);
 
-    positionedLines.push({
-      ...line,
-      baselineY,
-    });
-    previousLineAdvance = line.lineAdvance;
+    // Use font bounds for the final block size because they can extend beyond
+    // the nominal line boxes when leading is negative.
+    layoutTop = Math.min(layoutTop, baselineY - line.top);
+    layoutBottom = Math.max(layoutBottom, baselineY + line.bottom);
+    previousLineBoxBottom = line.bottom + halfLeading;
   }
 
-  // Bounds are based on the furthest measured font box above and below each baseline
-  const top = Math.min(...positionedLines.map((line) => line.baselineY - line.top), 0);
-  const bottom = Math.max(...positionedLines.map((line) => line.baselineY + line.bottom), 0);
-  const baselineOffset = -top;
+  // Return baselines relative to the top edge of the measured text block.
+  const baselineOffset = -layoutTop;
 
   return {
-    lines: positionedLines.map((line) => ({
-      ...line,
-      // Keep all returned baselines relative to the top edge of the final text block
-      baselineY: line.baselineY + baselineOffset,
-    })),
+    baselines: baselines.map((baseline) => baseline + baselineOffset),
     size: Size({
-      height: bottom - top,
-      width: Math.max(...positionedLines.map((line) => line.width), 0),
+      height: layoutBottom - layoutTop,
+      width: Math.max(...lines.map((line) => line.width), 0),
     }),
   };
 }

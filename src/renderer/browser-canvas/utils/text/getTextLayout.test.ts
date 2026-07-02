@@ -17,7 +17,7 @@ describe("getTextLayout", () => {
   test("uses line advance instead of font box height for baseline spacing", () => {
     const layout = getTextLayout([[measurement({ width: 120 })], [measurement({ width: 80 })]], 1);
 
-    expect(layout.lines.map((line) => line.baselineY)).toEqual([90, 190]);
+    expect(layout.baselines).toEqual([90, 190]);
     expect(layout.size).toEqual({
       height: 220,
       width: 120,
@@ -27,11 +27,11 @@ describe("getTextLayout", () => {
   test("applies line spacing as a multiplier of line advance", () => {
     const layout = getTextLayout([[measurement({})], [measurement({})]], 1.2);
 
-    expect(layout.lines.map((line) => line.baselineY)).toEqual([90, 210]);
+    expect(layout.baselines).toEqual([90, 210]);
     expect(layout.size.height).toBe(240);
   });
 
-  test("keeps bounds large enough for lines that extend above the first line", () => {
+  test("uses both adjacent line boxes when font sizes differ", () => {
     const layout = getTextLayout(
       [
         [measurement({ bottom: 5, height: 25, lineAdvance: 20, top: 20 })],
@@ -40,7 +40,7 @@ describe("getTextLayout", () => {
       1,
     );
 
-    expect(layout.lines.map((line) => line.baselineY)).toEqual([70, 90]);
-    expect(layout.size.height).toBe(120);
+    expect(layout.baselines).toEqual([20, 102.5]);
+    expect(layout.size.height).toBe(132.5);
   });
 });

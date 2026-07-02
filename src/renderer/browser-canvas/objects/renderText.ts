@@ -31,9 +31,9 @@ export const renderText: BrowserCanvasObjectRenderer<Text> = ({ ctx, object: tex
   for (let lineIndex = 0; lineIndex < textUnits.length; lineIndex++) {
     const line = textUnits[lineIndex];
     const lineSizes = sizes[lineIndex];
-    const lineLayout = layout.lines[lineIndex];
+    const baseline = layout.baselines[lineIndex];
 
-    if (line == undefined || lineSizes == undefined || lineLayout == undefined) {
+    if (line == undefined || lineSizes == undefined || baseline == undefined) {
       console.error("Could not determine text units or sizes for line");
       continue;
     }
@@ -54,7 +54,7 @@ export const renderText: BrowserCanvasObjectRenderer<Text> = ({ ctx, object: tex
         assertNever(text.alignment);
         break;
     }
-    const baselineY = boundingBox.origin.y + lineLayout.baselineY;
+    const baselineY = boundingBox.origin.y + baseline;
 
     for (let unitIndex = 0; unitIndex < line.length; unitIndex++) {
       if (length !== null && consumedLength >= length) {
