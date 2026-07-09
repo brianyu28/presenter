@@ -259,11 +259,14 @@ export class BrowserCanvasRenderer {
       }
       objectRenderer({
         ctx: context,
+        originalObject: object,
         imageById,
         object: currentObject,
         opacity,
         renderScale: scale,
         renderObject,
+        getCurrentObject: <TObject extends SlideObject>(object: TObject) =>
+          objectState.get(object) as TObject | undefined,
         createPath2D,
         slideSize: presentation.size,
       });

@@ -14,13 +14,18 @@
       "types": "./dist/export/index.d.ts",
       "import": "./dist/export.mjs",
       "require": "./dist/export.js"
+    },
+    "./3d": {
+      "types": "./dist/3d/index.d.ts",
+      "import": "./dist/3d.mjs",
+      "require": "./dist/3d.js"
     }
   },
   "files": [
     "./dist/"
   ],
   "scripts": {
-    "build": "vite build && vite build --config vite.config.export.ts",
+    "build": "vite build && vite build --config vite.config.export.ts && vite build --config vite.config.3d.ts",
     "bump-version": "sh scripts/bump-version.sh",
     "watch": "vite build --watch",
     "prettier": "prettier . --write --ignore-unknown",
@@ -45,12 +50,21 @@
     "skia-canvas": "^3.0.8",
     "svg-path-properties": "^2.0.0"
   },
+  "peerDependencies": {
+    "three": "^0.185.1"
+  },
+  "peerDependenciesMeta": {
+    "three": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
     "@types/d3-ease": "^3.0.2",
     "@types/flubber": "^0.4.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.5.2",
+    "@types/three": "^0.185.0",
     "ajv": "^8.18.0",
     "eslint": "^9.35.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
@@ -60,6 +74,7 @@
     "jest-environment-jsdom": "^30.3.0",
     "jiti": "^2.6.1",
     "prettier": "^3.6.2",
+    "three": "^0.185.1",
     "ts-jest": "^29.4.9",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.0",

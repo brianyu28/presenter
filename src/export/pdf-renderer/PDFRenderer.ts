@@ -95,11 +95,14 @@ export class PDFRenderer {
       }
       objectRenderer({
         ctx: context,
+        originalObject: object,
         imageById,
         object: currentObject,
         opacity,
         renderScale: 1,
         renderObject,
+        getCurrentObject: <TObject extends SlideObject>(object: TObject) =>
+          objectState.get(object) as TObject | undefined,
         createPath2D,
         slideSize: presentation.size,
       });
