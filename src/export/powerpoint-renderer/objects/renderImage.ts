@@ -18,7 +18,13 @@ export const renderImage: PowerPointObjectRenderer<Image> = ({
     return;
   }
 
-  const path = imagePathById[image.imageId];
+  const imageId =
+    image.imageId != null && image.imageId.length > 0 ? image.imageId : image.imagePath;
+  if (imageId == null) {
+    return;
+  }
+
+  const path = imagePathById[imageId];
   if (path === undefined) {
     return;
   }

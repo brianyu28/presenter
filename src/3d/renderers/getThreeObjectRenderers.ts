@@ -55,6 +55,10 @@ export async function getThreeObjectRenderers(
   };
 }
 
+export function getRenderedThreeSceneCanvas(scene: ThreeScene): HTMLCanvasElement | null {
+  return runtimeByScene.get(scene)?.renderer.domElement ?? null;
+}
+
 function createRenderThreeScene({ THREE }: ThreeModules): BrowserCanvasObjectRenderer<ThreeScene> {
   return (args) => {
     const { ctx, object: sceneObject, opacity, originalObject, getCurrentObject } = args;

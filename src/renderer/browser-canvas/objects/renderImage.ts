@@ -22,7 +22,13 @@ export const renderImage: BrowserCanvasObjectRenderer<Image> = ({
     Size({ width: image.width, height: image.height }),
   );
 
-  const imageData = imageById[image.imageId];
+  const imageId =
+    image.imageId != null && image.imageId.length > 0 ? image.imageId : image.imagePath;
+  if (imageId == null) {
+    return;
+  }
+
+  const imageData = imageById[imageId];
   if (imageData === undefined) {
     return;
   }

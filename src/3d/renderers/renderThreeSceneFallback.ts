@@ -5,7 +5,7 @@ import { ThreeScene } from "../objects/ThreeScene";
 
 export const renderThreeSceneFallback: BrowserCanvasObjectRenderer<ThreeScene> = (args) => {
   const { object: scene } = args;
-  if (scene.fallbackImageId === null) {
+  if (scene.fallbackImageId == null && scene.fallbackImagePath == null) {
     return;
   }
 
@@ -17,6 +17,7 @@ export const renderThreeSceneFallback: BrowserCanvasObjectRenderer<ThreeScene> =
       description: scene.description,
       height: scene.height,
       imageId: scene.fallbackImageId,
+      imagePath: scene.fallbackImagePath,
       opacity: scene.opacity,
       smooth: scene.fallbackSmooth,
       width: scene.width,

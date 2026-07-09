@@ -6,6 +6,7 @@ import {
 } from "../../renderer/browser-canvas/types/UnifiedCanvasContext";
 import { Presentation } from "../../types/Presentation";
 import { SlideObject } from "../../types/SlideObject";
+import { getImagePathUrlById } from "../../utils/presentation/getImagePathUrlById";
 import { getObjectState } from "../../utils/presentation/getObjectState";
 import { getKeySlideBuildIndices } from "../../utils/slide/getKeySlideBuildIndices";
 import { createCanvasElement } from "../utils/createCanvasElement";
@@ -43,7 +44,13 @@ export class PowerPointRenderer {
     const { presentation, pixelsPerInch, resourcePathPrefix } = this.props;
     this.state = {
       ...POWERPOINT_RENDERER_DEFAULT_STATE,
-      imagePathById: getImagePathById(presentation.resources.images, resourcePathPrefix),
+      imagePathById: getImagePathById(
+        {
+          ...getImagePathUrlById(presentation),
+          ...presentation.resources.images,
+        },
+        resourcePathPrefix,
+      ),
     };
 
     // Canvas used for temporary drawing and measurement, not for render output

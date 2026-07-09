@@ -14,6 +14,7 @@ export interface ThreeScene extends SlideObject {
   readonly height: number;
   readonly meshes: ThreeMesh[];
   readonly fallbackImageId: string | null;
+  readonly fallbackImagePath: string | null;
   readonly fallbackCornerRadius: number;
   readonly fallbackSmooth: boolean;
   readonly cameraType: ThreeCameraType;
@@ -50,6 +51,7 @@ export function ThreeScene(
     height: 100,
     meshes,
     fallbackImageId: null,
+    fallbackImagePath: null,
     fallbackCornerRadius: 0,
     fallbackSmooth: true,
     cameraType: ThreeCameraType.PERSPECTIVE,

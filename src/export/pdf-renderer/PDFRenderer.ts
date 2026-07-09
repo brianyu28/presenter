@@ -8,6 +8,7 @@ import { DEFAULT_OBJECT_RENDERERS } from "../../renderer/browser-canvas/utils/de
 import { Presentation } from "../../types/Presentation";
 import { SlideObject } from "../../types/SlideObject";
 import { getRgbStringForColor } from "../../utils/color/getRgbStringForColor";
+import { getImagePathUrlById } from "../../utils/presentation/getImagePathUrlById";
 import { getObjectState } from "../../utils/presentation/getObjectState";
 import { getSvgImageUrlById } from "../../utils/presentation/getSvgImageUrlById";
 import { getKeySlideBuildIndices } from "../../utils/slide/getKeySlideBuildIndices";
@@ -40,7 +41,11 @@ export class PDFRenderer {
     this.state = {
       ...PDF_RENDERER_DEFAULT_STATE,
       imageById: await loadPresentationImages(
-        { ...presentation.resources.images, ...getSvgImageUrlById(presentation) },
+        {
+          ...getImagePathUrlById(presentation),
+          ...presentation.resources.images,
+          ...getSvgImageUrlById(presentation),
+        },
         this.props.resourcePathPrefix,
       ),
     };

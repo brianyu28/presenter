@@ -5,6 +5,7 @@ import { SlideObject } from "../../types/SlideObject";
 import { getSlideAnimationDuration } from "../../utils/animate/getSlideAnimationDuration";
 import { getRgbStringForColor } from "../../utils/color/getRgbStringForColor";
 import { createPresentationContainer } from "../../utils/presentation/createPresentationContainer";
+import { getImagePathUrlById } from "../../utils/presentation/getImagePathUrlById";
 import { getObjectState } from "../../utils/presentation/getObjectState";
 import { getSvgImageUrlById } from "../../utils/presentation/getSvgImageUrlById";
 import { isFullBodyPresentation } from "../../utils/presentation/isFullBodyPresentation";
@@ -67,6 +68,7 @@ export class BrowserCanvasRenderer {
       ...BROWSER_CANVAS_RENDERER_DEFAULT_STATE,
       accessibleDescriptionElement,
       imageById: await loadPresentationImages({
+        ...getImagePathUrlById(presentation),
         ...presentation.resources.images,
         ...getSvgImageUrlById(presentation),
       }),

@@ -14,7 +14,10 @@ export { type ThreeModelPath, type ThreeModelTarget } from "./objects/ThreeModel
 export { ThreeObjectType } from "./objects/ThreeObjectType";
 export { ThreeScene, type ThreeScene as ThreeSceneObject } from "./objects/ThreeScene";
 export { ThreeSphere, type ThreeSphere as ThreeSphereObject } from "./objects/ThreeSphere";
-export { getThreeObjectRenderers } from "./renderers/getThreeObjectRenderers";
+export {
+  getRenderedThreeSceneCanvas,
+  getThreeObjectRenderers,
+} from "./renderers/getThreeObjectRenderers";
 export { renderThreeSceneFallback } from "./renderers/renderThreeSceneFallback";
 export { renderThreeScenePowerPointFallback } from "./renderers/renderThreeScenePowerPointFallback";
 export {
@@ -28,3 +31,8 @@ export {
   type ThreeModelMaterialInfo,
   type ThreeModelNodeInfo,
 } from "./utils/inspectThreeModel";
+export {
+  installThreeSceneCaptureApi,
+  type InstallThreeSceneCaptureApiOptions,
+  type ThreeSceneCaptureOptions,
+} from "./utils/installThreeSceneCaptureApi";
