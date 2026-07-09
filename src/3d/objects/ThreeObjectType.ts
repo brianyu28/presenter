@@ -3,6 +3,7 @@ export const ThreeObjectType = {
   MODEL: "ThreeModel",
   MODEL_MATERIAL: "ThreeModelMaterial",
   MODEL_NODE: "ThreeModelNode",
+  PRESENTER_GROUP: "ThreePresenterGroup",
   SCENE: "ThreeScene",
   SPHERE: "ThreeSphere",
 } as const;

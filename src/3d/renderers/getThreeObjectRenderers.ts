@@ -1,6 +1,9 @@
 import type * as Three from "three";
 
-import { BrowserCanvasObjectRenderer } from "../../renderer/browser-canvas/types/BrowserCanvasObjectRenderer";
+import {
+  BrowserCanvasObjectRenderer,
+  BrowserCanvasObjectRendererArgs,
+} from "../../renderer/browser-canvas/types/BrowserCanvasObjectRenderer";
 import { CanvasContextType } from "../../renderer/browser-canvas/types/UnifiedCanvasContext";
 import { Color } from "../../types/Color";
 import { Position } from "../../types/Position";
@@ -17,6 +20,7 @@ import { ThreeModelMaterial } from "../objects/ThreeModelMaterial";
 import { ThreeModelNode } from "../objects/ThreeModelNode";
 import { ThreeModelTarget } from "../objects/ThreeModelTarget";
 import { ThreeObjectType } from "../objects/ThreeObjectType";
+import { ThreePresenterGroup } from "../objects/ThreePresenterGroup";
 import { ThreeScene } from "../objects/ThreeScene";
 import { ThreeSphere } from "../objects/ThreeSphere";
 import { GLTFLoaderLike, ThreeModules } from "../types/ThreeModules";
@@ -89,7 +93,7 @@ function createRenderThreeScene({ THREE }: ThreeModules): BrowserCanvasObjectRen
       if (currentMesh === undefined || currentMesh.opacity === 0) {
         continue;
       }
-      const object3d = createObject3D(THREE, currentMesh, originalMesh, getCurrentObject);
+      const object3d = createObject3D(THREE, currentMesh, originalMesh, args);
       if (object3d !== null) {
         applyMeshTransform(object3d, currentMesh);
         runtime.scene.add(object3d);
@@ -276,7 +280,7 @@ function createObject3D(
   THREE: typeof Three,
   mesh: ThreeMesh,
   originalMesh: ThreeMesh,
-  getCurrentObject: <TObject extends SlideObject>(object: TObject) => TObject | undefined,
+  renderArgs: BrowserCanvasObjectRendererArgs<ThreeScene>,
 ): Three.Object3D | null {
   switch (mesh.objectType) {
     case ThreeObjectType.BOX:
@@ -284,7 +288,14 @@ function createObject3D(
     case ThreeObjectType.SPHERE:
       return createSphere(THREE, mesh as ThreeSphere);
     case ThreeObjectType.MODEL:
-      return createModel(THREE, mesh as ThreeModel, originalMesh as ThreeModel, getCurrentObject);
+      return createModel(
+        THREE,
+        mesh as ThreeModel,
+        originalMesh as ThreeModel,
+        renderArgs.getCurrentObject,
+      );
+    case ThreeObjectType.PRESENTER_GROUP:
+      return createPresenterGroup(THREE, mesh as ThreePresenterGroup, renderArgs);
     default:
       return null;
   }
@@ -306,6 +317,57 @@ function createSphere(THREE: typeof Three, sphere: ThreeSphere): Three.Mesh {
   markRendererOwnedResource(geometry);
 
   return new THREE.Mesh(geometry, createMaterial(THREE, sphere));
+}
+
+function createPresenterGroup(
+  THREE: typeof Three,
+  group: ThreePresenterGroup,
+  renderArgs: BrowserCanvasObjectRendererArgs<ThreeScene>,
+): Three.Mesh | null {
+  const textureWidth = group.textureWidth ?? renderArgs.slideSize.width;
+  const textureHeight = group.textureHeight ?? renderArgs.slideSize.height;
+
+  if (group.width <= 0 || group.height <= 0 || textureWidth <= 0 || textureHeight <= 0) {
+    return null;
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.ceil(textureWidth);
+  canvas.height = Math.ceil(textureHeight);
+
+  const context = canvas.getContext("2d");
+  if (context === null) {
+    return null;
+  }
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  const textureContext = {
+    type: CanvasContextType.Browser,
+    context,
+  } as const;
+
+  for (const object of group.objects) {
+    renderArgs.renderObject(object, 1, textureContext);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  markRendererOwnedResource(texture);
+
+  const geometry = new THREE.PlaneGeometry(group.width, group.height);
+  markRendererOwnedResource(geometry);
+
+  const material = new THREE.MeshBasicMaterial({
+    color: colorToThreeHex(group.color),
+    map: texture,
+    opacity: group.opacity * getAlphaForColor(group.color),
+    side: group.doubleSided ? THREE.DoubleSide : THREE.FrontSide,
+    transparent: true,
+    wireframe: group.wireframe,
+  });
+  markRendererOwnedResource(material);
+
+  return new THREE.Mesh(geometry, material);
 }
 
 function createModel(
@@ -572,6 +634,7 @@ function disposeRendererOwnedResources(object: Three.Object3D): void {
 
     const materials = Array.isArray(child.material) ? child.material : [child.material];
     for (const material of materials) {
+      disposeMaterialTextures(material);
       if (isRendererOwnedResource(material)) {
         material.dispose();
       }
@@ -591,7 +654,19 @@ interface MaterialOverrideState {
 
 interface CustomizableMaterial extends Three.Material {
   color?: Three.Color;
+  map?: Three.Texture | null;
   wireframe?: boolean;
+}
+
+function disposeMaterialTextures(material: Three.Material): void {
+  const maybeTexturedMaterial = material as CustomizableMaterial;
+  if (
+    maybeTexturedMaterial.map !== undefined &&
+    maybeTexturedMaterial.map !== null &&
+    isRendererOwnedResource(maybeTexturedMaterial.map)
+  ) {
+    maybeTexturedMaterial.map.dispose();
+  }
 }
 
 function markRendererOwnedResource(resource: { userData: Record<string, unknown> }): void {

@@ -253,20 +253,25 @@ export class BrowserCanvasRenderer {
     context.context.fillStyle = getRgbStringForColor(presentation.backgroundColor);
     context.context.fillRect(0, 0, canvas.width, canvas.height);
 
-    function renderObject(object: SlideObject, opacity: number) {
+    function renderObject(
+      object: SlideObject,
+      opacity: number,
+      targetContext: UnifiedCanvasContext = context,
+    ) {
       const objectRenderer = objectRenderers[object.objectType];
       const currentObject = objectState.get(object);
       if (objectRenderer === undefined || currentObject === undefined) {
         return;
       }
       objectRenderer({
-        ctx: context,
+        ctx: targetContext,
         originalObject: object,
         imageById,
         object: currentObject,
         opacity,
         renderScale: scale,
-        renderObject,
+        renderObject: (childObject, childOpacity, childContext = targetContext) =>
+          renderObject(childObject, childOpacity, childContext),
         getCurrentObject: <TObject extends SlideObject>(object: TObject) =>
           objectState.get(object) as TObject | undefined,
         createPath2D,

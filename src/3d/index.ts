@@ -12,6 +12,10 @@ export {
 } from "./objects/ThreeModelNode";
 export { type ThreeModelPath, type ThreeModelTarget } from "./objects/ThreeModelTarget";
 export { ThreeObjectType } from "./objects/ThreeObjectType";
+export {
+  ThreePresenterGroup,
+  type ThreePresenterGroup as ThreePresenterGroupObject,
+} from "./objects/ThreePresenterGroup";
 export { ThreeScene, type ThreeScene as ThreeSceneObject } from "./objects/ThreeScene";
 export { ThreeSphere, type ThreeSphere as ThreeSphereObject } from "./objects/ThreeSphere";
 export {

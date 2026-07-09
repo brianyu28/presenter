@@ -20,7 +20,11 @@ export interface BrowserCanvasObjectRendererArgs<T extends SlideObject> {
    * Needed for ThreeScene to access animated state of child meshes.
    */
   readonly getCurrentObject: <TObject extends SlideObject>(object: TObject) => TObject | undefined;
-  readonly renderObject: (object: SlideObject, overallOpacity: number) => void;
+  readonly renderObject: (
+    object: SlideObject,
+    overallOpacity: number,
+    ctx?: UnifiedCanvasContext,
+  ) => void;
 }
 
 export type BrowserCanvasObjectRenderer<T extends SlideObject> = (
