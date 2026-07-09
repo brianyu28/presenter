@@ -15,6 +15,11 @@
       "import": "./dist/export.mjs",
       "require": "./dist/export.js"
     },
+    "./export/browser": {
+      "types": "./dist/export/browser.d.ts",
+      "import": "./dist/export-browser.mjs",
+      "require": "./dist/export-browser.js"
+    },
     "./3d": {
       "types": "./dist/3d/index.d.ts",
       "import": "./dist/3d.mjs",
@@ -25,7 +30,7 @@
     "./dist/"
   ],
   "scripts": {
-    "build": "vite build && vite build --config vite.config.export.ts && vite build --config vite.config.3d.ts",
+    "build": "vite build && vite build --config vite.config.export.ts && vite build --config vite.config.browser-export.ts && vite build --config vite.config.3d.ts",
     "bump-version": "sh scripts/bump-version.sh",
     "watch": "vite build --watch",
     "prettier": "prettier . --write --ignore-unknown",

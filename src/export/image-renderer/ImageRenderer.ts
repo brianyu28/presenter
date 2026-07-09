@@ -7,14 +7,13 @@ import {
 import { DEFAULT_OBJECT_RENDERERS } from "../../renderer/browser-canvas/utils/defaultObjectRenderers";
 import { Presentation } from "../../types/Presentation";
 import { SlideObject } from "../../types/SlideObject";
-import { getSlideAnimationDuration } from "../../utils/animate/getSlideAnimationDuration";
 import { getRgbStringForColor } from "../../utils/color/getRgbStringForColor";
 import { getImagePathUrlById } from "../../utils/presentation/getImagePathUrlById";
 import { getObjectState } from "../../utils/presentation/getObjectState";
 import { getSvgImageUrlById } from "../../utils/presentation/getSvgImageUrlById";
-import { getKeySlideBuildIndices } from "../../utils/slide/getKeySlideBuildIndices";
 import { createCanvasElement } from "../utils/createCanvasElement";
 import { createPath2D } from "../utils/createPath2D";
+import { getImageExportFrames } from "../utils/getImageExportFrames";
 import { loadPresentationImages } from "../utils/loadPresentationImages";
 import { ImageRendererProps } from "./types/ImageRendererProps";
 import { IMAGE_RENDERER_DEFAULT_STATE, ImageRendererState } from "./types/ImageRendererState";
@@ -45,7 +44,7 @@ export class ImageRenderer {
   }
 
   async save(directoryName: string, startImageIndex: number = 0): Promise<void> {
-    const { presentation, animationHoldFrames, isAnimatedExport } = this.props;
+    const { presentation } = this.props;
     this.state = {
       ...IMAGE_RENDERER_DEFAULT_STATE,
       imageById: await loadPresentationImages(
@@ -60,44 +59,12 @@ export class ImageRenderer {
       startImageIndex,
     };
 
-    for (let slideIndex = 0; slideIndex < presentation.slides.length; slideIndex++) {
-      const slide = presentation.slides[slideIndex];
-      if (slide === undefined) {
+    for (const frame of getImageExportFrames(this.props)) {
+      if (frame.imageIndex < startImageIndex) {
         continue;
       }
 
-      if (isAnimatedExport) {
-        for (let i = 0; i < animationHoldFrames; i++) {
-          await this.renderImage(slideIndex, 0);
-        }
-
-        for (let animationIndex = 0; animationIndex < slide.animations.length; animationIndex++) {
-          const animation = slide.animations[animationIndex];
-          if (animation === undefined) {
-            continue;
-          }
-
-          const durationMs = getSlideAnimationDuration(animation);
-          const totalFrames = Math.ceil((durationMs / 1000) * this.props.framesPerSecond);
-
-          for (let frameIndex = 0; frameIndex < totalFrames; frameIndex++) {
-            await this.renderImage(
-              slideIndex,
-              animationIndex + 1,
-              frameIndex * (durationMs / totalFrames),
-            );
-          }
-
-          for (let i = 0; i < animationHoldFrames; i++) {
-            await this.renderImage(slideIndex, animationIndex + 1);
-          }
-        }
-      } else {
-        const keyBuildIndices = getKeySlideBuildIndices(slide);
-        for (const buildIndex of keyBuildIndices) {
-          await this.renderImage(slideIndex, buildIndex);
-        }
-      }
+      await this.renderImage(frame.slideIndex, frame.buildIndex, frame.buildTime, frame.imageIndex);
     }
   }
 
@@ -105,11 +72,13 @@ export class ImageRenderer {
     slideIndex: number,
     buildIndex: number,
     buildTime: number | null = null,
+    targetImageIndex: number | null = null,
   ): Promise<void> {
     const { getFilenameForImage, objectRenderers, logFrequency, presentation } = this.props;
-    const { directoryName, imageById, imageIndex, startImageIndex } = this.state;
+    const { directoryName, imageById, startImageIndex } = this.state;
 
-    this.state.imageIndex += 1;
+    const imageIndex = targetImageIndex ?? this.state.imageIndex;
+    this.state.imageIndex = imageIndex + 1;
     if (imageIndex < startImageIndex) {
       return;
     }

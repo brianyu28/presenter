@@ -23,6 +23,7 @@
     "./eslint.config.mts",
     "./jest.config.js",
     "./vite.config.3d.ts",
+    "./vite.config.browser-export.ts",
     "./vite.config.ts",
     "./vite.config.export.ts"
   ]
