@@ -8,6 +8,7 @@ export interface TextStyle {
   readonly fontSize: number;
   readonly fontStyle: FontStyle;
   readonly fontWeight: FontWeight | number;
+  readonly letterSpacing: number;
   readonly ligatures: boolean;
   readonly subscript: boolean;
   readonly superscript: boolean;
@@ -19,6 +20,7 @@ export const DEFAULT_TEXT_STYLE: TextStyle = {
   fontSize: 100,
   fontStyle: DEFAULT_FONT_STYLE,
   fontWeight: DEFAULT_FONT_WEIGHT,
+  letterSpacing: 1,
   ligatures: false,
   subscript: false,
   superscript: false,

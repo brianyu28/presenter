@@ -12,6 +12,7 @@ export function setContextWithTextStyle(
 
   ctx.context.fillStyle = getRgbStringForColor(textStyle.color, opacity);
   ctx.context.font = `${textStyle.fontStyle} ${textStyle.fontWeight} ${scriptVariant.fontSize}px ${textStyle.fontFamily}`;
+  ctx.context.letterSpacing = `${((textStyle.letterSpacing ?? 1) - 1) * scriptVariant.fontSize}px`;
 
   if (ctx.type === CanvasContextType.Browser) {
     ctx.context.textRendering = textStyle.ligatures ? "optimizeLegibility" : "optimizeSpeed";

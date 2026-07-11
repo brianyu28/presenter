@@ -51,10 +51,12 @@ export function getPptxText({
 
       const combinedStyle: TextStyle = { ...style, ...unitStyle };
       const scriptVariant = getTextScriptVariant(combinedStyle);
+      const letterSpacing = ((combinedStyle.letterSpacing ?? 1) - 1) * scriptVariant.fontSize;
       textProps.push({
         text: targetUnitText,
         options: {
           bold: combinedStyle.fontWeight >= FontWeight.BOLD,
+          charSpacing: scale * getPptxFontSizeFromPixels(letterSpacing, pixelsPerInch),
           fontFace: combinedStyle.fontFamily,
           fontSize: scale * getPptxFontSizeFromPixels(scriptVariant.fontSize, pixelsPerInch),
           ...getPptxFillColor(combinedStyle.color, opacity),
