@@ -40,6 +40,7 @@ export const renderPath: BrowserCanvasObjectRenderer<Path> = ({
     ctx,
     drawn: path.drawn,
     isRounded: path.isRounded,
+    isRoundedLineJoin: path.isRoundedLineJoin,
     path: path2D,
     pathLength: path.pathLength,
     opacity: targetOpacity,

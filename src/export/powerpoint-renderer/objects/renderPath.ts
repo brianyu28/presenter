@@ -41,6 +41,8 @@ export const renderPath: PowerPointObjectRenderer<Path> = ({
     color: path.strokeColor,
     ctx,
     drawn: path.drawn,
+    isRounded: path.isRounded,
+    isRoundedLineJoin: path.isRoundedLineJoin,
     path: path2D,
     pathLength: path.pathLength,
     opacity: targetOpacity,

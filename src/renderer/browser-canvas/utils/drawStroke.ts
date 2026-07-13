@@ -10,6 +10,7 @@ interface Args {
   readonly drawn?: number | null;
   readonly isDrawnFromCenter?: boolean;
   readonly isRounded?: boolean;
+  readonly isRoundedLineJoin?: boolean;
   readonly opacity?: number | null;
   readonly path: UnifiedPath2D | undefined;
   readonly pathLength?: number | null;
@@ -22,6 +23,7 @@ export function drawStroke({
   drawn = null,
   isDrawnFromCenter = false,
   isRounded = false,
+  isRoundedLineJoin = false,
   opacity = null,
   path,
   pathLength = null,
@@ -50,6 +52,7 @@ export function drawStroke({
   ctx.context.lineWidth = width;
   ctx.context.strokeStyle = getHexStringForColor(color, opacity);
   ctx.context.lineCap = isRounded ? "round" : "butt";
+  ctx.context.lineJoin = isRoundedLineJoin ? "round" : "miter";
 
   if (path === undefined) {
     ctx.context.stroke();
